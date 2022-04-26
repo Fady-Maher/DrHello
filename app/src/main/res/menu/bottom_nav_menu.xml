@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@+id/home"
+        android:title="Home"
+        android:icon="@drawable/ic_home"
+        android:iconTint="#1B5AE1"
+        />
+    <item android:id="@+id/post"
+        android:title="Posts"
+        android:icon="@drawable/ic_post"/>
+    <item android:id="@+id/anchor"
+        android:title=""/>
+    <item android:id="@+id/alarm"
+        android:title="Alarm"
+        android:icon="@drawable/ic_alarm"/>
+    <item android:id="@+id/chat"
+        android:title="Chat"
+        android:icon="@drawable/ic_chat"/>
+
+</menu>

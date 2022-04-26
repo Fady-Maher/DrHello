@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:padding="@dimen/_2sdp">
+
+
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/img_cur_user"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:src="@drawable/me"
+            app:civ_border_color="@color/appColor"
+            app:civ_border_width="0.6dp"/>
+
+
+
+
+        <ImageView
+            android:id="@+id/ic_state"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_offline"
+            android:layout_alignRight="@id/img_cur_user"
+            android:layout_alignBottom="@id/img_cur_user"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/txt_name_user"
+        android:layout_width="@dimen/_60sdp"
+        android:layout_height="wrap_content"
+        android:text="Mohamed Medhat"
+        android:lines="2"
+        android:maxLines="2"
+        android:singleLine="false"
+        android:textColor="@color/appColor"
+        android:gravity="center"/>
+
+</LinearLayout>

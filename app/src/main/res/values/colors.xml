@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FFFFFF</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="log">#F4F4F4</color>
+    <color name="appColor">#1B5AE1</color>
+    <color name="red">#FF0000</color>
+    <color name="yellow">#FFF200</color>
+    <color name="appColorUnSelected">#7DA1EF</color>
+    <color name="baseColor">#1B5AE1</color>
+    <color name="profile_bar">#4F5DC8</color>
+    <color name="alarm_bar">#10ADFC</color>
+    <color name="cancel_bar">#020523</color>
+    <color name="colorPrimary">#1B5AE1</color>
+    <color name="colorPrimaryDark">#1B5AE1</color>
+    <color name="colorAccent">#1B5AE1</color>
+    <color name="another_chat">#708CF4</color>
+    <color name="colorchatme"> #487bea</color>
+    <color name="colorchatothe">#1B5AE1</color>
+
+
+
+
+</resources>

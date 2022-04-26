@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.login.SignIn"
+        android:background="@color/white">
+
+        <LinearLayout
+            android:id="@+id/lay_up"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/lay_mid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_log_up"
+                tools:ignore="UselessParent">
+
+                <LinearLayout
+                    android:id="@+id/lay_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+                        android:id="@+id/btn_google_signin"
+                        android:layout_width="150dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@drawable/btn_background"
+                        android:drawableLeft="@drawable/ic_google"
+                        android:paddingLeft="5dp"
+                        android:text="@string/btn_google"
+                        android:textAllCaps="false"
+                        android:textColor="@color/baseColor"
+                        android:textSize="18sp"
+                        app:initialCornerAngle="15dp"
+                        app:spinning_bar_color="@color/baseColor"
+                        app:spinning_bar_padding="4dp"
+                        app:spinning_bar_width="2dp"
+                        tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+                    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+                        android:id="@+id/btn_facebook_signin"
+                        android:layout_width="150dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="10dp"
+                        android:background="@drawable/btn_background"
+                        android:drawableLeft="@drawable/ic_facebook"
+                        android:paddingLeft="3dp"
+                        android:text="@string/btn_facebook"
+                        android:textAllCaps="false"
+                        android:textColor="@color/baseColor"
+                        android:textSize="18sp"
+                        app:initialCornerAngle="15dp"
+                        app:spinning_bar_color="@color/baseColor"
+                        app:spinning_bar_padding="4dp"
+                        app:spinning_bar_width="2dp"
+                        tools:ignore="RtlHardcoded,RtlSymmetry" />
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lay_mid"
+            app:layout_constraintTop_toBottomOf="@id/lay_up"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="vertical"
+            >
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:id="@+id/edit_email_signin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hint_email_or_phone_number"
+                app:counterEnabled="true"
+                android:textDirection="ltr"
+                android:layoutDirection="ltr"
+                app:counterMaxLength="50"
+                app:counterTextColor="@color/appColor"
+                app:errorEnabled="true"
+                app:hintTextColor="@color/appColor"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawableLeft="@drawable/ic_user"
+                    android:drawablePadding="5dp"
+                    android:inputType="text"
+                    tools:ignore="RtlHardcoded" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:id="@+id/edit_pass_signin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="25dp"
+                android:layout_marginLeft="25dp"
+                android:hint="@string/hint_password"
+                app:errorEnabled="true"
+                app:hintTextColor="@color/baseColor"
+                app:passwordToggleEnabled="true"
+                app:passwordToggleTint="@color/baseColor"
+                android:textDirection="ltr"
+                android:layoutDirection="ltr"
+                >
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_lock"
+                    android:drawablePadding="8dp"
+                    android:inputType="textPassword"
+                    tools:ignore="RtlHardcoded"/>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <TextView
+                android:id="@+id/txt_forgot"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="right"
+                android:layout_marginTop="-15dp"
+                android:layout_marginRight="25dp"
+                android:text="@string/txt_forgot_password"
+                android:textColor="@color/baseColor"
+                tools:ignore="RtlHardcoded" />
+
+            <ImageButton
+                android:id="@+id/btn_signin"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:background="@drawable/btn_next"
+                android:src="@drawable/ic_next"
+                android:layout_marginBottom="10dp"
+                tools:ignore="ContentDescription" />
+
+
+        </LinearLayout>
+
+        <FrameLayout
+                android:id="@+id/lay_down"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_log_down">
+
+
+
+                <io.supercharge.shimmerlayout.ShimmerLayout
+                    android:id="@+id/shimmer_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right|center"
+                    android:rotation="-90"
+                    app:shimmer_animation_duration="1500"
+                    app:shimmer_color="#ffffff"
+                    tools:ignore="RtlHardcoded">
+
+                    <com.ebanx.swipebtn.SwipeButton
+                        android:id="@+id/swipe_btn"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        app:button_bottom_padding="8dp"
+                        app:button_image_disabled="@drawable/ic_double_arrow"
+                        app:button_image_enabled="@drawable/ic_double_arrow"
+                        app:button_left_padding="8dp"
+                        app:button_right_padding="8dp"
+                        app:button_top_padding="8dp"
+                        app:inner_text="Swipe"
+                        app:inner_text_background="@drawable/btn_swipe"
+                        app:inner_text_bottom_padding="10dp"
+                        app:inner_text_color="@color/baseColor"
+                        app:inner_text_left_padding="15dp"
+                        app:inner_text_size="16sp"
+                        app:inner_text_top_padding="10dp"
+                        tools:ignore="RtlHardcoded" />
+
+                </io.supercharge.shimmerlayout.ShimmerLayout>
+
+            </FrameLayout>
+
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

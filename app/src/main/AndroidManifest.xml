@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.drhello">
+    <!--
+         The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but you must specify either coarse or fine
+         location permissions for the "MyLocation" functionality.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_app"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_app"
+        android:supportsRtl="false"
+        android:theme="@style/Theme.DrHello"
+        tools:ignore="AllowBackup"
+        tools:replace="android:supportsRtl">
+        <activity
+            android:name=".medical.SkinActivity"
+            android:exported="false" />
+        <activity
+            android:name=".medical.BrainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".medical.ChestActivity"
+            android:exported="false" />
+        <activity
+            android:name=".PythonTestActivity"
+            android:exported="true" />
+        <activity android:name=".ui.login.CompleteInfoActivity" />
+        <activity android:name=".ui.hardware.HardwareActivity" />
+        <activity
+            android:name=".ui.hardware.TestHardwareActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ui.chats.AddPersonActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ui.chats.ChatActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ui.writepost.NumReactionActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ui.writecomment.InsideCommentActivity"
+            android:exported="true" />
+        <activity android:name=".ui.writecomment.WriteCommentActivity" />
+        <activity
+            android:name=".ui.writepost.ShowImageActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ui.writepost.WritePostsActivity"
+            android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.news.WebViewActivity" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
+        <activity
+            android:name=".ui.mapping.MapsActivity"
+            android:label="@string/title_activity_maps" />
+        <activity android:name=".ui.alarm.ReminderEditActivity" />
+        <activity android:name=".ui.alarm.AlarmListActivity" />
+        <activity android:name=".ui.alarm.AlarmCancelActivity" />
+        <activity android:name=".ui.alarm.AlarmAddActivity" />
+        <activity android:name=".ui.alarm.AlarmActivity" />
+        <activity android:name=".ui.profile.EditProfileActivity" />
+        <activity android:name=".ui.profile.ProfileActivity" />
+        <activity
+            android:name=".ui.login.VerifyForgetPasswordActivity"
+            android:exported="true" />
+        <activity android:name=".ui.login.VerifyActivity" />
+        <activity android:name=".ui.login.SignIn">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ui.login.NewPassword" />
+        <activity android:name=".ui.login.ForgotPassword" />
+        <activity android:name=".ui.login.SignUp" />
+        <activity android:name=".ui.main.MainActivity" />
+
+        <receiver android:name=".ui.alarm.AlarmReceiver" />
+        <receiver android:name=".ui.alarm.BootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".MYService"
+            android:enabled="true" />
+
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.example.drhello.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <service
+            android:name=".firebaseservice.MyFireBaseMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

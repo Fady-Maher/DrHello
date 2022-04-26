@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:paddingRight="6dp">
+
+    <TextView
+        android:id="@+id/txt_date_other"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:paddingStart="8dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="4dp"
+        android:text="June 10"
+        android:textColor="@color/appColorUnSelected"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/image_profile_other"
+        android:layout_width="40dp"
+        android:layout_height="35dp"
+        android:layout_marginLeft="3dp"
+        android:src="@drawable/me"
+        app:civ_border_color="@color/another_chat"
+        app:civ_border_width="0.6dp"
+        android:contentDescription="User Icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_date_other" />
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_other"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:cardPreventCornerOverlap="false"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintStart_toEndOf="@+id/image_profile_other"
+        app:layout_constraintTop_toBottomOf="@+id/txt_date_other">
+
+        <LinearLayout
+            android:id="@+id/layout_other"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/another_chat">
+
+            <TextView
+                android:id="@+id/txt_message_other"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:maxWidth="260dp"
+                android:paddingLeft="12dp"
+                android:paddingTop="8dp"
+                android:visibility="gone"
+                android:paddingRight="12dp"
+                android:background="@color/another_chat"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:autoLink="web"
+                android:linksClickable="true"
+                />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/image_chat_other"
+            android:layout_width="135dp"
+            android:layout_height="135dp"
+            android:layout_gravity="end"
+            android:elevation="30dp"
+            android:padding="2dp"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/ic_chat"
+            android:visibility="gone"
+
+            />
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraint_other"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/backgroudrecord"
+            android:backgroundTint="@color/another_chat"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            >
+
+            <SeekBar
+                android:id="@+id/seekBar_other"
+                style="@style/MySeekBar"
+                android:layout_width="195dp"
+                android:layout_height="20dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="10dp"
+                app:layout_constraintBottom_toTopOf="@+id/txt_time_start_other"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/btn_start_pause_other"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <TextView
+                android:id="@+id/txt_time_start_other"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:padding="1dp"
+                android:text="00:00"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/txt_times_end_other"
+                app:layout_constraintStart_toStartOf="@+id/seekBar_other"
+                app:layout_constraintTop_toBottomOf="@id/seekBar_other" />
+
+            <TextView
+                android:id="@+id/txt_times_end_other"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="15dp"
+                android:padding="1dp"
+                android:text="00:00"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/seekBar_other"
+                app:layout_constraintLeft_toRightOf="@id/txt_time_start_other"
+                app:layout_constraintTop_toBottomOf="@id/seekBar_other"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <ImageButton
+                android:id="@+id/btn_start_pause_other"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/ic_play"
+                app:layout_constraintBottom_toBottomOf="@+id/seekBar_other"
+                app:layout_constraintLeft_toRightOf="@id/seekBar_other"
+                app:layout_constraintRight_toLeftOf="@+id/txt_speed_other"
+                app:layout_constraintTop_toTopOf="@+id/seekBar_other"
+                app:layout_constraintVertical_bias="0.277" />
+
+            <TextView
+                android:id="@+id/txt_speed_other"
+                android:layout_width="33dp"
+                android:layout_height="33dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="6dp"
+                android:background="@drawable/background_image_gallary"
+                android:gravity="center"
+                android:text="1x"
+                android:visibility="gone"
+                android:textSize="15sp"
+                android:padding="1dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/seekBar_other"
+                app:layout_constraintLeft_toRightOf="@id/btn_start_pause_other"
+                app:layout_constraintRight_toLeftOf="@+id/btn_download_record_other"
+                app:layout_constraintTop_toTopOf="@+id/seekBar_other"
+                app:layout_constraintVertical_bias="0.3" />
+
+            <ImageButton
+                android:id="@+id/btn_download_record_other"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginRight="6dp"
+                android:background="@color/another_chat"
+                android:gravity="center"
+                android:src="@drawable/ic_save"
+                app:layout_constraintBottom_toBottomOf="@+id/txt_speed_other"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/txt_speed_other"
+                app:layout_constraintTop_toTopOf="@+id/txt_speed_other"
+                app:layout_constraintVertical_bias="0.333" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+    <ImageButton
+        android:id="@+id/btn_share_message_other"
+        android:layout_width="@dimen/_25sdp"
+        android:layout_height="@dimen/_25sdp"
+        android:rotationY="180"
+        android:background="@drawable/ic_baseline_reply_anthor"
+        android:layout_marginLeft="2dp"
+        app:layout_constraintBottom_toBottomOf="@+id/card_other"
+        app:layout_constraintLeft_toRightOf="@+id/card_other"
+        app:layout_constraintTop_toTopOf="@+id/card_other"
+        app:layout_constraintVertical_bias="0.527" />
+
+    <TextView
+        android:id="@+id/txt_timestamp_other"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="8:00"
+        android:textColor="@color/appColorUnSelected"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="@+id/card_other"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintTop_toBottomOf="@+id/card_other"
+        app:layout_constraintVertical_bias="0.0" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.login.SignUp">
+
+        <LinearLayout
+            android:id="@+id/lay_up"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/lay_mid"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_160sdp"
+            android:orientation="vertical"
+            >
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/shape_up_sign"
+                tools:ignore="UselessParent">
+
+                <io.supercharge.shimmerlayout.ShimmerLayout
+                    android:layout_gravity="right|center"
+                    android:layout_marginTop="5dp"
+                    android:rotation="90"
+                    android:id="@+id/shimmer_layout_up"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:shimmer_animation_duration="1500"
+                    app:shimmer_color="#ffffff"
+                    tools:ignore="RtlHardcoded">
+
+                    <com.ebanx.swipebtn.SwipeButton
+                        android:id="@+id/swipe_btn_up"
+                        android:layout_width="120dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        app:inner_text="Swipe"
+                        app:inner_text_color="@color/baseColor"
+                        app:inner_text_size="16sp"
+                        app:inner_text_top_padding="10dp"
+                        app:inner_text_bottom_padding="10dp"
+                        app:inner_text_left_padding="15dp"
+                        app:inner_text_background="@drawable/btn_swipe"
+                        app:button_image_disabled="@drawable/ic_double_arrow"
+                        app:button_image_enabled="@drawable/ic_double_arrow"
+                        app:button_left_padding="8dp"
+                        app:button_bottom_padding="8dp"
+                        app:button_top_padding="8dp"
+                        app:button_right_padding="8dp" />
+
+
+                </io.supercharge.shimmerlayout.ShimmerLayout>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lay_mid"
+            app:layout_constraintTop_toBottomOf="@id/lay_up"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical"
+
+            >
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:id="@+id/edit_username_signup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:counterEnabled="true"
+                app:counterMaxLength="15"
+                android:textDirection="ltr"
+                android:hint="@string/txt_username"
+                app:errorEnabled="true"
+                app:counterTextColor="@color/appColor">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawableLeft="@drawable/ic_id_card"
+                    android:drawablePadding="5dp"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:id="@+id/edit_email_signup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textDirection="ltr"
+                app:counterEnabled="true"
+                app:counterMaxLength="50"
+                android:hint="@string/et_email_or_phone_number"
+                app:counterTextColor="@color/appColor"
+                app:errorEnabled="true">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawableLeft="@drawable/ic_user"
+                    android:drawablePadding="5dp"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:id="@+id/edit_pass_signup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:passwordToggleEnabled="true"
+                app:errorEnabled="true"
+                android:layoutDirection="ltr"
+                android:textDirection="ltr"
+                app:passwordToggleTint="@color/baseColor"
+                android:hint="@string/hint_password">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawableStart="@drawable/ic_lock"
+                    android:drawablePadding="8dp"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+                android:layout_marginLeft="25dp"
+                android:layout_marginRight="25dp"
+                android:id="@+id/edit_confirmpass_signup"
+                android:layout_marginTop="-10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textDirection="ltr"
+                app:passwordToggleEnabled="true"
+                app:errorEnabled="true"
+                app:passwordToggleTint="@color/baseColor"
+                android:layoutDirection="ltr"
+                android:hint="@string/et_confirm_password">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:drawableStart="@drawable/ic_lock"
+                    android:drawablePadding="8dp"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <ImageButton
+                android:layout_marginTop="-15dp"
+                android:id="@+id/btn_signup"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center|top"
+                android:background="@drawable/btn_next"
+                android:src="@drawable/ic_next"
+                tools:ignore="ContentDescription" />
+
+
+
+        </LinearLayout>
+
+        <FrameLayout
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_155sdp"
+                android:background="@drawable/lock_down">
+
+                <LinearLayout
+                    android:id="@+id/lay_btn_up"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="bottom"
+                    android:layout_marginBottom="10dp"
+                    android:gravity="center"
+                    tools:ignore="UselessParent">
+
+                    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+                        android:id="@+id/btn_google_signup"
+                        android:paddingLeft="5dp"
+                        android:layout_width="150dp"
+                        android:layout_height="wrap_content"
+                        android:text="@string/btn_google"
+                        android:textSize="18sp"
+                        android:layout_marginLeft="10dp"
+                        android:textColor="@color/baseColor"
+                        android:textAllCaps="false"
+                        android:drawableLeft="@drawable/ic_google"
+                        android:background="@drawable/btn_background"
+                        tools:ignore="ButtonStyle,RtlHardcoded,RtlSymmetry"
+                        app:initialCornerAngle="15dp"
+                        app:spinning_bar_color="@color/baseColor"
+                        app:spinning_bar_padding="4dp"
+                        app:spinning_bar_width="2dp"/>
+
+                    <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
+                        android:id="@+id/btn_facebook_signup"
+                        android:paddingLeft="3dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_width="150dp"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/baseColor"
+                        android:text="@string/btn_facebook"
+                        android:textSize="18sp"
+                        android:textAllCaps="false"
+                        android:drawableLeft="@drawable/ic_facebook"
+                        android:background="@drawable/btn_background"
+                        tools:ignore="ButtonStyle,RtlHardcoded,RtlSymmetry"
+                        app:initialCornerAngle="15dp"
+                        app:spinning_bar_color="@color/baseColor"
+                        app:spinning_bar_padding="4dp"
+                        app:spinning_bar_width="2dp"/>
+
+                </LinearLayout>
+
+            </FrameLayout>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

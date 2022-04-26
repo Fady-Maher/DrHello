@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="id_screenTitle">
+
+        <item/>
+        <item>Home</item>
+        <item>Profile</item>
+        <item>Alarm</item>
+        <item>Maps</item>
+        <item>Hardware</item>
+        <item>Favorites</item>
+        <item>Setting</item>
+        <item>Share</item>
+        <item>Contact Us</item>
+        <item>Feedback</item>
+        <item>About</item>
+        <item/>
+        <item>Log out</item>
+
+
+    </string-array>
+
+    <array name="id_screenIcon">
+        <item>0</item>
+        <item>@drawable/ic_baseline_home_nav</item>
+        <item>@drawable/ic_baseline_person</item>
+        <item>@drawable/ic_alarm</item>
+        <item>@drawable/ic_baseline_location</item>
+        <item>@drawable/ic_health</item>
+        <item>@drawable/ic_baseline_favorite</item>
+        <item>@drawable/ic_baseline_settings</item>
+        <item>@drawable/ic_baseline_share_</item>
+        <item>@drawable/ic_baseline_contacts</item>
+        <item>@drawable/ic_baseline_feedback</item>
+        <item>@drawable/ic_baseline_error</item>
+        <item>0</item>
+        <item>@drawable/ic_baseline_login</item>
+
+
+    </array>
+
+</resources>

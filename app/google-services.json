@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "600804880753",
+    "project_id": "drhello-30ccc",
+    "storage_bucket": "drhello-30ccc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:600804880753:android:0e36627098226ffacf86d0",
+        "android_client_info": {
+          "package_name": "com.example.drhello"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "600804880753-r4850lb3r4ie07f6i5cqaq4qi5u2445k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.drhello",
+            "certificate_hash": "079c773fa18674709f1e3c34fdd8d123433c2455"
+          }
+        },
+        {
+          "client_id": "600804880753-it5ablq8qtvsg298q43rmlk4fnf0ed8l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYSguiE7bfDN-qcPeyLalLnulsNbB6NNQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "600804880753-it5ablq8qtvsg298q43rmlk4fnf0ed8l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

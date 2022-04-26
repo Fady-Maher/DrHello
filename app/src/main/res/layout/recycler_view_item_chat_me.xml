@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp"
+    android:paddingRight="6dp"
+    >
+
+
+    <TextView
+        android:id="@+id/txt_date_me"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:paddingStart="8dp"
+        android:paddingTop="4dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="4dp"
+        android:text="June 10"
+        android:textColor="@color/appColorUnSelected"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_me"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+
+        app:cardPreventCornerOverlap="false"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txt_date_me"
+        app:layout_constraintVertical_bias="0.0"
+        >
+
+        <LinearLayout
+            android:id="@+id/layout_me"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/appColor"
+            >
+
+            <TextView
+                android:id="@+id/txt_message_me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:maxWidth="260dp"
+                android:paddingLeft="12dp"
+                android:paddingTop="8dp"
+                android:paddingRight="12dp"
+                android:visibility="gone"
+                android:background="@color/appColor"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:autoLink="web"
+                android:linksClickable="true"
+                />
+
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/image_chat_me"
+            android:layout_width="135dp"
+            android:layout_height="135dp"
+            android:layout_gravity="end"
+            android:elevation="30dp"
+            android:padding="2dp"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:visibility="gone"
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraint_me"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/backgroudrecord"
+            android:backgroundTint="@color/appColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            >
+
+            <SeekBar
+                android:id="@+id/seekBar_me"
+                style="@style/MySeekBar"
+                android:layout_width="195dp"
+                android:layout_height="20dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="5dp"
+                app:layout_constraintBottom_toTopOf="@+id/txt_time_start_me"
+                app:layout_constraintLeft_toRightOf="@+id/btn_start_pause_me"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+            <TextView
+                android:id="@+id/txt_time_start_me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="1dp"
+                android:text="00:00"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/txt_times_end_me"
+                app:layout_constraintStart_toStartOf="@+id/seekBar_me"
+                app:layout_constraintTop_toBottomOf="@id/seekBar_me" />
+
+            <TextView
+                android:id="@+id/txt_times_end_me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="12dp"
+                android:padding="1dp"
+                android:text="00:00"
+                android:textColor="@color/white"
+                android:textSize="13sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/seekBar_me"
+                app:layout_constraintLeft_toRightOf="@id/txt_time_start_me"
+                app:layout_constraintTop_toBottomOf="@id/seekBar_me"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <ImageButton
+                android:id="@+id/btn_start_pause_me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:background="@drawable/ic_play"
+                app:layout_constraintBottom_toBottomOf="@+id/seekBar_me"
+                app:layout_constraintLeft_toRightOf="@+id/txt_speed_me"
+                app:layout_constraintRight_toLeftOf="@id/seekBar_me"
+                app:layout_constraintTop_toTopOf="@+id/seekBar_me"
+                app:layout_constraintVertical_bias="0.277" />
+
+            <TextView
+                android:id="@+id/txt_speed_me"
+                android:layout_width="33dp"
+                android:layout_height="33dp"
+                android:layout_marginRight="3dp"
+                android:layout_marginLeft="6dp"
+                android:background="@drawable/background_image_gallary"
+                android:gravity="center"
+                android:text="1x"
+
+                android:textColor="@color/white"
+                android:textSize="15sp"
+                android:padding="1dp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@+id/seekBar_me"
+                app:layout_constraintLeft_toRightOf="@id/btn_download_record_me"
+                app:layout_constraintRight_toLeftOf="@id/btn_start_pause_me"
+                app:layout_constraintTop_toTopOf="@+id/seekBar_me"
+                app:layout_constraintVertical_bias="0.277" />
+
+
+            <ImageButton
+                android:id="@+id/btn_download_record_me"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginRight="3dp"
+                android:layout_marginLeft="6dp"
+                android:background="@drawable/background_image_gallary"
+                android:src="@drawable/ic_save"
+                android:gravity="center"
+                app:layout_constraintBottom_toBottomOf="@+id/txt_speed_me"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/txt_speed_me"
+                app:layout_constraintTop_toTopOf="@+id/txt_speed_me"
+                app:layout_constraintVertical_bias="0.333" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+    <ImageButton
+        android:id="@+id/btn_share_message_me"
+        android:layout_width="@dimen/_25sdp"
+        android:layout_height="@dimen/_25sdp"
+        android:background="@drawable/ic_reply_chat"
+        android:rotationY="180"
+        android:layout_marginRight="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/card_me"
+        app:layout_constraintTop_toTopOf="@+id/card_me"
+        app:layout_constraintRight_toLeftOf="@+id/card_me"
+        app:layout_constraintVertical_bias="0.527" />
+
+    <TextView
+        android:id="@+id/txt_timestamp_me"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="10:00"
+        android:textColor="@color/appColorUnSelected"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="@+id/card_me"
+        app:layout_constraintTop_toBottomOf="@+id/card_me"
+        app:layout_constraintVertical_bias="0.0" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
