@@ -16,7 +16,7 @@ android {
         versionName "1.0"
         python
                 {
-                    buildPython "C:\\Users\\Fady\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"
+                    buildPython "C:\\Users\\Fady\\AppData\\Local\\Programs\\Python\\Python39\\python.exe"
                     pip {
                         install "opencv-python"
                         install "nltk"
