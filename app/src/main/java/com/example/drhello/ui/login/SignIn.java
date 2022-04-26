@@ -240,7 +240,7 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
             } catch (ApiException e) {
                 signInBinding.btnGoogleSignin.revertAnimation();
                 // Google Sign In failed, update UI appropriately
-                Log.w(TAG, "Google sign in failed", e);
+                Log.e("Google sign in failed", e.getMessage());
             }
         } else {
             callbackManager.onActivityResult(requestCode, resultCode, data);

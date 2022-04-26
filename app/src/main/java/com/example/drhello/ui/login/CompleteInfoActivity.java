@@ -7,6 +7,7 @@ import androidx.databinding.DataBindingUtil;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -19,14 +20,18 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.drhello.R;
+import com.example.drhello.medical.ChestActivity;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.databinding.ActivityCompleteInfoBinding;
 import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.main.MainActivity;
+import com.example.drhello.ui.mapping.MapsActivity;
 import com.example.drhello.ui.profile.UserInformation;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -57,11 +62,17 @@ public class CompleteInfoActivity extends AppCompatActivity {
     private String gender;
     private Locale[] locales = Locale.getAvailableLocales();
     private ArrayList<String> countries = new ArrayList<String>();
+    private String[] specialist = new String[]{"Internist", "cardiologist", "Endocrinologist"
+            , "Hematologist ", "Nephrologist", "Oncologist", "Rheumatologist ", "Surgeon"
+            , "Pediatrician / Doctor of Baby", "Obstetrician & Gynaecologist ", "Ophthalmologist", "Neurologist", "ENT Specialist ", "Urologist", "Dermatologist", "Hepatologist", "Radiologist", "Psychologist", "Anesthesiologist"
+            , "bones doctor", "Dentist", "Forensic Physician ", "Anatomist", "General"};
     private static final int Gallary_REQUEST_CODE = 1;
     private UserAccount userAccount;
     private Bitmap bitmap;
     private HashMap map;
     private ArrayList<String> arrayAdaptermap;
+    public static LatLng location;
+    public static ProgressDialog mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +83,8 @@ public class CompleteInfoActivity extends AppCompatActivity {
         } else {
             getWindow().setStatusBarColor(Color.WHITE);
         }
-
+        mProgress = new ProgressDialog(CompleteInfoActivity.this);
+        mProgress.setCancelable(false);
         activityCompleteInfoBinding = DataBindingUtil.setContentView(CompleteInfoActivity.this, R.layout.activity_complete_info);
         activityCompleteInfoBinding.shimmer.startShimmerAnimation();
 
@@ -189,8 +201,14 @@ public class CompleteInfoActivity extends AppCompatActivity {
 
         Collections.sort(countries);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, countries);
+        ArrayAdapter<String> adapterSpecialist = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, specialist);
+        ArrayAdapter<String> adapterSpecialistIn = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, specialist);
+
+
         activityCompleteInfoBinding.spinnerCountryUser.setAdapter(adapter);
         activityCompleteInfoBinding.spinnerCountryDr.setAdapter(adapter);
+        activityCompleteInfoBinding.spinnerSpec.setAdapter(adapterSpecialist);
+        activityCompleteInfoBinding.spinnerSpecIn.setAdapter(adapterSpecialistIn);
 
         try {
             ArrayList<Float> res = new ArrayList<>();
@@ -241,6 +259,8 @@ public class CompleteInfoActivity extends AppCompatActivity {
         activityCompleteInfoBinding.btnComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mProgress.setMessage("Loading..");
+                mProgress.show();
                 if (activityCompleteInfoBinding.switchLayout.isChecked()) {  //doctor
                     checkValidation();
                 } else { // normal user
@@ -254,7 +274,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
                             "",
                             "",
                             activityCompleteInfoBinding.txtBirthdayUser.getText().toString(),
-                            gender, "normal user","");
+                            gender, "normal user");
                     userInformation.setPhone(activityCompleteInfoBinding.editPhoneUser.getText().toString());
                     checkphonenumbercorrecy(userAccount, activityCompleteInfoBinding.editPhoneUser.getText().toString(), fullNumber + activityCompleteInfoBinding.editPhoneUser.getText().toString(), userInformation);
                 }
@@ -274,6 +294,15 @@ public class CompleteInfoActivity extends AppCompatActivity {
             }
         });
 
+
+        activityCompleteInfoBinding.btnAddress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(CompleteInfoActivity.this, MapsActivity.class);
+                intent.putExtra("map","map");
+                startActivity(intent);
+            }
+        });
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -317,6 +346,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         Log.e("updata pass : ", "finish");
                         Intent intent = new Intent(CompleteInfoActivity.this, MainActivity.class);
+                        mProgress.dismiss();
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         intent.putExtra("userInformation", getIntent().getSerializableExtra("userInformation"));
                         intent.putExtra("method", "PHONE");
@@ -341,8 +371,6 @@ public class CompleteInfoActivity extends AppCompatActivity {
     private void checkValidation() {
 
         String editClinicDr = Objects.requireNonNull(activityCompleteInfoBinding.editClinicDr).getText().toString().trim();
-        String editSpecificStateDr = Objects.requireNonNull(activityCompleteInfoBinding.editSpecificStateDr).getText().toString().trim();
-        String editSpecificDr = Objects.requireNonNull(activityCompleteInfoBinding.editSpecificDr).getText().toString().trim();
         String editAddressDr = Objects.requireNonNull(activityCompleteInfoBinding.editAddressDr).getText().toString().trim();
         String editStateDr = Objects.requireNonNull(activityCompleteInfoBinding.editStateDr).getText().toString().trim();
         String editEducationDr = Objects.requireNonNull(activityCompleteInfoBinding.editEducationDr).getText().toString().trim();
@@ -380,22 +408,6 @@ public class CompleteInfoActivity extends AppCompatActivity {
             activityCompleteInfoBinding.editPhoneDr.requestFocus();
             return;
         }
-        if (editSpecificDr.isEmpty()) {
-            activityCompleteInfoBinding.editSpecificDr.setError("Specification is needed");
-            activityCompleteInfoBinding.editSpecificDr.requestFocus();
-            return;
-        }
-        if (editSpecificStateDr.isEmpty()) {
-            activityCompleteInfoBinding.editSpecificStateDr.setError("Specification State is needed");
-            activityCompleteInfoBinding.editSpecificStateDr.requestFocus();
-            return;
-        }
-
-        if (editSpecificStateDr.isEmpty()) {
-            activityCompleteInfoBinding.editSpecificStateDr.setError("Specification State is needed");
-            activityCompleteInfoBinding.editSpecificStateDr.requestFocus();
-            return;
-        }
         if (bitmap == null) {
             Toast.makeText(getApplicationContext(), "Please, Check your Certificate", Toast.LENGTH_SHORT).show();
             return;
@@ -403,6 +415,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
             uploadImage(bitmap);
         }
     }
+
 
     private void uploadImage(Bitmap bitmap) {
         ByteArrayOutputStream output_image = new ByteArrayOutputStream();
@@ -416,6 +429,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Uri uri) {
                         Log.e("uri.toString() : ", uri.toString());
+                        Log.e("SPEC:", specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]);
                         String fullNumber = activityCompleteInfoBinding.ccpDr.getFullNumber();
                         UserInformation userInformation = new UserInformation("Doctor",
                                 countries.get(activityCompleteInfoBinding.spinnerCountryDr.getSelectedItemPosition()),
@@ -427,11 +441,11 @@ public class CompleteInfoActivity extends AppCompatActivity {
                                 activityCompleteInfoBinding.editEducationDr.getText().toString(),
                                 activityCompleteInfoBinding.txtBirthdayUser.getText().toString(),
                                 gender,
-                                activityCompleteInfoBinding.editSpecificDr.getText().toString(),
-                                activityCompleteInfoBinding.editSpecificStateDr.getText().toString(),
                                 uri.toString(),
                                 activityCompleteInfoBinding.editClinicDr.getText().toString());
 
+                        userInformation.setSpecification(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]);
+                        userInformation.setSpecification_in(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]);
                         userInformation.setPhone(activityCompleteInfoBinding.editPhoneDr.getText().toString());
                         checkphonenumbercorrecy(userAccount, activityCompleteInfoBinding.editPhoneDr.getText().toString(), fullNumber + activityCompleteInfoBinding.editPhoneDr.getText().toString(), userInformation);
 
@@ -470,6 +484,8 @@ public class CompleteInfoActivity extends AppCompatActivity {
         super.onResume();
         StateOfUser stateOfUser = new StateOfUser();
         stateOfUser.changeState("Online");
+        if(location!= null)
+            activityCompleteInfoBinding.editAddressDr.setText(location+"");
     }
 
     @Override

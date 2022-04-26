@@ -4,14 +4,17 @@ import java.io.Serializable;
 
 public class UserInformation implements Serializable {
     private String type,country,address_home,city,state_address,phone
-            ,address_education,name_education,date_of_birth,gender,specification,state_specification,image_proof,name_clinic;
+            ,address_education,name_education,date_of_birth,gender,specification,
+            image_proof,name_clinic, specification_in;
 
     public UserInformation() {
     }
 
-    public UserInformation(String country, String address_home, String city, String state_address,
-                           String phone, String address_education, String name_education, String date_of_birth,
-                           String gender,String type, String image_proof) {
+    public UserInformation(String country, String address_home, String city,
+                           String state_address,
+                           String phone, String address_education,
+                           String name_education, String date_of_birth,
+                           String gender,String type) {
         this.country = country;
         this.address_home = address_home;
         this.city = city;
@@ -22,15 +25,13 @@ public class UserInformation implements Serializable {
         this.date_of_birth = date_of_birth;
         this.gender = gender;
         this.type = type;
-        this.image_proof = image_proof;
-
     }
 
     public UserInformation(String type, String country, String address_home,
                            String city, String state_address, String phone,
                            String address_education, String name_education,
-                           String date_of_birth, String gender, String specification,
-                           String state_specification, String image_proof, String name_clinic) {
+                           String date_of_birth, String gender,
+                           String image_proof, String name_clinic) {
         this.type = type;
         this.country = country;
         this.address_home = address_home;
@@ -41,10 +42,24 @@ public class UserInformation implements Serializable {
         this.name_education = name_education;
         this.date_of_birth = date_of_birth;
         this.gender = gender;
-        this.specification = specification;
-        this.state_specification = state_specification;
         this.image_proof = image_proof;
         this.name_clinic = name_clinic;
+    }
+
+    public String getSpecification_in() {
+        return specification_in;
+    }
+
+    public void setSpecification_in(String specification_in) {
+        this.specification_in = specification_in;
+    }
+
+    public String getSpecification() {
+        return specification;
+    }
+
+    public void setSpecification(String specification) {
+        this.specification = specification;
     }
 
     public String getImage_proof() {

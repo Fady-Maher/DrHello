@@ -45,6 +45,7 @@ import com.example.drhello.adapter.OnPlaceClickListener;
 import com.example.drhello.adapter.OnSearchPlaceClickListener;
 import com.example.drhello.R;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
+import com.example.drhello.ui.login.CompleteInfoActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -115,6 +116,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ConstraintLayout constraint_map_search;
     private CoordinatorLayout coordinator_map_inside;
     private Polyline polyline = null;
+    private boolean flag_map = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -123,6 +125,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             Window w = getWindow();
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        }
+
+        if(getIntent().getStringExtra("map") != null){
+            flag_map = true;
         }
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -313,6 +319,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.addMarker(new MarkerOptions().position(latLng));
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                 Log.e("flag LONG CLICK: ", latLng.latitude+"  "+latLng.longitude +"");
+                if(flag_map){
+                    CompleteInfoActivity.location = latLng;
+                    finish();
+                }
             }
         });
 

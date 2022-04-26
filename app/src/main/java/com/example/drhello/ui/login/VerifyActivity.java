@@ -120,7 +120,7 @@ public class VerifyActivity extends AppCompatActivity {
         //Getting content for email
         //  String email =  userAccount.getEmail();
         Random random = new Random();
-        @SuppressLint("DefaultLocale") String verify_num_new = String.format("%04d", random.nextInt(10000));
+        @SuppressLint("DefaultLocale") String verify_num_new = String.format("%06d", random.nextInt(10000));
         String englishNumerals = new BigDecimal(verify_num_new).toString();
         verify_num = englishNumerals;
 

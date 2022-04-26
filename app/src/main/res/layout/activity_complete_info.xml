@@ -188,6 +188,7 @@
                     android:layout_marginTop="25dp">
 
                     <LinearLayout
+                        android:id="@+id/btn_address"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
@@ -216,6 +217,7 @@
                         android:paddingLeft="8dp"
                         android:paddingTop="2dp"
                         android:paddingBottom="2dp"
+                        android:enabled="false"
                         android:textSize="16dp"
                         android:hint="Street Address"
                         android:textColorHint="@color/appColorUnSelected"
@@ -342,6 +344,55 @@
 
                     </LinearLayout>
 
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginLeft="@dimen/_10sdp"
+                    android:layout_marginRight="@dimen/_15sdp"
+                    android:layout_marginTop="15dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Specialist"
+                        android:layout_marginBottom="4dp"
+                        android:textColor="@color/appColorUnSelected"
+                        android:textStyle="bold|italic"
+                        android:textSize="20sp"/>
+
+                    <Spinner
+                        android:id="@+id/spinner_spec"
+                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="5dp"
+                        android:paddingLeft="8dp"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp"
+                        android:textSize="16dp"
+                        android:hint="City"
+                        android:layout_marginRight="4dp"
+                        android:textColorHint="@color/appColorUnSelected"
+                        android:background="@drawable/btn_info"/>
+
+                    <Spinner
+                        android:id="@+id/spinner_spec_in"
+                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:layout_height="0dp"
+                        android:layout_marginTop="5dp"
+                        android:paddingLeft="8dp"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp"
+                        android:textSize="16dp"
+                        android:hint="City"
+                        android:layout_marginRight="4dp"
+                        android:textColorHint="@color/appColorUnSelected"
+                        android:background="@drawable/btn_info"/>
 
                 </LinearLayout>
 
@@ -507,61 +558,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginLeft="@dimen/_10sdp"
-                    android:layout_marginRight="@dimen/_15sdp"
-                    android:layout_marginTop="20dp">
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Medical specialty "
-                        android:textColor="@color/appColor"
-                        android:textStyle="bold"
-                        android:textSize="17dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_marginTop="8dp">
-
-                        <EditText
-                            android:id="@+id/edit_specific_dr"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:paddingLeft="8dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
-                            android:textSize="16dp"
-                            android:hint="Specialization "
-                            android:layout_marginRight="4dp"
-                            android:textColorHint="@color/appColorUnSelected"
-                            android:background="@drawable/btn_info"/>
-
-                        <EditText
-                            android:id="@+id/edit_specific_state_dr"
-                            android:layout_width="0dp"
-                            android:layout_weight="1"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:paddingLeft="8dp"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
-                            android:textSize="16dp"
-                            android:hint="State"
-                            android:layout_marginLeft="4dp"
-                            android:textColorHint="@color/appColorUnSelected"
-                            android:background="@drawable/btn_info"/>
-
-                    </LinearLayout>
-
-                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
