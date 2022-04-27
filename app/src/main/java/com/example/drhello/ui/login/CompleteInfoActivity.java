@@ -51,8 +51,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class CompleteInfoActivity extends AppCompatActivity {
@@ -62,15 +64,12 @@ public class CompleteInfoActivity extends AppCompatActivity {
     private String gender;
     private Locale[] locales = Locale.getAvailableLocales();
     private ArrayList<String> countries = new ArrayList<String>();
-    private String[] specialist = new String[]{"Internist", "cardiologist", "Endocrinologist"
-            , "Hematologist ", "Nephrologist", "Oncologist", "Rheumatologist ", "Surgeon"
-            , "Pediatrician / Doctor of Baby", "Obstetrician & Gynaecologist ", "Ophthalmologist", "Neurologist", "ENT Specialist ", "Urologist", "Dermatologist", "Hepatologist", "Radiologist", "Psychologist", "Anesthesiologist"
-            , "bones doctor", "Dentist", "Forensic Physician ", "Anatomist", "General"};
+    private String[] specialist = new String[]{"Occupational and environmental medicine", "Obstetrics and gynaecology" , "Sport and exercise medicine", "Dermatology, Emergency medicine", "Physician", "Medical administration", "Anaesthesia", "Pathology", "Palliative medicine", "Sexual health medicine", "Radiation oncology", "Surgery", "Radiology", "General practice", "Intensive care medicine", "Paediatrics and child health", "Rehabilitation medicine", "Ophthalmology", "Psychiatry", "Public health medicine", "Addiction medicine" , "Pain medicine"};
     private static final int Gallary_REQUEST_CODE = 1;
     private UserAccount userAccount;
     private Bitmap bitmap;
-    private HashMap map;
-    private ArrayList<String> arrayAdaptermap;
+    private HashMap map,mapspecialist;
+    private ArrayList<String> arrayAdaptermap =  new ArrayList<String>();
     public static LatLng location;
     public static ProgressDialog mProgress;
 
@@ -201,20 +200,27 @@ public class CompleteInfoActivity extends AppCompatActivity {
 
         Collections.sort(countries);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, countries);
-        ArrayAdapter<String> adapterSpecialist = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, specialist);
-        ArrayAdapter<String> adapterSpecialistIn = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, specialist);
-
-
         activityCompleteInfoBinding.spinnerCountryUser.setAdapter(adapter);
         activityCompleteInfoBinding.spinnerCountryDr.setAdapter(adapter);
+
+        ArrayAdapter<String> adapterSpecialist = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, specialist);
         activityCompleteInfoBinding.spinnerSpec.setAdapter(adapterSpecialist);
-        activityCompleteInfoBinding.spinnerSpecIn.setAdapter(adapterSpecialistIn);
 
         try {
             ArrayList<Float> res = new ArrayList<>();
             JSONObject jsonObject = new JSONObject(Objects.requireNonNull(JsonDataFromAsset("countriesToCities.json")));
             map = new Gson().fromJson(jsonObject.toString(), HashMap.class);
             Log.e("CITIES :", map.get(countries.get(activityCompleteInfoBinding.spinnerCountryUser.getSelectedItemPosition())).toString());
+        } catch (
+                JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        try {
+            ArrayList<Float> res = new ArrayList<>();
+            JSONObject jsonObject = new JSONObject(Objects.requireNonNull(JsonDataFromAsset("specialist.json")));
+            mapspecialist = new Gson().fromJson(jsonObject.toString(), HashMap.class);
         } catch (
                 JSONException e) {
             e.printStackTrace();
@@ -249,10 +255,26 @@ public class CompleteInfoActivity extends AppCompatActivity {
                         arrayAdaptermap);
                 activityCompleteInfoBinding.spinnerCityDr.setAdapter(adapterCity);
             }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+
+
+        activityCompleteInfoBinding.spinnerSpec.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.e("CITIES :", mapspecialist.get(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()])+"");
+                arrayAdaptermap = (ArrayList<String>) mapspecialist.get(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]);
+
+                ArrayAdapter<String> adapterSpecialistIn = new ArrayAdapter<String>(CompleteInfoActivity.this,android.R.layout.simple_spinner_item,
+                        arrayAdaptermap);
+
+                activityCompleteInfoBinding.spinnerSpecIn.setAdapter(adapterSpecialistIn);
+            }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-
             }
         });
 
@@ -445,7 +467,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
                                 activityCompleteInfoBinding.editClinicDr.getText().toString());
 
                         userInformation.setSpecification(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]);
-                        userInformation.setSpecification_in(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]);
+                        userInformation.setSpecification_in(specialist[activityCompleteInfoBinding.spinnerSpecIn.getSelectedItemPosition()]);
                         userInformation.setPhone(activityCompleteInfoBinding.editPhoneDr.getText().toString());
                         checkphonenumbercorrecy(userAccount, activityCompleteInfoBinding.editPhoneDr.getText().toString(), fullNumber + activityCompleteInfoBinding.editPhoneDr.getText().toString(), userInformation);
 

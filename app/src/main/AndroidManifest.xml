@@ -33,6 +33,14 @@
         tools:ignore="AllowBackup"
         tools:replace="android:supportsRtl">
         <activity
+            android:name=".DoctorsActivity"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.gms.vision.DEPENDENCIES"
+            android:value="ocr" />
+
+        <activity
             android:name=".medical.SkinActivity"
             android:exported="false" />
         <activity

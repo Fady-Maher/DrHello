@@ -1,15 +1,18 @@
 package com.example.drhello.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.drhello.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.model.SliderItem;
 
@@ -18,10 +21,12 @@ public class SliderAdapter extends RecyclerView.Adapter<SliderAdapter.SliderView
 
     private ArrayList<SliderItem> sliderItems=new ArrayList<>();
     private Context viewPager2;
+    private OnClickDoctorInterface onClickDoctorInterface;
 
-    public SliderAdapter(ArrayList<SliderItem> sliderItems, Context viewPager2) {
+    public SliderAdapter(ArrayList<SliderItem> sliderItems, Context viewPager2,OnClickDoctorInterface onClickDoctorInterface) {
         this.sliderItems = sliderItems;
         this.viewPager2 = viewPager2;
+        this.onClickDoctorInterface = onClickDoctorInterface;
     }
 
     @NonNull
@@ -55,11 +60,16 @@ public class SliderAdapter extends RecyclerView.Adapter<SliderAdapter.SliderView
             super(itemView);
             imageView=itemView.findViewById(R.id.img);
             textView=itemView.findViewById(R.id.image_name);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.e("click","click");
+                    onClickDoctorInterface.OnClick(sliderItems.get(getAdapterPosition()).getImg_name());
+                }
+            });
         }
-//        void setImage(SliderItem sliderItem){
-//
-//            imageView.setImageResource(sliderItem.getImage());
-//        }
+
     }
 
 

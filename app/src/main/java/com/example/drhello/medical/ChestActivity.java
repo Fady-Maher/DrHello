@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.example.drhello.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.databinding.ActivityChatBinding;
@@ -52,7 +53,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ChestActivity extends AppCompatActivity {
+public class ChestActivity extends AppCompatActivity implements OnClickDoctorInterface {
     private ActivityChestBinding activityChestBinding;
     private ArrayList<SliderItem> sliderItems=new ArrayList<>();
     private String[] stringsChest = {"Covid_19", "Lung_Opacity", "Normal", "Pneumonia"};
@@ -95,7 +96,7 @@ public class ChestActivity extends AppCompatActivity {
         sliderItems.add(new SliderItem(R.drawable.lung_opacity,"Lung Opacity"));
         sliderItems.add(new SliderItem(R.drawable.pneumonia,"Pneumonia"));
 
-        SliderAdapter sliderAdapter=new SliderAdapter(sliderItems,ChestActivity.this);
+        SliderAdapter sliderAdapter=new SliderAdapter(sliderItems,ChestActivity.this,ChestActivity.this);
 
 
 
@@ -201,6 +202,11 @@ public class ChestActivity extends AppCompatActivity {
         } else if (resultCode == Activity.RESULT_CANCELED) {
             // Toast.makeText(getBaseContext(), "Canceled", Toast.LENGTH_SHORT).show();
         }
+
+    }
+
+    @Override
+    public void OnClick(String spec) {
 
     }
 

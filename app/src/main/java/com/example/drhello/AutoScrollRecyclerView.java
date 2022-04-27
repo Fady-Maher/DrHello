@@ -2,6 +2,7 @@ package com.example.drhello;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
@@ -16,6 +17,7 @@ public class AutoScrollRecyclerView extends RecyclerView {
 
     private static final String TAG = AutoScrollRecyclerView.class.getSimpleName();
     private static final int SPEED = 10;
+    private OnClickDoctorInterface onClickDoctorInterface;
     /**
      * Sliding estimator
      */
@@ -218,7 +220,15 @@ public class AutoScrollRecyclerView extends RecyclerView {
     }
 
     @Override
+    public void setOnClickListener(@Nullable OnClickListener l) {
+        super.setOnClickListener(l);
+       // Log.e("omn","dsf");
+
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent e) {
+        Log.e("omn","dsf");
         if (mCanTouch) {
             switch (e.getAction()) {
                 case MotionEvent.ACTION_UP:
@@ -299,7 +309,8 @@ public class AutoScrollRecyclerView extends RecyclerView {
     /**
      * Customize the Adapter container so that the list can be displayed in an infinite loop
      */
-    private static class NestingRecyclerViewAdapter<VH extends RecyclerView.ViewHolder>
+    private static class NestingRecyclerViewAdapter<VH
+            extends RecyclerView.ViewHolder>
             extends RecyclerView.Adapter<VH> {
 
         private AutoScrollRecyclerView mRecyclerView;

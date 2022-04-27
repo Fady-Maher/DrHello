@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.example.drhello.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.databinding.ActivityBrainBinding;
@@ -41,7 +42,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
-public class BrainActivity extends AppCompatActivity {
+public class BrainActivity extends AppCompatActivity implements OnClickDoctorInterface {
     private ActivityBrainBinding activityBrainBinding;
     private ArrayList<SliderItem> sliderItems = new ArrayList<>();
     private String[] stringsTumor = {"Glioma_Tumor", "Meningioma Tumor", "No Tumor", "Pituitary Tumor"};
@@ -87,7 +88,7 @@ public class BrainActivity extends AppCompatActivity {
         sliderItems.add(new SliderItem(R.drawable.meningioma, "Meningioma"));
         sliderItems.add(new SliderItem(R.drawable.pneumonia, "Pneumonia"));
 
-        SliderAdapter sliderAdapter = new SliderAdapter(sliderItems, BrainActivity.this);
+        SliderAdapter sliderAdapter = new SliderAdapter(sliderItems, BrainActivity.this,BrainActivity.this);
 
 
         activityBrainBinding.viewPagerImageSlider.setAdapter(sliderAdapter);
@@ -189,6 +190,11 @@ public class BrainActivity extends AppCompatActivity {
         } else if (resultCode == Activity.RESULT_CANCELED) {
             // Toast.makeText(getBaseContext(), "Canceled", Toast.LENGTH_SHORT).show();
         }
+
+    }
+
+    @Override
+    public void OnClick(String spec) {
 
     }
 

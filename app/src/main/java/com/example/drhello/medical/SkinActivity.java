@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.example.drhello.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.databinding.ActivityBrainBinding;
@@ -40,7 +41,7 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
-public class SkinActivity extends AppCompatActivity {
+public class SkinActivity extends AppCompatActivity implements OnClickDoctorInterface {
     private ActivitySkinBinding activitySkinBinding;
     private ArrayList<SliderItem> sliderItems = new ArrayList<>();
     private String[] stringsSkin = {"Actinic_keratoses", "Basal_Cell_Carcinoma", "Benign_Keratosis_Like",
@@ -87,7 +88,7 @@ public class SkinActivity extends AppCompatActivity {
         sliderItems.add(new SliderItem(R.drawable.vascular_lesions, "Vascular Lesions"));
 
 
-        SliderAdapter sliderAdapter = new SliderAdapter(sliderItems, SkinActivity.this);
+        SliderAdapter sliderAdapter = new SliderAdapter(sliderItems, SkinActivity.this,SkinActivity.this);
 
 
         activitySkinBinding.viewPagerImageSlider.setAdapter(sliderAdapter);
@@ -191,6 +192,11 @@ public class SkinActivity extends AppCompatActivity {
         } else if (resultCode == Activity.RESULT_CANCELED) {
             // Toast.makeText(getBaseContext(), "Canceled", Toast.LENGTH_SHORT).show();
         }
+
+    }
+
+    @Override
+    public void OnClick(String spec) {
 
     }
 
