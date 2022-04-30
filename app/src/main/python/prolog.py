@@ -4,10 +4,8 @@ import re
 import string
 from nltk.corpus import stopwords
 from com.chaquo.python import Python
-import numpy as np
-from PIL import Image
-import io
-import cv2
+import requests
+from urllib.parse import quote_plus
 #nltk.download('stopwords')
 #the stemmer requires a language parameter
 ##snow_stemmer = SnowballStemmer(language='english')
@@ -25,15 +23,15 @@ def clean_text(text):
     text = " ".join(text)
     return text
 
-def call(imp,name_model):
-    pic = Image.open(io.BytesIO(bytes(imp)))
-    open_cv_image = np.array(pic)
-    if name_model == 'Corona':
-        img = cv2.resize(open_cv_image,dsize=(500,500),interpolation=cv2.INTER_CUBIC)
+def model(url,model):
+    if model == 'Corona':
+         base_url = ''
+    elif model == 'Skin':
+         base_url = 'https://skin-canncer-model.herokuapp.com/predict_disease?link=' +quote_plus(url)
+    elif model == 'Heart':
+         base_url = 'https://heart-beat-model.herokuapp.com/predict_disease?link=' +quote_plus(url)
     else:
-        img = cv2.resize(open_cv_image,dsize=(400,400),interpolation=cv2.INTER_CUBIC)
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    gray = cv2.GaussianBlur(gray, (5, 5), 0)
-    print(gray.shape)
-    return gray
-
+         base_url = ''
+    print('base_url : ',base_url)
+    response = requests.get(base_url)
+    return response.text

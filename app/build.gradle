@@ -18,11 +18,9 @@ android {
                 {
                     buildPython "C:\\Users\\Fady\\AppData\\Local\\Programs\\Python\\Python39\\python.exe"
                     pip {
-                        install "opencv-python"
                         install "nltk"
                         install "Pillow"
-
-
+                        install "requests"
                     }
                 }
         ndk {

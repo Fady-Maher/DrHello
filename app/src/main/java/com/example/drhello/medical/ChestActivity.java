@@ -2,6 +2,7 @@ package com.example.drhello.medical;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -9,11 +10,13 @@ import androidx.viewpager2.widget.CompositePageTransformer;
 import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,13 +37,27 @@ import com.example.drhello.databinding.ActivityChatBinding;
 import com.example.drhello.databinding.ActivityChestBinding;
 import com.example.drhello.databinding.ActivityNumReactionBinding;
 import com.example.drhello.fragment.HomeFragment;
+import com.example.drhello.model.CommentModel;
+import com.example.drhello.model.Posts;
 import com.example.drhello.model.SliderItem;
+import com.example.drhello.textclean.RequestPermissions;
+import com.example.drhello.ui.writecomment.InsideCommentActivity;
+import com.example.drhello.ui.writecomment.WriteCommentActivity;
 import com.example.drhello.ui.writepost.NumReactionActivity;
+import com.example.drhello.ui.writepost.WritePostsActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.ml.modeldownloader.CustomModel;
 import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
 import com.google.firebase.ml.modeldownloader.DownloadType;
 import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.tensorflow.lite.Interpreter;
 
@@ -52,18 +69,22 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class ChestActivity extends AppCompatActivity implements OnClickDoctorInterface {
     private ActivityChestBinding activityChestBinding;
     private ArrayList<SliderItem> sliderItems=new ArrayList<>();
-    private String[] stringsChest = {"Covid_19", "Lung_Opacity", "Normal", "Pneumonia"};
+    private String[] stringsHeart = {"Fusion", "Normal", "Supraventricular", "Unknown","Ventricular"};
     private static final int Gallary_REQUEST_CODE = 1;
     PyObject main_program;
     public static ProgressDialog mProgress;
     PyObject str;
-    ByteBuffer input;
-    private Bitmap bitmap;
 
+    private Bitmap bitmap;
+    private StorageReference storageReference;
+    private RequestPermissions requestPermissions;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,6 +94,10 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         }else{
             getWindow().setStatusBarColor(Color.WHITE);
         }
+
+        storageReference = FirebaseStorage.getInstance().getReference();
+
+        requestPermissions = new RequestPermissions(ChestActivity.this,ChestActivity.this);
 
         mProgress = new ProgressDialog(ChestActivity.this);
         if (! Python.isStarted()) {
@@ -98,9 +123,6 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
 
         SliderAdapter sliderAdapter=new SliderAdapter(sliderItems,ChestActivity.this,ChestActivity.this);
 
-
-
-
         activityChestBinding.viewPagerImageSlider.setAdapter(sliderAdapter);
 
         activityChestBinding.viewPagerImageSlider.startAutoScroll();
@@ -108,85 +130,38 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         activityChestBinding.viewPagerImageSlider.setLoopEnabled(true);
         activityChestBinding.viewPagerImageSlider.setCanTouch(true);
 
-
-
         activityChestBinding.selImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                String[] mimetypes = {"image/*", "video/*"};
-                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
-                startActivityForResult(intent, Gallary_REQUEST_CODE);
+                if (requestPermissions.permissionStorageRead()) {
+                    ActivityCompat.requestPermissions(ChestActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            Gallary_REQUEST_CODE);
+                } else {
+                    Intent intent = new Intent();
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+                    String[] mimetypes = {"image/*", "video/*"};
+                    intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                    startActivityForResult(intent, Gallary_REQUEST_CODE);
+                }
             }
         });
 
         activityChestBinding.result.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(bitmap != null){
-                    AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD("Corona");
-                    asyncTaskDownloadAudio.execute("");
+                if (bitmap != null) {
+                    byte[] bytesOutImg;
+                    ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytesStream);
+                    bytesOutImg = bytesStream.toByteArray();
+                    uploadImage(bytesOutImg,storageReference);
+                    bitmap = null;
                 }else{
                     Toast.makeText(ChestActivity.this, "Please, Choose Image First!!", Toast.LENGTH_SHORT).show();
                 }
-                
             }
         });
-
-    }
-
-
-
-    private void imageModel(String name_model, int width, int height, String[] stringArrayList) {
-        bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-
-        CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
-                .requireWifi()
-                .build();
-        FirebaseModelDownloader.getInstance()
-                .getModel(name_model, DownloadType.LOCAL_MODEL, conditions)
-                .addOnSuccessListener(new OnSuccessListener<CustomModel>() {
-                    @Override
-                    public void onSuccess(CustomModel model) {
-                        // which you can use to instantiate a TensorFlow Lite interpreter.
-                        File modelFile = model.getFile();
-                        if (modelFile != null) {
-                            Interpreter interpreter = new Interpreter(modelFile);
-                            int bufferSize = 4 * java.lang.Float.SIZE / java.lang.Byte.SIZE;
-                            ByteBuffer modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
-                            interpreter.run(input, modelOutput);
-                            modelOutput.rewind();
-                            FloatBuffer probabilities = modelOutput.asFloatBuffer();
-                            double max = probabilities.get(0);
-                            int k = 0;
-                            Log.e("capacity: ", probabilities.capacity() + "");
-                            for (int i = 0; i < probabilities.capacity(); i++) {
-                                Log.e("probabilities: ", probabilities.get(i) + "");
-                                if (max < probabilities.get(i)) {
-                                    k = i;
-                                    max = probabilities.get(i);
-                                }
-                            }
-                            String result = String.format("%.2f", max * 100);
-                            if (k == 0) {
-                                activityChestBinding.txtResult.setText(stringArrayList[0] + " :  " + result);
-                            } else if (k == 1) {
-                                activityChestBinding.txtResult.setText(stringArrayList[1] + " :  " + result);
-                            } else if (k == 2) {
-                                activityChestBinding.txtResult.setText(stringArrayList[2] + " :  " + result);
-                            } else {
-                                activityChestBinding.txtResult.setText(stringArrayList[3] + " :  " + result);
-                            }
-                            mProgress.dismiss();
-                            interpreter.close();
-                            Log.e("probabilities: ", max + "     " + k);
-                        }
-                    }
-                });
-
-
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -202,7 +177,6 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         } else if (resultCode == Activity.RESULT_CANCELED) {
             // Toast.makeText(getBaseContext(), "Canceled", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     @Override
@@ -211,56 +185,90 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
     }
 
     public class AsyncTaskD extends AsyncTask<String, String, String> {
-        private String name_model ;
 
-        public AsyncTaskD(String name_model){
-            this.name_model = name_model;
+        String url;
+        public AsyncTaskD(String url){
+            this.url = url;
         }
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mProgress.setMessage("Image Processing..");
-            mProgress.setCancelable(false);
-            mProgress.show();
         }
 
         @Override
         protected String doInBackground(String... f_url) {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-            byte[] byteArray = byteArrayOutputStream.toByteArray();
-            if(name_model.equals("Corona")){
-                str = main_program.callAttr("call",byteArray,"Corona");
-                input = ByteBuffer.allocateDirect(500 * 500 * 1 * 4)
-                        .order(ByteOrder.nativeOrder());
-            }else{
-                str = main_program.callAttr("call",byteArray,"Tumor");
-                input = ByteBuffer.allocateDirect(400 * 400 * 1 * 4)
-                        .order(ByteOrder.nativeOrder());
+
+            String str = main_program.callAttr("model",url,"Corona").toString();
+            int prediction = Integer.parseInt(str.split(",")[0].replaceAll("[^0-9]", ""));;
+            String probability = str.split(",")[1].replaceAll("]", "");
+            probability = probability.replaceAll("\"", "").replace("}","").substring(14);
+
+            String[] arrayList = probability.split(" ");
+            Log.e("prediction : ",prediction+"");
+            Log.e("probability : ",probability);
+            Log.e("arrayList : ",arrayList.toString());
+            String result = String.format("%.2f", Float.parseFloat(arrayList[prediction]) * 100);
+
+            if (prediction == 0) {
+                activityChestBinding.txtResult.setText(stringsHeart[0] + " :  " + result);
+            } else if (prediction == 1) {
+                activityChestBinding.txtResult.setText(stringsHeart[1] + " :  " + result);
+            } else if (prediction == 2) {
+                activityChestBinding.txtResult.setText(stringsHeart[2] + " :  " + result);
+            } else if (prediction == 3) {
+                activityChestBinding.txtResult.setText(stringsHeart[3] + " :  " + result);
+            } else {
+                activityChestBinding.txtResult.setText(stringsHeart[4] + " :  " + result);
             }
 
-            String A = str.asList().toString();
-            A = A.replace("[","");
-            A = A.replace(",","");
-            A = A.replace("]","");
-            String[] s = A.split(" ");
-
-            for (int y = 0; y < s.length; y++) {
-                if(!s[y].equals("")) {
-                    input.putFloat((float) (Float.parseFloat(s[y])/255.0));
-                }
-            }
-
+            mProgress.dismiss();
             return null;
         }
 
         @Override
         protected void onPostExecute(String file_url) {
-                imageModel("Chest_X_Ray_Model", 500, 500, stringsChest);
         }
     }
 
+    private void uploadImage(byte[] bytes, StorageReference storageReference) {
+            mProgress.setMessage("Image Processing..");
+            mProgress.setCancelable(false);
+            mProgress.show();
+            StorageReference ref = storageReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid()
+                    + "/Model/"+ UUID.nameUUIDFromBytes(bytes));
+            ref.putBytes(bytes)
+                    .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                saveUri(ref);
+                            } else {
+                                //Toast.makeText(WritePostsActivity.this, "Loading not done", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    //Toast.makeText(WritePostsActivity.this, "Image not loading error : "+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
+    }
 
+    private void saveUri(StorageReference ref) {
+        ref.getDownloadUrl()
+                    .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD(uri.toString());
+                            asyncTaskDownloadAudio.execute();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("errorH : ", e.getMessage());
+                }
+            });
+    }
 
 
 }
