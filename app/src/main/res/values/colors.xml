@@ -22,8 +22,7 @@
     <color name="another_chat">#708CF4</color>
     <color name="colorchatme"> #487bea</color>
     <color name="colorchatothe">#1B5AE1</color>
-
-
+    <color name="profile_color">#323030</color>
 
 
 </resources>

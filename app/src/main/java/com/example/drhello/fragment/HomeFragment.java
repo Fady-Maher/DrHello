@@ -43,6 +43,7 @@ import com.example.drhello.DoctorsActivity;
 import com.example.drhello.MyCallBack;
 import com.example.drhello.OnClickDoctorInterface;
 import com.example.drhello.R;
+import com.example.drhello.SpecialistAdapter;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.firebaseinterface.MyCallbackAllUser;
 import com.example.drhello.firebaseinterface.MyCallbackSignIn;
@@ -219,10 +220,27 @@ public class HomeFragment extends Fragment implements OnClickDoctorInterface {
                         }
                     }
 
+                    sliderItem = new SliderItem(R.drawable.pain_medicine, "dentisit");
+
+                    sliderItems.add(sliderItem);
+                    sliderItem = new SliderItem(R.drawable.pain_medicine, "dentisit");
+
+                    sliderItems.add(sliderItem);
+                    sliderItem = new SliderItem(R.drawable.pain_medicine, "dentisit");
+
+                    sliderItems.add(sliderItem);
+                    sliderItem = new SliderItem(R.drawable.pain_medicine, "dentisit");
+
+                    sliderItems.add(sliderItem);
+                    sliderItem = new SliderItem(R.drawable.pain_medicine, "dentisit");
+
+                    sliderItems.add(sliderItem);
+
+
                     if(sliderItems.size() > 0 ){
-                        SliderAdapter sliderAdapter=new SliderAdapter(sliderItems,getActivity(),HomeFragment.this);
-                        recyclerView.setAdapter(sliderAdapter);
-                        sliderAdapter.notifyDataSetChanged();
+                        SpecialistAdapter specialistAdapter = new SpecialistAdapter(getActivity(),sliderItems,HomeFragment.this);
+                        recyclerView.setAdapter(specialistAdapter);
+                        specialistAdapter.notifyDataSetChanged();
                     }
                 }
 

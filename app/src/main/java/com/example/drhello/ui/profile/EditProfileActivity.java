@@ -16,7 +16,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 import com.example.drhello.R;
+import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.databinding.ActivityEditProfileBinding;
 import com.example.drhello.signup.SignUpMethods;
@@ -42,6 +45,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private Bitmap bitmap;
     private String phone = "";
     private  UserInformation userInformation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +56,43 @@ public class EditProfileActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
+        mProgress = new ProgressDialog(EditProfileActivity.this);
 
         activityEditProfileBinding = DataBindingUtil.setContentView(this, R.layout.activity_edit_profile);
+
+
+        if (getIntent().getSerializableExtra("userAccount") != null){
+            Log.e("getIntent","userAccount");
+            mProgress.setMessage("Loading..");
+            mProgress.setCancelable(false);
+            mProgress.show();
+            UserAccount userAccount = (UserAccount) getIntent().getSerializableExtra("userAccount");
+            activityEditProfileBinding.editAddress.setHint(userAccount.getUserInformation().getAddress_home());
+            activityEditProfileBinding.editBirth.setHint(userAccount.getUserInformation().getDate_of_birth());
+            activityEditProfileBinding.editCity.setHint(userAccount.getUserInformation().getCity());
+            activityEditProfileBinding.editEmail.setHint(userAccount.getEmail());
+            activityEditProfileBinding.editPhone.setHint(userAccount.getUserInformation().getPhone());
+            activityEditProfileBinding.editSpec.setHint(userAccount.getUserInformation().getSpecification());
+            activityEditProfileBinding.editSpecIn.setHint(userAccount.getUserInformation().getSpecification_in());
+            activityEditProfileBinding.editUsername.setHint(userAccount.getName());
+            activityEditProfileBinding.editWorkPlace.setHint(userAccount.getUserInformation().getAddress_home());
+            try{
+                Glide.with(EditProfileActivity.this).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
+                        error(R.drawable.user).into(activityEditProfileBinding.imgCurUser);
+            }catch (Exception e){
+                activityEditProfileBinding.imgCurUser.setImageResource(R.drawable.user);
+            }
+            mProgress.dismiss();
+        }
+
+
+
+
+
+
+
+
+        /*
         mProgress = new ProgressDialog(this);
         db = FirebaseFirestore.getInstance();
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
@@ -85,13 +124,13 @@ public class EditProfileActivity extends AppCompatActivity {
 
 
         activityEditProfileBinding.btnUpdateEditprofile.setOnClickListener(view -> {
-/*
+
             userInformation = new UserInformation(Objects.requireNonNull(activityEditProfileBinding.editLocationEditprofile.getEditText()).getText().toString(),
                         Objects.requireNonNull(activityEditProfileBinding.editUsernameEditprofile.getEditText()).getText().toString(),
                         Objects.requireNonNull(activityEditProfileBinding.editHomeEditprofile.getEditText()).getText().toString(),
                         Objects.requireNonNull(activityEditProfileBinding.editPhoneEditprofile.getEditText()).getText().toString(),
                         Objects.requireNonNull(activityEditProfileBinding.editSchoolEditprofile.getEditText()).getText().toString());
-*/
+
                 phone = activityEditProfileBinding.editPhoneEditprofile.getEditText().getText().toString().trim();
                 mProgress.setTitle("Updateing Information");
                 mProgress.setMessage("Please wait...");
@@ -109,8 +148,11 @@ public class EditProfileActivity extends AppCompatActivity {
                 }
 
             });
+
+ */
     }
 
+    /*
     private void setDate() {
         Objects.requireNonNull(activityEditProfileBinding.editLocationEditprofile.getEditText()).setText(activityEditProfileBinding.editLocationEditprofile.getEditText().getText().toString());
         Objects.requireNonNull(activityEditProfileBinding.editUsernameEditprofile.getEditText()).setText(activityEditProfileBinding.editUsernameEditprofile.getEditText().getText().toString());
@@ -215,7 +257,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     startActivity(intent);
                 });
     }
-
+*/
 
     @Override
     protected void onResume() {

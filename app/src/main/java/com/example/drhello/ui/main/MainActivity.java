@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
+import com.example.drhello.ChatBotActivity;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.connectionnewtwork.NetworkChangeListener;
 import com.example.drhello.model.UserAccount;
@@ -64,13 +65,14 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private static final int ALARM=3;
     private static final int Maps=4;
     private static final int Health=5;
-    private static final int FAV=6;
-    private static final int SETTING=7;
-    private static final int SHARE=8;
-    private static final int CONTACT=9;
-    private static final int FEEDBACK=10;
-    private static final int ABOUT=11;
-    private static final int LOGOUT=13;
+    private static final int CHAT=6;
+    private static final int FAV=7;
+    private static final int SETTING=8;
+    private static final int SHARE=9;
+    private static final int CONTACT=10;
+    private static final int FEEDBACK=11;
+    private static final int ABOUT=12;
+    private static final int LOGOUT=14;
 
 
     private String[] screenTitle;
@@ -139,6 +141,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                                     createFor(ALARM),
                                     createFor(Maps),
                                     createFor(Health),
+                                    createFor(CHAT),
                                     createFor(FAV),
                                     createFor(SETTING),
                                     createFor(SHARE),
@@ -256,6 +259,10 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             adapter.setSelected(HOME);
         }else if (position==Health){
             Intent intent=new Intent(MainActivity.this, HardwareActivity.class);
+            startActivity(intent);
+            adapter.setSelected(HOME);
+        }else if (position==CHAT){
+            Intent intent=new Intent(MainActivity.this, ChatBotActivity.class);
             startActivity(intent);
             adapter.setSelected(HOME);
         }

@@ -33,6 +33,12 @@
         tools:ignore="AllowBackup"
         tools:replace="android:supportsRtl">
         <activity
+            android:name=".BotActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChatBotActivity"
+            android:exported="false" />
+        <activity
             android:name=".DoctorsActivity"
             android:exported="false" />
 

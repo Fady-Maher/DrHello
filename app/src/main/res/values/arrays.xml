@@ -2,13 +2,13 @@
 <resources>
 
     <string-array name="id_screenTitle">
-
         <item/>
         <item>Home</item>
         <item>Profile</item>
         <item>Alarm</item>
         <item>Maps</item>
         <item>Hardware</item>
+        <item>Chatbot</item>
         <item>Favorites</item>
         <item>Setting</item>
         <item>Share</item>
@@ -28,6 +28,7 @@
         <item>@drawable/ic_alarm</item>
         <item>@drawable/ic_baseline_location</item>
         <item>@drawable/ic_health</item>
+        <item>@drawable/ic_chat_bot_nav</item>
         <item>@drawable/ic_baseline_favorite</item>
         <item>@drawable/ic_baseline_settings</item>
         <item>@drawable/ic_baseline_share_</item>

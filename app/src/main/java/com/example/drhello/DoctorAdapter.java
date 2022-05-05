@@ -25,7 +25,7 @@ public class DoctorAdapter  extends RecyclerView.Adapter<DoctorAdapter.DoctorInf
     @Override
     public DoctorAdapter.DoctorInfoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new DoctorAdapter.DoctorInfoViewHolder(LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.doctor_items, parent,
+                .inflate(R.layout.doctor_item, parent,
                         false));
     }
 
@@ -34,7 +34,7 @@ public class DoctorAdapter  extends RecyclerView.Adapter<DoctorAdapter.DoctorInf
         UserAccount userAccount = addPersonAdapterArrayList.get(position);
 
         holder.name_user.setText(userAccount.getName());
-        holder.txt_spec.setText(userAccount.getUserInformation().getSpecification());
+        holder.txt_spec.setText(userAccount.getUserInformation().getSpecification_in());
 
         try{
             Glide.with(context).load(userAccount.getImg_profile()).placeholder(R.drawable.ic_chat).
@@ -57,7 +57,7 @@ public class DoctorAdapter  extends RecyclerView.Adapter<DoctorAdapter.DoctorInf
             super(itemView);
             img_user = itemView.findViewById(R.id.img_cur_user);
             name_user = itemView.findViewById(R.id.txt_name_user);
-            txt_spec = itemView.findViewById(R.id.txt_spec);
+            txt_spec = itemView.findViewById(R.id.spec);
         }
     }
 }
