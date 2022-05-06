@@ -30,7 +30,7 @@
                 android:layout_marginTop="5dp">
 
                 <ImageView
-                    android:id="@+id/img_finish"
+                    android:id="@+id/img_finish_dr"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_arrow_back"
@@ -51,7 +51,7 @@
                     android:paddingLeft="-15dp"/>
 
                 <ImageView
-                    android:id="@+id/img_edit"
+                    android:id="@+id/img_edit_dr"
                     android:layout_marginTop="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -81,7 +81,7 @@
                     android:padding="@dimen/_5sdp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/img_cur_user"
+                        android:id="@+id/img_cur_user_dr"
                         android:layout_width="@dimen/_45sdp"
                         android:layout_height="@dimen/_45sdp"
                         android:src="@drawable/me"
@@ -95,7 +95,7 @@
                         android:layout_gravity="center">
 
                         <TextView
-                            android:id="@+id/txt_name_user"
+                            android:id="@+id/txt_name_user_dr"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="10dp"
@@ -105,7 +105,7 @@
                             android:textStyle="bold"/>
 
                         <TextView
-                            android:id="@+id/txt_spec"
+                            android:id="@+id/txt_spec_dr"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="10dp"
@@ -243,7 +243,7 @@
                                 tools:ignore="NestedWeights">
 
                                 <TextView
-                                    android:id="@+id/txt_country"
+                                    android:id="@+id/txt_country_dr"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="Egypt"
@@ -286,7 +286,7 @@
                                 tools:ignore="NestedWeights">
 
                                 <TextView
-                                    android:id="@+id/txt_city"
+                                    android:id="@+id/txt_city_dr"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="Cairo"
@@ -331,7 +331,7 @@
                             tools:ignore="NestedWeights">
 
                             <TextView
-                                android:id="@+id/txt_address"
+                                android:id="@+id/txt_address_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="65 Mahrous Street, Al-Kharrat Abu Saada"
@@ -381,13 +381,13 @@
                                 tools:ignore="NestedWeights">
 
                                 <TextView
-                                    android:id="@+id/txt_gender"
+                                    android:id="@+id/txt_gender_dr"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="Male"
-                                    android:textStyle="bold"
+                                    android:textColor="@color/profile_color"
                                     android:textSize="16sp"
-                                    android:textColor="@color/profile_color" />
+                                    android:textStyle="bold" />
                             </LinearLayout>
 
                         </LinearLayout>
@@ -424,7 +424,7 @@
                                 tools:ignore="NestedWeights">
 
                                 <TextView
-                                    android:id="@+id/txt_birth"
+                                    android:id="@+id/txt_birth_dr"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="March 19, 2000"
@@ -469,7 +469,7 @@
                             tools:ignore="NestedWeights">
 
                             <TextView
-                                android:id="@+id/txt_email"
+                                android:id="@+id/txt_email_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/hossammedhat2000_gmail_com"
@@ -512,7 +512,7 @@
                             tools:ignore="NestedWeights">
 
                             <TextView
-                                android:id="@+id/txt_phone"
+                                android:id="@+id/txt_phone_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="01110459868"
@@ -624,7 +624,7 @@
                             tools:ignore="NestedWeights">
 
                             <TextView
-                                android:id="@+id/txt_spec_in"
+                                android:id="@+id/txt_spec_in_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="Oral surgery department"
@@ -661,7 +661,7 @@
                 android:layout_marginTop="5dp">
 
                 <ImageView
-                    android:id="@+id/back_comment"
+                    android:id="@+id/img_finish_user"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_arrow_back"
@@ -682,7 +682,7 @@
                     android:paddingLeft="-15dp"/>
 
                 <ImageView
-                    android:id="@+id/edit_profile"
+                    android:id="@+id/img_edit_user"
                     android:layout_marginTop="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -720,6 +720,7 @@
                         app:civ_border_width="0.7dp" />
 
                     <TextView
+                        android:id="@+id/txt_name_user_ur"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
@@ -936,6 +937,7 @@
                                 tools:ignore="NestedWeights">
 
                                 <TextView
+                                    android:id="@+id/txt_country_user"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="Egypt"
@@ -978,6 +980,7 @@
                                 tools:ignore="NestedWeights">
 
                                 <TextView
+                                    android:id="@+id/txt_city_user"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="Cairo"
@@ -1022,7 +1025,7 @@
                             tools:ignore="NestedWeights">
 
                             <TextView
-                                android:id="@+id/user_name"
+                                android:id="@+id/txt_address_user"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="65 Mahrous Street, Al-Kharrat Abu Saada"
@@ -1072,6 +1075,7 @@
                                 tools:ignore="NestedWeights">
 
                                 <TextView
+                                    android:id="@+id/txt_gender_user"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="Male"
@@ -1114,6 +1118,7 @@
                                 tools:ignore="NestedWeights">
 
                                 <TextView
+                                    android:id="@+id/txt_birth_user"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="March 19, 2000"
@@ -1158,6 +1163,7 @@
                             tools:ignore="NestedWeights">
 
                             <TextView
+                                android:id="@+id/txt_email_user"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="@string/hossammedhat2000_gmail_com"
@@ -1200,6 +1206,7 @@
                             tools:ignore="NestedWeights">
 
                             <TextView
+                                android:id="@+id/txt_phone_user"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:text="01110459868"

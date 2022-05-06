@@ -212,6 +212,8 @@ public class HomeFragment extends Fragment implements OnClickDoctorInterface {
                                 sliderItem = new SliderItem(R.drawable.addiction_medicine, userAccount.getUserInformation().getSpecification());
                             }else if(userAccount.getUserInformation().getSpecification().equals("Pain medicine")){
                                 sliderItem = new SliderItem(R.drawable.pain_medicine, userAccount.getUserInformation().getSpecification());
+                            }else{
+                                sliderItem = new SliderItem(R.drawable.app_mark, userAccount.getUserInformation().getSpecification());
                             }
 
                             userAccountArrayList.add(userAccount);

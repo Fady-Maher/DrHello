@@ -14,6 +14,7 @@
         android:background="@color/white">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:visibility="gone"
             android:id="@+id/lay_dr"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -30,7 +31,7 @@
                 android:layout_marginTop="5dp">
 
                 <ImageView
-                    android:id="@+id/back_comment_dr"
+                    android:id="@+id/img_finish_dr"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_arrow_back"
@@ -51,7 +52,7 @@
                     android:paddingLeft="-15dp"/>
 
                 <ImageView
-                    android:id="@+id/edit_profile_dr"
+                    android:id="@+id/img_edit_dr"
                     android:layout_marginTop="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -85,7 +86,7 @@
                     android:layout_marginBottom="15dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/img_cur_user"
+                        android:id="@+id/img_cur_dr"
                         android:layout_width="150dp"
                         android:layout_height="100dp"
                         android:src="@drawable/me"
@@ -96,8 +97,8 @@
                     <androidx.cardview.widget.CardView
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:layout_alignRight="@id/img_cur_user"
-                        android:layout_alignBottom="@id/img_cur_user"
+                        android:layout_alignRight="@id/img_cur_dr"
+                        android:layout_alignBottom="@id/img_cur_dr"
                         android:layout_gravity="center"
                         android:layout_margin="10dp"
                         app:cardBackgroundColor="@color/white"
@@ -106,7 +107,7 @@
                         app:layout_constraintHorizontal_bias="0.705">
 
                         <ImageView
-
+                            android:id="@+id/img_camera_dr"
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
@@ -185,7 +186,7 @@
                         </androidx.cardview.widget.CardView>
 
                         <EditText
-                            android:id="@+id/edit_username"
+                            android:id="@+id/edit_name_dr"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
@@ -230,7 +231,7 @@
                             </androidx.cardview.widget.CardView>
 
                             <EditText
-                                android:id="@+id/edit_country"
+                                android:id="@+id/edit_country_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:drawableRight="@drawable/ic_rename"
@@ -266,7 +267,7 @@
                             </androidx.cardview.widget.CardView>
 
                             <EditText
-                                android:id="@+id/edit_city"
+                                android:id="@+id/edit_city_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:drawableRight="@drawable/ic_rename"
@@ -305,7 +306,7 @@
                         </androidx.cardview.widget.CardView>
 
                         <EditText
-                            android:id="@+id/edit_address"
+                            android:id="@+id/edit_address_dr"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
@@ -344,7 +345,7 @@
 
 
                         <EditText
-                            android:id="@+id/edit_email"
+                            android:id="@+id/edit_email_dr"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
@@ -387,7 +388,7 @@
                             </androidx.cardview.widget.CardView>
 
                             <EditText
-                                android:id="@+id/edit_phone"
+                                android:id="@+id/edit_phone_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:drawableRight="@drawable/ic_rename"
@@ -425,7 +426,7 @@
                             </androidx.cardview.widget.CardView>
 
                             <EditText
-                                android:id="@+id/edit_birth"
+                                android:id="@+id/edit_birth_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:drawableRight="@drawable/ic_rename"
@@ -488,15 +489,15 @@
                             >
 
                             <EditText
-                                android:id="@+id/edit_work_place"
+                                android:id="@+id/edit_work_place_dr"
                                 android:layout_width="0dp"
-                                android:layout_weight="1"
                                 android:layout_height="wrap_content"
-                                android:hint="Life hospital, al khusus"
-                                android:textStyle="bold"
-                                android:textSize="16sp"
                                 android:layout_gravity="center"
-                                android:textColor="@color/profile_color" />
+                                android:layout_weight="1"
+                                android:hint="Life hospital, al khusus"
+                                android:textColor="@color/profile_color"
+                                android:textSize="16sp"
+                                android:textStyle="bold" />
 
                             <ImageView
                                 android:layout_width="wrap_content"
@@ -543,7 +544,7 @@
                             tools:ignore="NestedWeights">
 
                             <EditText
-                                android:id="@+id/edit_spec_in"
+                                android:id="@+id/edit_spec_in_dr"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:drawableRight="@drawable/ic_rename"
@@ -582,7 +583,7 @@
                         </androidx.cardview.widget.CardView>
 
                         <EditText
-                            android:id="@+id/edit_spec"
+                            android:id="@+id/edit_spec_dr"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
@@ -606,8 +607,6 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/lay_ur"
-            android:visibility="gone"
-
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -623,7 +622,7 @@
                 android:layout_marginTop="5dp">
 
                 <ImageView
-                    android:id="@+id/back_comment"
+                    android:id="@+id/img_finish_user"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_arrow_back"
@@ -644,7 +643,7 @@
                     android:paddingLeft="-15dp"/>
 
                 <ImageView
-                    android:id="@+id/edit_profile"
+                    android:id="@+id/img_edit_user"
                     android:layout_marginTop="10dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -679,7 +678,7 @@
                     android:layout_marginBottom="15dp">
 
                     <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/img_cur_user_ur"
+                        android:id="@+id/img_cur_user"
                         android:layout_width="150dp"
                         android:layout_height="100dp"
                         android:src="@drawable/me"
@@ -690,8 +689,8 @@
                     <androidx.cardview.widget.CardView
                         android:layout_width="40dp"
                         android:layout_height="40dp"
-                        android:layout_alignRight="@id/img_cur_user_ur"
-                        android:layout_alignBottom="@id/img_cur_user_ur"
+                        android:layout_alignRight="@id/img_cur_user"
+                        android:layout_alignBottom="@id/img_cur_user"
                         android:layout_gravity="center"
                         android:layout_margin="10dp"
                         app:cardBackgroundColor="@color/white"
@@ -700,7 +699,7 @@
                         app:layout_constraintHorizontal_bias="0.705">
 
                         <ImageView
-
+                            android:id="@+id/img_camera_user"
                             android:layout_width="25dp"
                             android:layout_height="25dp"
                             android:layout_gravity="center"
@@ -778,6 +777,7 @@
                         </androidx.cardview.widget.CardView>
 
                         <EditText
+                            android:id="@+id/edit_name_user"
                             android:layout_width="170dp"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
@@ -820,6 +820,7 @@
                             </androidx.cardview.widget.CardView>
 
                             <EditText
+                                android:id="@+id/edit_country_user"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:drawableRight="@drawable/ic_rename"
@@ -855,6 +856,7 @@
                             </androidx.cardview.widget.CardView>
 
                             <EditText
+                                android:id="@+id/edit_city_user"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:drawableRight="@drawable/ic_rename"
@@ -893,7 +895,7 @@
                         </androidx.cardview.widget.CardView>
 
                         <EditText
-                            android:id="@+id/user_name"
+                            android:id="@+id/edit_address_user"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
@@ -932,6 +934,7 @@
 
 
                         <EditText
+                            android:id="@+id/edit_email_user"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
@@ -968,6 +971,7 @@
                         </androidx.cardview.widget.CardView>
 
                         <EditText
+                            android:id="@+id/edit_phone_user"
                             android:layout_width="170dp"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
@@ -1004,6 +1008,7 @@
                         </androidx.cardview.widget.CardView>
 
                         <EditText
+                            android:id="@+id/edit_birth_user"
                             android:layout_width="170dp"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"

@@ -64,12 +64,21 @@ public class CompleteInfoActivity extends AppCompatActivity {
     private String gender;
     private Locale[] locales = Locale.getAvailableLocales();
     private ArrayList<String> countries = new ArrayList<String>();
-    private String[] specialist = new String[]{"Occupational and environmental medicine", "Obstetrics and gynaecology" , "Sport and exercise medicine", "Dermatology, Emergency medicine", "Physician", "Medical administration", "Anaesthesia", "Pathology", "Palliative medicine", "Sexual health medicine", "Radiation oncology", "Surgery", "Radiology", "General practice", "Intensive care medicine", "Paediatrics and child health", "Rehabilitation medicine", "Ophthalmology", "Psychiatry", "Public health medicine", "Addiction medicine" , "Pain medicine"};
+    private String[] specialist = new String[]{"Occupational and environmental medicine",
+            "Obstetrics and gynaecology" ,
+            "Sport and exercise medicine", "Dermatology","Emergency medicine",
+            "Physician", "Medical administration", "Anaesthesia",
+            "Pathology", "Palliative medicine", "Sexual health medicine",
+            "Radiation oncology", "Surgery", "Radiology", "General practice",
+            "Intensive care medicine", "Paediatrics and child health", "Rehabilitation medicine",
+            "Ophthalmology", "Psychiatry", "Public health medicine", "Addiction medicine" , "Pain medicine"};
     private static final int Gallary_REQUEST_CODE = 1;
     private UserAccount userAccount;
     private Bitmap bitmap;
     private HashMap map,mapspecialist;
-    private ArrayList<String> arrayAdaptermap =  new ArrayList<String>();
+    private ArrayList<String> arrayAdaptermapcity =  new ArrayList<String>();
+    private ArrayList<String> arrayAdaptermapspec =  new ArrayList<String>();
+
     public static LatLng location;
     public static ProgressDialog mProgress;
 
@@ -221,6 +230,8 @@ public class CompleteInfoActivity extends AppCompatActivity {
             ArrayList<Float> res = new ArrayList<>();
             JSONObject jsonObject = new JSONObject(Objects.requireNonNull(JsonDataFromAsset("specialist.json")));
             mapspecialist = new Gson().fromJson(jsonObject.toString(), HashMap.class);
+            Log.e("CITIES :",mapspecialist.keySet().toString());
+
         } catch (
                 JSONException e) {
             e.printStackTrace();
@@ -230,11 +241,11 @@ public class CompleteInfoActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.e("CITIES :", map.get(countries.get(activityCompleteInfoBinding.spinnerCountryUser.getSelectedItemPosition())).toString());
-                arrayAdaptermap = (ArrayList<String>) map.get(countries.get(activityCompleteInfoBinding.
+                arrayAdaptermapcity = (ArrayList<String>) map.get(countries.get(activityCompleteInfoBinding.
                         spinnerCountryUser.getSelectedItemPosition()));
                 ArrayAdapter<String> adapterCity = new ArrayAdapter<String>(CompleteInfoActivity.this,
                         android.R.layout.simple_spinner_item,
-                        arrayAdaptermap);
+                        arrayAdaptermapcity);
                 activityCompleteInfoBinding.spinnerCityUser.setAdapter(adapterCity);
             }
 
@@ -248,11 +259,11 @@ public class CompleteInfoActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.e("CITIES :", map.get(countries.get(activityCompleteInfoBinding.spinnerCountryDr.getSelectedItemPosition())).toString());
-                arrayAdaptermap = (ArrayList<String>) map.get(countries.get(activityCompleteInfoBinding.
+                arrayAdaptermapcity = (ArrayList<String>) map.get(countries.get(activityCompleteInfoBinding.
                         spinnerCountryDr.getSelectedItemPosition()));
                 ArrayAdapter<String> adapterCity = new ArrayAdapter<String>(CompleteInfoActivity.this,
                         android.R.layout.simple_spinner_item,
-                        arrayAdaptermap);
+                        arrayAdaptermapcity);
                 activityCompleteInfoBinding.spinnerCityDr.setAdapter(adapterCity);
             }
             @Override
@@ -265,10 +276,10 @@ public class CompleteInfoActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Log.e("CITIES :", mapspecialist.get(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()])+"");
-                arrayAdaptermap = (ArrayList<String>) mapspecialist.get(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]);
+                arrayAdaptermapspec = (ArrayList<String>) mapspecialist.get(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]);
 
                 ArrayAdapter<String> adapterSpecialistIn = new ArrayAdapter<String>(CompleteInfoActivity.this,android.R.layout.simple_spinner_item,
-                        arrayAdaptermap);
+                        arrayAdaptermapspec);
 
                 activityCompleteInfoBinding.spinnerSpecIn.setAdapter(adapterSpecialistIn);
             }
@@ -290,7 +301,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
                     UserInformation userInformation = new UserInformation(
                             countries.get(activityCompleteInfoBinding.spinnerCountryUser.getSelectedItemPosition()),
                             activityCompleteInfoBinding.editAddressUser.getText().toString(),
-                            arrayAdaptermap.get(activityCompleteInfoBinding.spinnerCityUser.getSelectedItemPosition()),
+                            arrayAdaptermapcity.get(activityCompleteInfoBinding.spinnerCityUser.getSelectedItemPosition()),
                             activityCompleteInfoBinding.editStateUser.getText().toString(),
                             "",
                             "",
@@ -332,6 +343,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
         if (requestCode == Gallary_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getBaseContext().getContentResolver(), data.getData());
+                activityCompleteInfoBinding.btnImageDr.setImageBitmap(bitmap);
                 //     Toast.makeText(getBaseContext(), "Successful", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 Log.e("gallary exception: ", e.getMessage());
@@ -393,10 +405,10 @@ public class CompleteInfoActivity extends AppCompatActivity {
     private void checkValidation() {
 
         String editClinicDr = Objects.requireNonNull(activityCompleteInfoBinding.editClinicDr).getText().toString().trim();
-        String editAddressDr = Objects.requireNonNull(activityCompleteInfoBinding.editAddressDr).getText().toString().trim();
+        String editAddressWorkDr = Objects.requireNonNull(activityCompleteInfoBinding.editAddressWorkDr).getText().toString().trim();
         String editStateDr = Objects.requireNonNull(activityCompleteInfoBinding.editStateDr).getText().toString().trim();
         String editEducationDr = Objects.requireNonNull(activityCompleteInfoBinding.editEducationDr).getText().toString().trim();
-        String editAddressEducationDr = Objects.requireNonNull(activityCompleteInfoBinding.editAddressEducationDr).getText().toString().trim();
+        String editAddressHomeDr = Objects.requireNonNull(activityCompleteInfoBinding.editAddressHomeDr).getText().toString().trim();
         String editPhoneDr = Objects.requireNonNull(activityCompleteInfoBinding.editPhoneDr).getText().toString().trim();
 
 
@@ -405,9 +417,9 @@ public class CompleteInfoActivity extends AppCompatActivity {
             activityCompleteInfoBinding.editClinicDr.requestFocus();
             return;
         }
-        if (editAddressDr.isEmpty()) {
-            activityCompleteInfoBinding.editAddressDr.setError("Address is needed");
-            activityCompleteInfoBinding.editAddressDr.requestFocus();
+        if (editAddressWorkDr.isEmpty()) {
+            activityCompleteInfoBinding.editAddressWorkDr.setError("Address Work is needed");
+            activityCompleteInfoBinding.editAddressWorkDr.requestFocus();
             return;
         }
         if (editStateDr.isEmpty()) {
@@ -420,9 +432,9 @@ public class CompleteInfoActivity extends AppCompatActivity {
             activityCompleteInfoBinding.editEducationDr.requestFocus();
             return;
         }
-        if (editAddressEducationDr.isEmpty()) {
-            activityCompleteInfoBinding.editAddressEducationDr.setError("Address Education State is needed");
-            activityCompleteInfoBinding.editAddressEducationDr.requestFocus();
+        if (editAddressHomeDr.isEmpty()) {
+            activityCompleteInfoBinding.editAddressHomeDr.setError("Address Home is needed");
+            activityCompleteInfoBinding.editAddressHomeDr.requestFocus();
             return;
         }
         if (editPhoneDr.isEmpty()) {
@@ -455,11 +467,11 @@ public class CompleteInfoActivity extends AppCompatActivity {
                         String fullNumber = activityCompleteInfoBinding.ccpDr.getFullNumber();
                         UserInformation userInformation = new UserInformation("Doctor",
                                 countries.get(activityCompleteInfoBinding.spinnerCountryDr.getSelectedItemPosition()),
-                                activityCompleteInfoBinding.editAddressDr.getText().toString(),
-                                arrayAdaptermap.get(activityCompleteInfoBinding.spinnerCityDr.getSelectedItemPosition()),
+                                activityCompleteInfoBinding.editAddressHomeDr.getText().toString(),
+                                arrayAdaptermapcity.get(activityCompleteInfoBinding.spinnerCityDr.getSelectedItemPosition()),
                                 activityCompleteInfoBinding.editStateDr.getText().toString(),
                                 fullNumber + activityCompleteInfoBinding.editPhoneDr.getText().toString(),
-                                activityCompleteInfoBinding.editAddressEducationDr.getText().toString(),
+                                activityCompleteInfoBinding.editAddressWorkDr.getText().toString(),
                                 activityCompleteInfoBinding.editEducationDr.getText().toString(),
                                 activityCompleteInfoBinding.txtBirthdayUser.getText().toString(),
                                 gender,
@@ -467,7 +479,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
                                 activityCompleteInfoBinding.editClinicDr.getText().toString());
 
                         userInformation.setSpecification(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]);
-                        userInformation.setSpecification_in(specialist[activityCompleteInfoBinding.spinnerSpecIn.getSelectedItemPosition()]);
+                        userInformation.setSpecification_in(arrayAdaptermapspec.get(activityCompleteInfoBinding.spinnerSpecIn.getSelectedItemPosition()));
                         userInformation.setPhone(activityCompleteInfoBinding.editPhoneDr.getText().toString());
                         checkphonenumbercorrecy(userAccount, activityCompleteInfoBinding.editPhoneDr.getText().toString(), fullNumber + activityCompleteInfoBinding.editPhoneDr.getText().toString(), userInformation);
 
@@ -507,7 +519,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
         StateOfUser stateOfUser = new StateOfUser();
         stateOfUser.changeState("Online");
         if(location!= null)
-            activityCompleteInfoBinding.editAddressDr.setText(location+"");
+            activityCompleteInfoBinding.editAddressWorkDr.setText(location+"");
     }
 
     @Override

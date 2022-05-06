@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class UserInformation implements Serializable {
     private String type,country,address_home,city,state_address,phone
-            ,address_education,name_education,date_of_birth,gender,specification,
+            ,address_work,name_education,date_of_birth,gender,specification,
             image_proof,name_clinic, specification_in;
 
     public UserInformation() {
@@ -12,7 +12,7 @@ public class UserInformation implements Serializable {
 
     public UserInformation(String country, String address_home, String city,
                            String state_address,
-                           String phone, String address_education,
+                           String phone, String address_work,
                            String name_education, String date_of_birth,
                            String gender,String type) {
         this.country = country;
@@ -20,7 +20,7 @@ public class UserInformation implements Serializable {
         this.city = city;
         this.state_address = state_address;
         this.phone = phone;
-        this.address_education = address_education;
+        this.address_work = address_work;
         this.name_education = name_education;
         this.date_of_birth = date_of_birth;
         this.gender = gender;
@@ -29,7 +29,7 @@ public class UserInformation implements Serializable {
 
     public UserInformation(String type, String country, String address_home,
                            String city, String state_address, String phone,
-                           String address_education, String name_education,
+                           String address_work, String name_education,
                            String date_of_birth, String gender,
                            String image_proof, String name_clinic) {
         this.type = type;
@@ -38,7 +38,7 @@ public class UserInformation implements Serializable {
         this.city = city;
         this.state_address = state_address;
         this.phone = phone;
-        this.address_education = address_education;
+        this.address_work = address_work;
         this.name_education = name_education;
         this.date_of_birth = date_of_birth;
         this.gender = gender;
@@ -118,12 +118,12 @@ public class UserInformation implements Serializable {
         this.phone = phone;
     }
 
-    public String getAddress_education() {
-        return address_education;
+    public String getAddress_work() {
+        return address_work;
     }
 
-    public void setAddress_education(String address_education) {
-        this.address_education = address_education;
+    public void setAddress_work(String address_work) {
+        this.address_work = address_work;
     }
 
     public String getName_education() {

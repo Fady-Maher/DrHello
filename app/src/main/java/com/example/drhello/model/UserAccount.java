@@ -142,4 +142,8 @@ public class UserAccount implements Serializable {
     public void setState(String state) {
         this.state = state;
     }
+
+    public void setImg_profile(String img_profile) {
+        this.img_profile = img_profile;
+    }
 }

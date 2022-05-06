@@ -55,14 +55,30 @@ public class ProfileActivity extends AppCompatActivity {
 
         activityProfileBinding = DataBindingUtil.setContentView(this, R.layout.activity_profile);
 
-        activityProfileBinding.imgFinish.setOnClickListener(new View.OnClickListener() {
+        activityProfileBinding.imgFinishDr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
             }
         });
 
-        activityProfileBinding.imgEdit.setOnClickListener(new View.OnClickListener() {
+        activityProfileBinding.imgEditDr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ProfileActivity.this,EditProfileActivity.class);
+                intent.putExtra("userAccount",userAccount);
+                startActivity(intent);
+            }
+        });
+
+        activityProfileBinding.imgFinishUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        activityProfileBinding.imgEditUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ProfileActivity.this,EditProfileActivity.class);
@@ -78,24 +94,44 @@ public class ProfileActivity extends AppCompatActivity {
                     FirebaseAuth.getInstance().getCurrentUser().delete();
                 }else{
                     userAccount = documentSnapshot.toObject(UserAccount.class);
-                    activityProfileBinding.txtAddress.setText(userAccount.getUserInformation().getAddress_home());
-                    activityProfileBinding.txtBirth.setText(userAccount.getUserInformation().getDate_of_birth());
-                    activityProfileBinding.txtAddressWorkplace.setText(userAccount.getUserInformation().getAddress_home());
-                    activityProfileBinding.txtCity.setText(userAccount.getUserInformation().getCity());
-                    activityProfileBinding.txtEmail.setText(userAccount.getEmail());
-                    activityProfileBinding.txtCountry.setText(userAccount.getUserInformation().getCountry());
-                    activityProfileBinding.txtPhone.setText(userAccount.getUserInformation().getPhone());
-                    activityProfileBinding.txtSpec.setText(userAccount.getUserInformation().getSpecification());
-                    activityProfileBinding.txtSpecIn.setText(userAccount.getUserInformation().getSpecification_in());
-                    activityProfileBinding.txtGender.setText(userAccount.getUserInformation().getGender());
-
-                    try{
-                        Glide.with(ProfileActivity.this).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
-                                error(R.drawable.user).into(activityProfileBinding.imgCurUser);
-                    }catch (Exception e){
-                        activityProfileBinding.imgCurUser.setImageResource(R.drawable.user);
+                    if(userAccount.getUserInformation().getType().equals("normal user")){
+                        activityProfileBinding.layUr.setVisibility(View.VISIBLE);
+                        activityProfileBinding.layDr.setVisibility(View.GONE);
+                        activityProfileBinding.txtAddressUser.setText(userAccount.getUserInformation().getAddress_home());
+                        activityProfileBinding.txtBirthUser.setText(userAccount.getUserInformation().getDate_of_birth());
+                        activityProfileBinding.txtCityUser.setText(userAccount.getUserInformation().getCity());
+                        activityProfileBinding.txtCountryUser.setText(userAccount.getUserInformation().getCountry());
+                        activityProfileBinding.txtEmailUser.setText(userAccount.getEmail());
+                        activityProfileBinding.txtNameUserUr.setText(userAccount.getName());
+                        activityProfileBinding.txtGenderUser.setText(userAccount.getUserInformation().getGender());
+                        activityProfileBinding.txtPhoneUser.setText(userAccount.getUserInformation().getPhone());
+                        try{
+                            Glide.with(ProfileActivity.this).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
+                                    error(R.drawable.user).into(activityProfileBinding.imgCurUserUr);
+                        }catch (Exception e){
+                            activityProfileBinding.imgCurUserUr.setImageResource(R.drawable.user);
+                        }
+                    }else{
+                        activityProfileBinding.layDr.setVisibility(View.VISIBLE);
+                        activityProfileBinding.layUr.setVisibility(View.GONE);
+                        activityProfileBinding.txtAddressDr.setText(userAccount.getUserInformation().getAddress_home());
+                        activityProfileBinding.txtBirthDr.setText(userAccount.getUserInformation().getDate_of_birth());
+                        activityProfileBinding.txtAddressWorkplace.setText(userAccount.getUserInformation().getAddress_work());
+                        activityProfileBinding.txtCityDr.setText(userAccount.getUserInformation().getCity());
+                        activityProfileBinding.txtEmailDr.setText(userAccount.getEmail());
+                        activityProfileBinding.txtCountryDr.setText(userAccount.getUserInformation().getCountry());
+                        activityProfileBinding.txtPhoneDr.setText(userAccount.getUserInformation().getPhone());
+                        activityProfileBinding.txtSpecDr.setText(userAccount.getUserInformation().getSpecification());
+                        activityProfileBinding.txtSpecInDr.setText(userAccount.getUserInformation().getSpecification_in());
+                        activityProfileBinding.txtGenderDr.setText(userAccount.getUserInformation().getGender());
+                        activityProfileBinding.txtNameUserDr.setText(userAccount.getName());
+                        try{
+                            Glide.with(ProfileActivity.this).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
+                                    error(R.drawable.user).into(activityProfileBinding.imgCurUserDr);
+                        }catch (Exception e){
+                            activityProfileBinding.imgCurUserDr.setImageResource(R.drawable.user);
+                        }
                     }
-
                 }
                 mProgress.dismiss();
             }
