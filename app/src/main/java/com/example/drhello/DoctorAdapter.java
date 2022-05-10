@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -15,10 +16,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class DoctorAdapter  extends RecyclerView.Adapter<DoctorAdapter.DoctorInfoViewHolder> {
     private Context context;
     private ArrayList<UserAccount> addPersonAdapterArrayList = new ArrayList<>();
+    private OnDoctorsClickLinstener onDoctorsClickLinstener;
 
-    public DoctorAdapter(Context context,ArrayList<UserAccount> addPersonAdapterArrayList) {
+    public DoctorAdapter(Context context,ArrayList<UserAccount> addPersonAdapterArrayList,OnDoctorsClickLinstener onDoctorsClickLinstener) {
         this.context = context;
         this.addPersonAdapterArrayList = addPersonAdapterArrayList;
+        this.onDoctorsClickLinstener = onDoctorsClickLinstener;
     }
 
     @NonNull
@@ -53,11 +56,35 @@ public class DoctorAdapter  extends RecyclerView.Adapter<DoctorAdapter.DoctorInf
     public class DoctorInfoViewHolder extends RecyclerView.ViewHolder {
         private CircleImageView img_user;
         private TextView name_user,txt_spec;
+        private LinearLayout ln_call,ln_chat,ln_place;
         public DoctorInfoViewHolder(@NonNull View itemView) {
             super(itemView);
             img_user = itemView.findViewById(R.id.img_cur_user);
             name_user = itemView.findViewById(R.id.txt_name_user);
             txt_spec = itemView.findViewById(R.id.spec);
+            ln_call = itemView.findViewById(R.id.ln_call);
+            ln_chat = itemView.findViewById(R.id.ln_chat);
+            ln_place = itemView.findViewById(R.id.ln_place);
+            ln_call.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onDoctorsClickLinstener.OnClickCall(getAdapterPosition(),addPersonAdapterArrayList.get(getAdapterPosition()).getUserInformation().getPhone());
+                }
+            });
+
+            ln_chat.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onDoctorsClickLinstener.OnClickChat(getAdapterPosition(),addPersonAdapterArrayList.get(getAdapterPosition()));
+                }
+            });
+
+            ln_place.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onDoctorsClickLinstener.OnClickPlace(getAdapterPosition(),addPersonAdapterArrayList.get(getAdapterPosition()).getUserInformation().getAddress_work());
+                }
+            });
         }
     }
 }

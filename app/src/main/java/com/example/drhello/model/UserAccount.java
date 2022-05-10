@@ -7,12 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UserAccount implements Serializable {
-    private String img_profile , name , email , pass ,date , id , tokenID , sign_up_method ,state;
+    private String img_profile , name , email , pass ,date , id , tokenID , sign_up_method ,state,follows;
     private Map<String, LastChat> map = new HashMap<>();
     private UserInformation userInformation;
     private Map<String, AddPersonModel> friendsmap = new HashMap<>();
     private Map<String, AddPersonModel> requests = new HashMap<>();
     private Map<String, AddPersonModel> requestSsent = new HashMap<>();
+    private int followers = 0;
 
     public UserInformation getUserInformation() {
         return userInformation;
@@ -145,5 +146,21 @@ public class UserAccount implements Serializable {
 
     public void setImg_profile(String img_profile) {
         this.img_profile = img_profile;
+    }
+
+    public int getFollowers() {
+        return followers;
+    }
+
+    public void setFollowers(int followers) {
+        this.followers = followers;
+    }
+
+    public String getFollows() {
+        return follows;
+    }
+
+    public void setFollows(String follows) {
+        this.follows = follows;
     }
 }

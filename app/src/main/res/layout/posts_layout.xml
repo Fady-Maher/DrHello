@@ -248,9 +248,9 @@
                     android:layout_width="0dp"
                     android:layout_height="@dimen/_24sdp"
                     android:layout_weight="1"
+                    android:paddingRight="-15dp"
                     android:src="@drawable/like"
-                    tools:ignore="ContentDescription"
-                    android:paddingRight="-15dp"/>
+                    tools:ignore="ContentDescription" />
 
                 <TextView
                     android:id="@+id/text_like"

@@ -95,6 +95,7 @@
             android:layout_gravity="center">
 
             <LinearLayout
+                android:id="@+id/ln_call"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
@@ -120,6 +121,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ln_chat"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
@@ -145,6 +147,7 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ln_place"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"

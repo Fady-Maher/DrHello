@@ -21,6 +21,8 @@ android {
                         install "nltk"
                         install "Pillow"
                         install "requests"
+                        install "pyspellchecker"
+                        install "deep_translator"
                     }
                 }
         ndk {

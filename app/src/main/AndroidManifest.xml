@@ -22,6 +22,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.STORAGE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
         android:allowBackup="true"
@@ -34,7 +35,13 @@
         tools:replace="android:supportsRtl">
         <activity
             android:name=".BotActivity"
-            android:exported="false" />
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ChatBotActivity"
             android:exported="false" />
@@ -103,11 +110,7 @@
             android:exported="true" />
         <activity android:name=".ui.login.VerifyActivity" />
         <activity android:name=".ui.login.SignIn">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity android:name=".ui.login.NewPassword" />
         <activity android:name=".ui.login.ForgotPassword" />
