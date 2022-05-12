@@ -173,7 +173,7 @@
                             android:layout_height="60dp">
 
                             <de.hdodenhof.circleimageview.CircleImageView
-                                android:id="@+id/img_desert"
+                                android:id="@+id/img_app"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:src="@drawable/aubergine" />

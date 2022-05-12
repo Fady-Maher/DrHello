@@ -58,6 +58,7 @@ public class TestHardwareActivity extends AppCompatActivity {
     private boolean statusAnimation = false;
     private final int REQUESTPERMISSIONSLOCATION = 10;
     private final int REQUESTPERMISSIONSFINE_LOCATION = 1001;
+    private WorkManager workManager;
 
     private  Runnable runnable = new Runnable() {
         @Override
@@ -165,7 +166,7 @@ public class TestHardwareActivity extends AppCompatActivity {
                         .build();
 
 
-                WorkManager workManager =  WorkManager.getInstance(TestHardwareActivity.this);
+                workManager =  WorkManager.getInstance(TestHardwareActivity.this);
                 workManager.enqueue(periodicWorkRequest1);
                 workManager.getWorkInfoByIdLiveData(periodicWorkRequest1.getId())
                         .observe(TestHardwareActivity.this, new Observer<WorkInfo>() {
@@ -173,10 +174,17 @@ public class TestHardwareActivity extends AppCompatActivity {
                             public void onChanged(@Nullable WorkInfo workInfo) {
                                 if (workInfo != null) {
                                     Log.d("periodicWorkRequest", "Status changed to : " + workInfo.getState());
-
                                 }
                             }
                         });
+            }
+        });
+
+
+        activityTestHardwareBinding.txtStop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                workManager.cancelAllWork();
             }
         });
 

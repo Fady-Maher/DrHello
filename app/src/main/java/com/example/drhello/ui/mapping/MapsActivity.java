@@ -17,6 +17,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
@@ -74,6 +75,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.supercharge.shimmerlayout.ShimmerLayout;
 
@@ -93,7 +95,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LinearLayout tapactionlayout;
     private ShimmerLayout shimmerLayout;
     View bottomSheet;
-    private CircleImageView img_dark, img_def, img_light, img_desert;
+    private CircleImageView img_dark, img_def, img_light, img_app;
     TextView edit_search,txt_search;
     EditText  edit_search_inside;
     ImageView mic_search, img_search_inside, img_search_back,img_back;
@@ -151,7 +153,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // position on right bottom
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
             layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-            layoutParams.setMargins(0, 0, 30, -50);
+            layoutParams.setMargins(0, 0, 30, 310);
         }
 
         checkRunTimePermission();
@@ -167,7 +169,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         tapactionlayout = findViewById(R.id.tap_action_layout);
         img_dark = findViewById(R.id.img_dark);
         img_def = findViewById(R.id.img_def);
-        img_desert = findViewById(R.id.img_desert);
+        img_app = findViewById(R.id.img_app);
         img_light = findViewById(R.id.img_light);
         mic_search = findViewById(R.id.mic_search);
         edit_search = findViewById(R.id.edit_search);
@@ -291,7 +293,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         img_dark.setOnClickListener(this);
         img_light.setOnClickListener(this);
-        img_desert.setOnClickListener(this);
+        img_app.setOnClickListener(this);
         img_def.setOnClickListener(this);
     }
 
@@ -299,7 +301,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        try {
+            boolean success = mMap.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            this, R.raw.night));
+            if (success) {
+                Log.e("mapdark", "Style parsing failed.");
+            }
+        } catch (Resources.NotFoundException e) {
+            Log.e("mapdark", "Can't find style. Error: ", e);
+        }
         mMap.setTrafficEnabled(true);
         mMap.setIndoorEnabled(true);
         mMap.setMaxZoomPreference(18.5f);
@@ -339,23 +350,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 return false;
             }
         });
+
+
     }
 
     private void setMapStyle(String text) {
         switch (text) {
             case "dark":
-                mMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+                mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.night));
+                Log.e("TYPE :" , "night");
                 break;
             case "def":
-                mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                 //mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.def_m));
+                mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.retro));
+                Log.e("TYPE :" , "retro");//HOMES
                 break;
-            case "desert":
-                mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.mao_dark));
+            case "app":
+                mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.dark));
+                Log.e("TYPE :" , "dark");
                 break;
             case "light":
-//                mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
                 mMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this, R.raw.map_style));
+                //mMap.setMapType(GoogleMap.MAP_TYPE_NONE);
+                Log.e("TYPE :" , "map_style");
                 break;
         }
 
@@ -372,8 +388,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 setMapStyle("def");
                 mBottomSheetBehavior1.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 break;
-            case R.id.img_desert:
-                setMapStyle("desert");
+            case R.id.img_app:
+                setMapStyle("app");
                 mBottomSheetBehavior1.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 break;
             case R.id.img_light:

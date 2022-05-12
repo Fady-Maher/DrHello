@@ -246,10 +246,12 @@
                 app:layout_behavior="@string/appbar_scrolling_view_behavior"
                 map:layout_anchor="@+id/map"
                 map:layout_anchorGravity="center"
-                tools:ignore="FragmentTagUsage" />
+                tools:ignore="FragmentTagUsage" >
+            </fragment>
 
 
-            <include layout="@layout/bottomsheet_layout" />
+            <include layout="@layout/bottomsheet_layout"
+               />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
