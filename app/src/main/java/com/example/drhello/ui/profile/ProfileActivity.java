@@ -1,5 +1,7 @@
 package com.example.drhello.ui.profile;
 
+import static com.facebook.FacebookSdk.getApplicationContext;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,12 +33,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.drhello.FollowersModel;
+import com.example.drhello.PostsUsersActivity;
 import com.example.drhello.R;
 import com.example.drhello.adapter.ImagePostsAdapter;
 import com.example.drhello.adapter.UserStateAdapter;
 import com.example.drhello.databinding.ActivityProfileBinding;
+import com.example.drhello.firebaseinterface.MyCallBackAddFriend;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
+import com.example.drhello.firebaseservice.FcmNotificationsSender;
+import com.example.drhello.model.AddPersonModel;
 import com.example.drhello.model.UserState;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.model.UserAccount;
@@ -53,6 +60,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
 import java.util.Objects;
 
 public class ProfileActivity extends AppCompatActivity {
@@ -62,9 +70,8 @@ public class ProfileActivity extends AppCompatActivity {
     private UserAccount userAccount;
     private boolean flag_follow = false;
     private FirebaseFirestore db;
-    int followers = 0 ;
-    String follow = "";
     private static final int REQUEST_CODE = 1;
+    private String userId;
 
     @SuppressLint("ObsoleteSdkInt")
     @Override
@@ -81,6 +88,18 @@ public class ProfileActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         activityProfileBinding = DataBindingUtil.setContentView(this, R.layout.activity_profile);
+
+        if(getIntent().getStringExtra("userId") !=null){
+            userId = getIntent().getStringExtra("userId");
+        }else{
+            userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            activityProfileBinding.lnDr.setVisibility(View.GONE);
+            activityProfileBinding.lnUser.setVisibility(View.GONE);
+        }
+
+        if(userId != null){
+            readDateInfo();
+        }
 
         activityProfileBinding.imgFinishDr.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -114,92 +133,11 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        readData(new MyCallbackUser() {
-            @Override
-            public void onCallback(DocumentSnapshot documentSnapshot) {
-                if(!documentSnapshot.exists()){
-                    FirebaseAuth.getInstance().getCurrentUser().delete();
-                }else{
-                    userAccount = documentSnapshot.toObject(UserAccount.class);
-                    followers = userAccount.getFollowers();
-                    follow = userAccount.getFollows();
-                    if(userAccount.getUserInformation().getType().equals("normal user")){
-                        activityProfileBinding.layUr.setVisibility(View.VISIBLE);
-                        activityProfileBinding.layDr.setVisibility(View.GONE);
-                        activityProfileBinding.txtAddressUser.setText(userAccount.getUserInformation().getAddress_home());
-                        activityProfileBinding.txtBirthUser.setText(userAccount.getUserInformation().getDate_of_birth());
-                        activityProfileBinding.txtCityUser.setText(userAccount.getUserInformation().getCity());
-                        activityProfileBinding.txtCountryUser.setText(userAccount.getUserInformation().getCountry());
-                        activityProfileBinding.txtEmailUser.setText(userAccount.getEmail());
-                        activityProfileBinding.txtNameUserUr.setText(userAccount.getName());
-                        activityProfileBinding.txtGenderUser.setText(userAccount.getUserInformation().getGender());
-                        activityProfileBinding.txtPhoneUser.setText(userAccount.getUserInformation().getPhone());
-                        /*
-                        activityProfileBinding.txtStarUser.setText(userAccount.getFollows());
-                        if(userAccount.getFollows().equals("follow")){
-                            activityProfileBinding.imgbtnUser.setImageResource(R.drawable.select_star1);
-                        }else{
-                            activityProfileBinding.imgbtnUser.setImageResource(R.drawable.star1);
-                        }
-                         */
-
-                        try{
-                            Glide.with(ProfileActivity.this).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
-                                    error(R.drawable.user).into(activityProfileBinding.imgCurUserUr);
-                        }catch (Exception e){
-                            activityProfileBinding.imgCurUserUr.setImageResource(R.drawable.user);
-                        }
-                    }else{
-                        activityProfileBinding.layDr.setVisibility(View.VISIBLE);
-                        activityProfileBinding.layUr.setVisibility(View.GONE);
-                        activityProfileBinding.txtAddressDr.setText(userAccount.getUserInformation().getAddress_home());
-                        activityProfileBinding.txtBirthDr.setText(userAccount.getUserInformation().getDate_of_birth());
-                        activityProfileBinding.txtAddressWorkplace.setText(userAccount.getUserInformation().getAddress_work());
-                        activityProfileBinding.txtCityDr.setText(userAccount.getUserInformation().getCity());
-                        activityProfileBinding.txtEmailDr.setText(userAccount.getEmail());
-                        activityProfileBinding.txtCountryDr.setText(userAccount.getUserInformation().getCountry());
-                        activityProfileBinding.txtPhoneDr.setText(userAccount.getUserInformation().getPhone());
-                        activityProfileBinding.txtSpecDr.setText(userAccount.getUserInformation().getSpecification());
-                        activityProfileBinding.txtSpecInDr.setText(userAccount.getUserInformation().getSpecification_in());
-                        activityProfileBinding.txtGenderDr.setText(userAccount.getUserInformation().getGender());
-                        activityProfileBinding.txtNameUserDr.setText(userAccount.getName());
-                        activityProfileBinding.txtStartDr.setText(userAccount.getFollowers()+"");
-                        /*
-                        if(userAccount.getFollows().equals("follow")){
-                            activityProfileBinding.imgbtnUser.setImageResource(R.drawable.select_star1);
-                        }else{
-                            activityProfileBinding.imgbtnUser.setImageResource(R.drawable.star1);
-                        }
-
-                         */
-                        try{
-                            Glide.with(ProfileActivity.this).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
-                                    error(R.drawable.user).into(activityProfileBinding.imgCurUserDr);
-                        }catch (Exception e){
-                            activityProfileBinding.imgCurUserDr.setImageResource(R.drawable.user);
-                        }
-                    }
-                }
-                mProgress.dismiss();
-            }
-        });
-
 
         activityProfileBinding.lnFollowDr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!flag_follow){
-                    flag_follow = true;
-                    activityProfileBinding.imgbtnDr.setImageResource(R.drawable.select_star1);
-                    followers = followers + 1;
-                    follow = "follow";
-                }else{
-                    flag_follow = false;
-                    activityProfileBinding.imgbtnDr.setImageResource(R.drawable.star1);
-                    followers = followers - 1;
-                    follow = "unfollow";
-                }
-                updataInformation(follow,followers,userAccount);
+                onClickFollowers(userAccount);
             }
         });
 
@@ -207,20 +145,7 @@ public class ProfileActivity extends AppCompatActivity {
         activityProfileBinding.lnFollowUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!flag_follow){
-                    flag_follow = true;
-                    activityProfileBinding.imgbtnUser.setImageResource(R.drawable.select_star1);
-                    activityProfileBinding.txtStarUser.setText("follow");
-                    followers = followers + 1;
-                    follow = "follow";
-                }else{
-                    flag_follow = false;
-                    activityProfileBinding.imgbtnUser.setImageResource(R.drawable.star1);
-                    activityProfileBinding.txtStarUser.setText("unfollow");
-                    followers = followers - 1;
-                    follow = "unfollow";
-                }
-                updataInformation(follow,followers,userAccount);
+                onClickFollowers(userAccount);
             }
         });
 
@@ -240,11 +165,42 @@ public class ProfileActivity extends AppCompatActivity {
                     intent.setData(Uri.parse(uri));
                     startActivity(intent);
                     Log.e("PERS","intent");
-
                 }
-
             }
         });
+
+
+        activityProfileBinding.lnLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String location = userAccount.getUserInformation().getAddress_work();
+                String lat = location.substring(10).split(",")[0];
+                String lon = location.substring(10).split(",")[1].replace(")","");
+                String geoUri = "http://www.google.com/maps/place/" + lat + "," + lon + "";
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
+                startActivity(intent);
+            }
+        });
+
+        activityProfileBinding.lnPostUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ProfileActivity.this, PostsUsersActivity.class);
+                intent.putExtra("userAccount",userAccount);
+                startActivity(intent);
+            }
+        });
+
+        activityProfileBinding.lnPostsDr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ProfileActivity.this, PostsUsersActivity.class);
+                intent.putExtra("userAccount",userAccount);
+                startActivity(intent);
+            }
+        });
+
+
 
     }
 
@@ -300,22 +256,17 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void updataInformation(String follow,int followers,UserAccount userAccount) {
+    private void updataInformation(UserAccount userAccount) {
         mProgress.setMessage("Loading..");
         mProgress.setCancelable(false);
         mProgress.show();
-        userAccount.setFollowers(followers);
-        userAccount.setFollows(follow);
+
         db.collection("users")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .document(userAccount.getId())
                 .set(userAccount)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        if(userAccount.getUserInformation().getType().equals("normal user")){
-
-                        }else{
-                            readDateInfo();
-                        }
+                        readDateInfo();
                         Toast.makeText(getApplicationContext(), "Successful Follow Doctor.", Toast.LENGTH_SHORT).show();
                     } else {
                         Toast.makeText(getApplicationContext(), "Failed Follow Doctor.", Toast.LENGTH_SHORT).show();
@@ -332,8 +283,6 @@ public class ProfileActivity extends AppCompatActivity {
                     FirebaseAuth.getInstance().getCurrentUser().delete();
                 }else{
                     userAccount = documentSnapshot.toObject(UserAccount.class);
-                    followers = userAccount.getFollowers();
-                    follow = userAccount.getFollows();
                     if(userAccount.getUserInformation().getType().equals("normal user")){
                         activityProfileBinding.layUr.setVisibility(View.VISIBLE);
                         activityProfileBinding.layDr.setVisibility(View.GONE);
@@ -345,12 +294,21 @@ public class ProfileActivity extends AppCompatActivity {
                         activityProfileBinding.txtNameUserUr.setText(userAccount.getName());
                         activityProfileBinding.txtGenderUser.setText(userAccount.getUserInformation().getGender());
                         activityProfileBinding.txtPhoneUser.setText(userAccount.getUserInformation().getPhone());
-                        activityProfileBinding.txtStarUser.setText(userAccount.getFollows());
-                        if(userAccount.getFollows().equals("follow")){
-                            activityProfileBinding.imgbtnUser.setImageResource(R.drawable.select_star1);
+                        if(userId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                            activityProfileBinding.txtStarUser.setText(userAccount.getFollowersModelMap().size()+"");
                         }else{
-                            activityProfileBinding.imgbtnUser.setImageResource(R.drawable.star1);
+                            if(userAccount.getFollowersModelMap().containsKey(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                                activityProfileBinding.txtStarUser.setText("Follow");
+                                activityProfileBinding.imgbtnUser.setImageResource(R.drawable.select_star1);
+                            }else{
+                                activityProfileBinding.txtStarUser.setText("unFollow");
+                                activityProfileBinding.imgbtnUser.setImageResource(R.drawable.star1);
+                            }
                         }
+
+                        String name = "flag_"+userAccount.getUserInformation().getCountry().toLowerCase();
+                        int id = getResources().getIdentifier(name, "drawable", getPackageName());
+                        activityProfileBinding.imgCountryUser.setImageResource(id);
 
                         try{
                             Glide.with(ProfileActivity.this).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
@@ -372,12 +330,17 @@ public class ProfileActivity extends AppCompatActivity {
                         activityProfileBinding.txtSpecInDr.setText(userAccount.getUserInformation().getSpecification_in());
                         activityProfileBinding.txtGenderDr.setText(userAccount.getUserInformation().getGender());
                         activityProfileBinding.txtNameUserDr.setText(userAccount.getName());
-                        activityProfileBinding.txtStartDr.setText(userAccount.getFollowers()+"");
-                        if(userAccount.getFollows().equals("follow")){
-                            activityProfileBinding.imgbtnUser.setImageResource(R.drawable.select_star1);
+                        activityProfileBinding.txtStartDr.setText(userAccount.getFollowersModelMap().size()+"");
+                        if(userAccount.getFollowersModelMap().containsKey(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                            activityProfileBinding.imgbtnDr.setImageResource(R.drawable.select_star1);
                         }else{
-                            activityProfileBinding.imgbtnUser.setImageResource(R.drawable.star1);
+                            activityProfileBinding.imgbtnDr.setImageResource(R.drawable.star1);
                         }
+
+                        String name = "flag_"+userAccount.getUserInformation().getCountry().toLowerCase();
+                        int id = getResources().getIdentifier(name, "drawable", getPackageName());
+                        activityProfileBinding.imgCountryDr.setImageResource(id);
+
                         try{
                             Glide.with(ProfileActivity.this).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
                                     error(R.drawable.user).into(activityProfileBinding.imgCurUserDr);
@@ -393,13 +356,12 @@ public class ProfileActivity extends AppCompatActivity {
 
 
     public void readData(MyCallbackUser myCallback) {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
+        if (userId != null) {
             mProgress.setMessage("Loading..");
             mProgress.setCancelable(false);
             mProgress.show();
             FirebaseFirestore.getInstance().collection("users")
-                    .document(currentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    .document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     myCallback.onCallback(documentSnapshot);
@@ -422,6 +384,23 @@ public class ProfileActivity extends AppCompatActivity {
         stateOfUser.changeState("Offline");
     }
 
+
+    public void onClickFollowers(UserAccount userAccountfriend) {
+        mProgress.setMessage("Uploading..");
+        mProgress.setCancelable(false);
+        mProgress.show();
+        String userIdMe = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        Map<String, FollowersModel> followersModelMap = userAccountfriend.getFollowersModelMap();
+
+        if (!followersModelMap.containsKey(userIdMe)){ //follow
+            followersModelMap.put(userIdMe, new FollowersModel(userIdMe));
+            userAccountfriend.setFollowersModelMap(followersModelMap);
+        }else{
+            followersModelMap.remove(userIdMe);
+            userAccountfriend.setFollowersModelMap(followersModelMap);
+        }
+        updataInformation(userAccountfriend);
+    }
 
 
 }

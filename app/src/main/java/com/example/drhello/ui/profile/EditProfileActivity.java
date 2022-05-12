@@ -10,11 +10,14 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -31,9 +34,19 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -47,6 +60,12 @@ public class EditProfileActivity extends AppCompatActivity {
     private StorageReference storageRef;
     private Bitmap bitmap;
     private UserAccount userAccount;
+    private HashMap map;
+    private Locale[] locales = Locale.getAvailableLocales();
+    private ArrayList<String> countries = new ArrayList<String>();
+    private ArrayList<String> arrayAdaptermapcity =  new ArrayList<String>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +85,78 @@ public class EditProfileActivity extends AppCompatActivity {
         activityEditProfileBinding = DataBindingUtil.setContentView(this, R.layout.activity_edit_profile);
 
 
+        for (Locale locale : locales) {
+            String country = locale.getDisplayCountry();
+            if (country.trim().length() > 0 && !countries.contains(country)) {
+                countries.add(country);
+            }
+        }
+        Collections.sort(countries);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, countries);
+        activityEditProfileBinding.spinnerCountryUser.setAdapter(adapter);
+        activityEditProfileBinding.spinnerCountryDr.setAdapter(adapter);
+
+        try {
+            ArrayList<Float> res = new ArrayList<>();
+            JSONObject jsonObject = new JSONObject(Objects.requireNonNull(JsonDataFromAsset("countriesToCities.json")));
+            map = new Gson().fromJson(jsonObject.toString(), HashMap.class);
+          /*  Log.e("CITIES :", map.get(countries.get(activityEditProfileBinding
+                    .spinnerCountryUser.getSelectedItemPosition())).toString());
+        */} catch (
+                JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        activityEditProfileBinding.spinnerCountryUser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.e("CITIES :", map.get(countries.get(activityEditProfileBinding.spinnerCountryUser.getSelectedItemPosition())).toString());
+                arrayAdaptermapcity = (ArrayList<String>) map.get(countries.get(activityEditProfileBinding.
+                        spinnerCountryUser.getSelectedItemPosition()));
+                ArrayAdapter<String> adapterCity = new ArrayAdapter<String>(EditProfileActivity.this,
+                        android.R.layout.simple_spinner_item,
+                        arrayAdaptermapcity);
+
+                String name = "flag_"+countries.get(activityEditProfileBinding.
+                        spinnerCountryUser.getSelectedItemPosition()).toLowerCase();
+                int id = getResources().getIdentifier(name, "drawable", getPackageName());
+             //   Drawable drawable = getResources().getDrawable(id);
+                activityEditProfileBinding.imgCountry.setImageResource(id);
+                activityEditProfileBinding.spinnerCityUser.setAdapter(adapterCity);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        activityEditProfileBinding.spinnerCountryDr.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                Log.e("CITIES :", map.get(countries.get(activityEditProfileBinding.spinnerCountryDr.getSelectedItemPosition())).toString());
+                arrayAdaptermapcity = (ArrayList<String>) map.get(countries.get(activityEditProfileBinding.
+                        spinnerCountryDr.getSelectedItemPosition()));
+                ArrayAdapter<String> adapterCity = new ArrayAdapter<String>(EditProfileActivity.this,
+                        android.R.layout.simple_spinner_item,
+                        arrayAdaptermapcity);
+
+                String name = "flag_"+countries.get(activityEditProfileBinding.
+                        spinnerCountryDr.getSelectedItemPosition()).toLowerCase();
+                int id = getResources().getIdentifier(name, "drawable", getPackageName());
+                //   Drawable drawable = getResources().getDrawable(id);
+                activityEditProfileBinding.imgCountryDr.setImageResource(id);
+                activityEditProfileBinding.spinnerCityDr.setAdapter(adapterCity);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+
 
         if (getIntent().getSerializableExtra("userAccount") != null){
             Log.e("getIntent","userAccount");
@@ -82,9 +173,9 @@ public class EditProfileActivity extends AppCompatActivity {
                 activityEditProfileBinding.editBirthUser.setHint(userAccount.getUserInformation().getDate_of_birth());
                 activityEditProfileBinding.editNameUser.setHint(userAccount.getName());
                 activityEditProfileBinding.editAddressUser.setHint(userAccount.getUserInformation().getAddress_home());
-                activityEditProfileBinding.editCityUser.setHint(userAccount.getUserInformation().getCity());
+                activityEditProfileBinding.spinnerCityUser.setSelection(arrayAdaptermapcity.indexOf(userAccount.getUserInformation().getCity()));
+                activityEditProfileBinding.spinnerCountryUser.setSelection(countries.indexOf(userAccount.getUserInformation().getCountry()));
                 activityEditProfileBinding.editEmailUser.setHint(userAccount.getEmail());
-                activityEditProfileBinding.editCountryUser.setHint(userAccount.getUserInformation().getCountry());
                 activityEditProfileBinding.editPhoneUser.setHint(userAccount.getUserInformation().getPhone());
 
                 try{
@@ -138,14 +229,14 @@ public class EditProfileActivity extends AppCompatActivity {
 
                 activityEditProfileBinding.editAddressDr.setHint(userAccount.getUserInformation().getAddress_home());
                 activityEditProfileBinding.editBirthDr.setHint(userAccount.getUserInformation().getDate_of_birth());
-                activityEditProfileBinding.editCityDr.setHint(userAccount.getUserInformation().getCity());
+                activityEditProfileBinding.spinnerCityDr.setSelection(arrayAdaptermapcity.indexOf(userAccount.getUserInformation().getCity()));
+                activityEditProfileBinding.spinnerCountryDr.setSelection(countries.indexOf(userAccount.getUserInformation().getCountry()));
                 activityEditProfileBinding.editEmailDr.setHint(userAccount.getEmail());
                 activityEditProfileBinding.editPhoneDr.setHint(userAccount.getUserInformation().getPhone());
                 activityEditProfileBinding.editSpecDr.setHint(userAccount.getUserInformation().getSpecification());
                 activityEditProfileBinding.editSpecInDr.setHint(userAccount.getUserInformation().getSpecification_in());
                 activityEditProfileBinding.editNameDr.setHint(userAccount.getName());
                 activityEditProfileBinding.editWorkPlaceDr.setHint(userAccount.getUserInformation().getAddress_work());
-                activityEditProfileBinding.editCountryDr.setHint(userAccount.getUserInformation().getCountry());
 
                 try{
                     Glide.with(EditProfileActivity.this).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
@@ -220,6 +311,22 @@ public class EditProfileActivity extends AppCompatActivity {
 
 
 
+    private String JsonDataFromAsset(String name) {
+        String json = null;
+        try {
+            InputStream inputStream = EditProfileActivity.this.getAssets().open(name);
+            int sizeOfFile = inputStream.available();
+            byte[] bufferData = new byte[sizeOfFile];
+            inputStream.read(bufferData);
+            inputStream.close();
+            json = new String(bufferData, "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return json;
+    }
+
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -248,8 +355,6 @@ public class EditProfileActivity extends AppCompatActivity {
         String birth = activityEditProfileBinding.editBirthUser.getText().toString();
         String name = activityEditProfileBinding.editNameUser.getText().toString();
         String address = activityEditProfileBinding.editAddressUser.getText().toString();
-        String city = activityEditProfileBinding.editCityUser.getText().toString();
-        String country = activityEditProfileBinding.editCountryUser.getText().toString();
 
         if(!birth.equals("")){
             userAccount.getUserInformation().setDate_of_birth(birth);
@@ -260,20 +365,18 @@ public class EditProfileActivity extends AppCompatActivity {
         if(!address.equals("")){
             userAccount.getUserInformation().setAddress_home(address);
         }
-        if(!city.equals("")){
-            userAccount.getUserInformation().setCity(city);
-        }
-        if(!country.equals("")){
-            userAccount.getUserInformation().setCountry(country);
-        }
+
+        userAccount.getUserInformation().setCountry(countries.get(activityEditProfileBinding.
+                spinnerCountryUser.getSelectedItemPosition()));
+        userAccount.getUserInformation().setCity(arrayAdaptermapcity.get(activityEditProfileBinding.
+                spinnerCityUser.getSelectedItemPosition()));
+
     }
     private void checkStateDr(){
         String birth = activityEditProfileBinding.editBirthDr.getText().toString();
         String name = activityEditProfileBinding.editNameDr.getText().toString();
         String address = activityEditProfileBinding.editAddressDr.getText().toString();
-        String city = activityEditProfileBinding.editCityDr.getText().toString();
-        String country = activityEditProfileBinding.editCountryDr.getText().toString();
-        String workplace = activityEditProfileBinding.editCountryDr.getText().toString();
+
         String spec = activityEditProfileBinding.editSpecDr.getText().toString();
         String specin = activityEditProfileBinding.editSpecInDr.getText().toString();
 
@@ -286,21 +389,18 @@ public class EditProfileActivity extends AppCompatActivity {
         if(!address.equals("")){
             userAccount.getUserInformation().setAddress_home(address);
         }
-        if(!city.equals("")){
-            userAccount.getUserInformation().setCity(city);
-        }
-        if(!country.equals("")){
-            userAccount.getUserInformation().setCountry(country);
-        }
-        if(!workplace.equals("")){
-            userAccount.getUserInformation().setAddress_work(workplace);
-        }
+
         if(!spec.equals("")){
             userAccount.getUserInformation().setSpecification(spec);
         }
         if(!specin.equals("")){
             userAccount.getUserInformation().setSpecification_in(specin);
         }
+
+        userAccount.getUserInformation().setCountry(countries.get(activityEditProfileBinding.
+                spinnerCountryDr.getSelectedItemPosition()));
+        userAccount.getUserInformation().setCity(arrayAdaptermapcity.get(activityEditProfileBinding.
+                spinnerCityDr.getSelectedItemPosition()));
     }
 
     private void updateData(String type){

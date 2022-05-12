@@ -14,8 +14,8 @@
         android:background="@color/white">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:visibility="gone"
             android:id="@+id/lay_dr"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -221,6 +221,7 @@
                                 android:layout_margin="10dp">
 
                                 <ImageView
+                                    android:id="@+id/img_country_dr"
                                     android:layout_width="20dp"
                                     android:layout_height="20dp"
                                     android:src="@drawable/flag_egypt"
@@ -230,12 +231,13 @@
 
                             </androidx.cardview.widget.CardView>
 
-                            <EditText
-                                android:id="@+id/edit_country_dr"
+                            <Spinner
+                                android:id="@+id/spinner_country_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:drawableRight="@drawable/ic_rename"
                                 android:hint="Egypt"
+                                android:layout_gravity="center"
                                 android:textColor="@color/profile_color"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
@@ -266,12 +268,13 @@
 
                             </androidx.cardview.widget.CardView>
 
-                            <EditText
-                                android:id="@+id/edit_city_dr"
+                            <Spinner
+                                android:id="@+id/spinner_city_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:drawableRight="@drawable/ic_rename"
                                 android:hint="Cairo"
+                                android:layout_gravity="center"
                                 android:layout_marginRight="5dp"
                                 android:textStyle="bold"
                                 android:textSize="16sp"
@@ -810,6 +813,7 @@
                                 android:layout_margin="10dp">
 
                                 <ImageView
+                                    android:id="@+id/img_country"
                                     android:layout_width="20dp"
                                     android:layout_height="20dp"
                                     android:src="@drawable/flag_egypt"
@@ -819,12 +823,13 @@
 
                             </androidx.cardview.widget.CardView>
 
-                            <EditText
-                                android:id="@+id/edit_country_user"
+                            <Spinner
+                                android:id="@+id/spinner_country_user"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:drawableRight="@drawable/ic_rename"
                                 android:hint="Egypt"
+                                android:layout_gravity="center"
                                 android:textStyle="bold"
                                 android:textSize="16sp"
                                 android:textColor="@color/profile_color" />
@@ -855,12 +860,13 @@
 
                             </androidx.cardview.widget.CardView>
 
-                            <EditText
-                                android:id="@+id/edit_city_user"
+                            <Spinner
+                                android:id="@+id/spinner_city_user"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:drawableRight="@drawable/ic_rename"
                                 android:hint="Cairo"
+                                android:layout_gravity="center"
                                 android:layout_marginRight="5dp"
                                 android:textStyle="bold"
                                 android:textSize="16sp"

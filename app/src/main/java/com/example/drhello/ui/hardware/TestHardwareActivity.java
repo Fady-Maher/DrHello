@@ -1,11 +1,20 @@
 package com.example.drhello.ui.hardware;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.work.BackoffPolicy;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -28,6 +37,7 @@ import android.view.WindowManager;
 
 import com.example.drhello.MYService;
 import com.example.drhello.R;
+import com.example.drhello.UploadWorker;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.databinding.ActivityTestHardwareBinding;
 import com.example.drhello.ui.chats.GPSTracker;
@@ -38,6 +48,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.concurrent.TimeUnit;
 
 public class TestHardwareActivity extends AppCompatActivity {
 
@@ -131,8 +143,40 @@ public class TestHardwareActivity extends AppCompatActivity {
                     startPulse();
                 }
 
-                startService(new Intent(getApplicationContext(), MYService.class));
+               /* WorkRequest uploadWorkRequest =
+                        new OneTimeWorkRequest.Builder(UploadWorker.class)
+                                .build();
 
+                WorkManager.getInstance(TestHardwareActivity.this).enqueue(uploadWorkRequest);
+
+
+                */
+
+
+                Constraints constraints = new Constraints.Builder().setRequiresCharging(true)
+                        .setRequiredNetworkType(NetworkType.UNMETERED).build();
+
+                final PeriodicWorkRequest periodicWorkRequest1 = new PeriodicWorkRequest.Builder(UploadWorker.class,30, TimeUnit.SECONDS)
+                        .setInitialDelay(1,TimeUnit.SECONDS)
+                        .setConstraints(constraints).setBackoffCriteria(
+                                BackoffPolicy.LINEAR,
+                                OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
+                                TimeUnit.MILLISECONDS)
+                        .build();
+
+
+                WorkManager workManager =  WorkManager.getInstance(TestHardwareActivity.this);
+                workManager.enqueue(periodicWorkRequest1);
+                workManager.getWorkInfoByIdLiveData(periodicWorkRequest1.getId())
+                        .observe(TestHardwareActivity.this, new Observer<WorkInfo>() {
+                            @Override
+                            public void onChanged(@Nullable WorkInfo workInfo) {
+                                if (workInfo != null) {
+                                    Log.d("periodicWorkRequest", "Status changed to : " + workInfo.getState());
+
+                                }
+                            }
+                        });
             }
         });
 

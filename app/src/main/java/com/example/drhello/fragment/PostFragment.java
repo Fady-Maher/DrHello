@@ -21,9 +21,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.drhello.OnClickPostProfileListener;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
 import com.example.drhello.firebaseinterface.MyCallBackReaction;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
+import com.example.drhello.ui.profile.ProfileActivity;
 import com.example.drhello.ui.writepost.NumReactionActivity;
 import com.example.drhello.model.ReactionType;
 import com.example.drhello.model.Posts;
@@ -50,7 +52,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 
-public class PostFragment extends Fragment implements OnPostClickListener {
+public class PostFragment extends Fragment implements OnPostClickListener , OnClickPostProfileListener {
 
     private Button btn_write_post;
     ArrayList<Posts> postsArrayList = new ArrayList<>();
@@ -113,7 +115,7 @@ public class PostFragment extends Fragment implements OnPostClickListener {
         });
 
         postsAdapter = new PostsAdapter(getActivity(), postsArrayList,
-                PostFragment.this, getActivity().getSupportFragmentManager());
+                PostFragment.this, getActivity().getSupportFragmentManager(),PostFragment.this);
         recycler_posts.setAdapter(postsAdapter);
 
         readDataPostsListener(new MyCallBackListenerComments() {
@@ -221,6 +223,14 @@ public class PostFragment extends Fragment implements OnPostClickListener {
                     }
                 });
     }
+
+    @Override
+    public void onClick(int position, String id) {
+        Intent intent = new Intent(getActivity(), ProfileActivity.class);
+        intent.putExtra("userId",id);
+        getActivity().startActivity(intent);
+    }
+
 
     private boolean isNetworkAvailable() {
         @SuppressLint("UseRequireInsteadOfGet") ConnectivityManager connectivityManager

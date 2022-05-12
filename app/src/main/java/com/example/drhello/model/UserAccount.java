@@ -1,5 +1,6 @@
 package com.example.drhello.model;
 
+import com.example.drhello.FollowersModel;
 import com.example.drhello.ui.profile.UserInformation;
 
 import java.io.Serializable;
@@ -14,6 +15,7 @@ public class UserAccount implements Serializable {
     private Map<String, AddPersonModel> requests = new HashMap<>();
     private Map<String, AddPersonModel> requestSsent = new HashMap<>();
     private int followers = 0;
+    private Map<String, FollowersModel> followersModelMap = new HashMap<>();
 
     public UserInformation getUserInformation() {
         return userInformation;
@@ -162,5 +164,13 @@ public class UserAccount implements Serializable {
 
     public void setFollows(String follows) {
         this.follows = follows;
+    }
+
+    public Map<String, FollowersModel> getFollowersModelMap() {
+        return followersModelMap;
+    }
+
+    public void setFollowersModelMap(Map<String, FollowersModel> followersModelMap) {
+        this.followersModelMap = followersModelMap;
     }
 }

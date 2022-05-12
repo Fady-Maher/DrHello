@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.drhello.OnClickPostProfileListener;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
 import com.example.drhello.fragment.PostFragment;
 import com.example.drhello.ui.writepost.TimeAgo;
@@ -46,15 +47,18 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
     private PostsHolder postsHolder;
     private  FragmentManager supportFragmentManager;
     private String reactionType2 = "0";
+    private OnClickPostProfileListener onClickPostProfileListener;
 
     public PostsAdapter() {
     }
 
-    public PostsAdapter(Context context, ArrayList<Posts> posts, OnPostClickListener onPostClickListener, FragmentManager supportFragmentManager ) {
+    public PostsAdapter(Context context, ArrayList<Posts> posts, OnPostClickListener onPostClickListener, FragmentManager supportFragmentManager
+    ,OnClickPostProfileListener onClickPostProfileListener) {
         this.context = context;
         this.posts = posts;
         this.onPostClickListener = onPostClickListener;
         this.supportFragmentManager = supportFragmentManager;
+        this.onClickPostProfileListener = onClickPostProfileListener;
 
         Log.e("PostsAdapter : ",posts.size()+"");
     }
@@ -239,6 +243,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
 
 
 
+
     }
 
     @Override
@@ -343,6 +348,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
                 }
             });
 
+
+            user_image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onClickPostProfileListener.onClick(getAdapterPosition(),posts.get(getAdapterPosition()).getUserId());
+                }
+            });
 
         }
     }

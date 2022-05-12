@@ -34,14 +34,11 @@
         tools:ignore="AllowBackup"
         tools:replace="android:supportsRtl">
         <activity
+            android:name=".PostsUsersActivity"
+            android:exported="false" />
+        <activity
             android:name=".BotActivity"
-            android:exported="true" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="true"></activity>
         <activity
             android:name=".ChatBotActivity"
             android:exported="false" />
@@ -110,7 +107,11 @@
             android:exported="true" />
         <activity android:name=".ui.login.VerifyActivity" />
         <activity android:name=".ui.login.SignIn">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity android:name=".ui.login.NewPassword" />
         <activity android:name=".ui.login.ForgotPassword" />
