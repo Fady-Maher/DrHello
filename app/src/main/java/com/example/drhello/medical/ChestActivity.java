@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
+import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.CompositePageTransformer;
@@ -13,7 +14,9 @@ import androidx.viewpager2.widget.ViewPager2;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -64,6 +67,10 @@ import org.tensorflow.lite.Interpreter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -81,6 +88,7 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
     PyObject main_program;
     public static ProgressDialog mProgress;
     PyObject str;
+    String path = "";
 
     private Bitmap bitmap;
     private StorageReference storageReference;
@@ -100,13 +108,12 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         requestPermissions = new RequestPermissions(ChestActivity.this,ChestActivity.this);
 
         mProgress = new ProgressDialog(ChestActivity.this);
-        if (! Python.isStarted()) {
-            Python.start(new AndroidPlatform(ChestActivity.this));//error is here!
-        }
-        final Python py = Python.getInstance();
-        main_program = py.getModule("prolog");
+
 
         activityChestBinding = DataBindingUtil.setContentView(ChestActivity.this, R.layout.activity_chest);
+
+        AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD(path,"first");
+        asyncTaskDownloadAudio.execute();
 
         activityChestBinding.back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,11 +158,18 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
             @Override
             public void onClick(View view) {
                 if (bitmap != null) {
+                    /*
                     byte[] bytesOutImg;
                     ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytesStream);
                     bytesOutImg = bytesStream.toByteArray();
                     uploadImage(bytesOutImg,storageReference);
+                     */
+                    if(!path.equals("")){
+                        AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD(path,"");
+                        asyncTaskDownloadAudio.execute();
+                    }
+
                     bitmap = null;
                 }else{
                     Toast.makeText(ChestActivity.this, "Please, Choose Image First!!", Toast.LENGTH_SHORT).show();
@@ -170,10 +184,48 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(ChestActivity.this.getContentResolver(), data.getData());
                 activityChestBinding.imgCorona.setImageBitmap(bitmap);
+
+                File file = new File(getRealPathFromURI(getImageUri(getApplicationContext(),bitmap)));
+                Log.e("file: ", file.getPath());
+                path = file.getPath();
+
+                /*
+                String str = main_program.callAttr("modelTest",file.getPath()).toString();
+                Log.e("str result: ", str.toString());
+                 */
+/*
+                DataInputStream a = new DataInputStream(new BufferedInputStream(new FileInputStream(new File(file.getPath()))));
+                Log.e("DataInputStream: ", a.toString());
+                Map<String,DataInputStream> map = new HashMap<>();
+                map.put("file",a);
+
+                URL url = new URL("https://chat-model.herokuapp.com/predict_text");
+                HttpURLConnection http = (HttpURLConnection)url.openConnection();
+                http.setRequestMethod("POST");
+                http.setDoOutput(true);
+                http.setRequestProperty("accept", "application/json");
+                http.setRequestProperty("Content-Type", "application/json");
+
+                OutputStream stream = http.getOutputStream();
+
+                stream.write(map);
+
+                InputStream in = http.getInputStream();
+                String s = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+                System.out.println(s);
+
+                System.out.println(http.getResponseCode() + " " + http.getResponseMessage() + " " );
+                http.disconnect();
+*/
+
+
                 //  byte[] a = fromBitmap(bitmap);
             } catch (IOException e) {
                 Log.e("gallary exception: ", e.getMessage());
             }
+
+
+
         } else if (resultCode == Activity.RESULT_CANCELED) {
             // Toast.makeText(getBaseContext(), "Canceled", Toast.LENGTH_SHORT).show();
         }
@@ -184,11 +236,32 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
 
     }
 
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
+    public String getRealPathFromURI(Uri uri) {
+        Cursor cursor = getContentResolver().query(uri,
+                null, null, null, null);
+        cursor.moveToFirst();
+        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+        Log.e("result: " ,cursor.getString(idx)+"     1");
+        String result = cursor.getString(idx);
+        cursor.close();
+        return result;
+    }
+
+
     public class AsyncTaskD extends AsyncTask<String, String, String> {
 
-        String url;
-        public AsyncTaskD(String url){
-            this.url = url;
+        String path;
+        String action;
+        public AsyncTaskD(String path,String action){
+            this.path = path;
+            this.action = action;
         }
         @Override
         protected void onPreExecute() {
@@ -197,7 +270,7 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
 
         @Override
         protected String doInBackground(String... f_url) {
-
+/*
             String str = main_program.callAttr("model",url,"Corona").toString();
             int prediction = Integer.parseInt(str.split(",")[0].replaceAll("[^0-9]", ""));;
             String probability = str.split(",")[1].replaceAll("]", "");
@@ -208,17 +281,27 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
             Log.e("probability : ",probability);
             Log.e("arrayList : ",arrayList.toString());
             String result = String.format("%.2f", Float.parseFloat(arrayList[prediction]) * 100);
+*/
+            if(action.equals("first")){
+                if (! Python.isStarted()) {
+                    Python.start(new AndroidPlatform(ChestActivity.this));//error is here!
+                }
+                final Python py = Python.getInstance();
+                main_program = py.getModule("prolog");
+            }else{
+                int prediction = main_program.callAttr("modelTest",path).toInt();
+                if (prediction == 0) {
+                    activityChestBinding.txtResult.setText(stringsHeart[0] + " :  " + "result");
+                } else if (prediction == 1) {
+                    activityChestBinding.txtResult.setText(stringsHeart[1] + " :  " + "result");
+                } else if (prediction == 2) {
+                    activityChestBinding.txtResult.setText(stringsHeart[2] + " :  " + "result");
+                } else if (prediction == 3) {
+                    activityChestBinding.txtResult.setText(stringsHeart[3] + " :  " + "result");
+                } else {
+                    activityChestBinding.txtResult.setText(stringsHeart[4] + " :  " + "result");
+                }
 
-            if (prediction == 0) {
-                activityChestBinding.txtResult.setText(stringsHeart[0] + " :  " + result);
-            } else if (prediction == 1) {
-                activityChestBinding.txtResult.setText(stringsHeart[1] + " :  " + result);
-            } else if (prediction == 2) {
-                activityChestBinding.txtResult.setText(stringsHeart[2] + " :  " + result);
-            } else if (prediction == 3) {
-                activityChestBinding.txtResult.setText(stringsHeart[3] + " :  " + result);
-            } else {
-                activityChestBinding.txtResult.setText(stringsHeart[4] + " :  " + result);
             }
 
             mProgress.dismiss();
@@ -230,6 +313,7 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         }
     }
 
+    /*
     private void uploadImage(byte[] bytes, StorageReference storageReference) {
             mProgress.setMessage("Image Processing..");
             mProgress.setCancelable(false);
@@ -269,6 +353,6 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
                 }
             });
     }
-
+*/
 
 }

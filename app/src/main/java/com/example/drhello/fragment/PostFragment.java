@@ -1,6 +1,7 @@
 package com.example.drhello.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,7 +23,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.drhello.OnClickPostProfileListener;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
 import com.example.drhello.firebaseinterface.MyCallBackReaction;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
@@ -37,6 +38,7 @@ import com.example.drhello.adapter.OnPostClickListener;
 import com.example.drhello.adapter.PostsAdapter;
 import com.example.drhello.model.UserAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,10 +51,13 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class PostFragment extends Fragment implements OnPostClickListener , OnClickPostProfileListener {
+import retrofit2.http.POST;
+
+public class PostFragment extends Fragment implements OnPostClickListener {
 
     private Button btn_write_post;
     ArrayList<Posts> postsArrayList = new ArrayList<>();
@@ -64,7 +69,7 @@ public class PostFragment extends Fragment implements OnPostClickListener , OnCl
     private FirebaseFirestore db;
     public static ProgressDialog mProgress;
     ImageView image_user;
-
+    private UserAccount userAccount;
     public PostFragment() {
         // Required empty public constructor
     }
@@ -94,7 +99,7 @@ public class PostFragment extends Fragment implements OnPostClickListener , OnCl
                 if (!documentSnapshot.exists()) {
                     FirebaseAuth.getInstance().getCurrentUser().delete();
                 } else {
-                    UserAccount userAccount = documentSnapshot.toObject(UserAccount.class);
+                    userAccount = documentSnapshot.toObject(UserAccount.class);
                     try {
                         Glide.with(getActivity()).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
                                 error(R.drawable.user).into(image_user);
@@ -115,7 +120,7 @@ public class PostFragment extends Fragment implements OnPostClickListener , OnCl
         });
 
         postsAdapter = new PostsAdapter(getActivity(), postsArrayList,
-                PostFragment.this, getActivity().getSupportFragmentManager(),PostFragment.this);
+                PostFragment.this, getActivity().getSupportFragmentManager());
         recycler_posts.setAdapter(postsAdapter);
 
         readDataPostsListener(new MyCallBackListenerComments() {
@@ -135,7 +140,6 @@ public class PostFragment extends Fragment implements OnPostClickListener , OnCl
     }
 
     public void readDataPostsListener(MyCallBackListenerComments myCallback) {
-
         db.collection("posts").orderBy("date", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
@@ -167,7 +171,6 @@ public class PostFragment extends Fragment implements OnPostClickListener , OnCl
 
     @Override
     public void onClickImage(String uri) {
-
         Intent intent = new Intent(getActivity(), ShowImageActivity.class);
         intent.putExtra("uri_image", uri);
         startActivity(intent);
@@ -211,6 +214,59 @@ public class PostFragment extends Fragment implements OnPostClickListener , OnCl
 
     }
 
+    @Override
+    public void onClickProfile(int position, String id) {
+        Intent intent = new Intent(getActivity(), ProfileActivity.class);
+        intent.putExtra("userId",id);
+        getActivity().startActivity(intent);
+    }
+
+    @Override
+    public void onClickOption(int position, Posts posts) {
+        LayoutInflater factory = LayoutInflater.from(getActivity());
+        final View deleteDialogView = factory.inflate(R.layout.alertdialogposts, null);
+        final AlertDialog deleteDialog = new AlertDialog.Builder(getActivity()).create();
+        deleteDialog.setView(deleteDialogView);
+        Button btn_delete = deleteDialogView.findViewById(R.id.btn_delete);
+        Button btn_modify = deleteDialogView.findViewById(R.id.btn_modify);
+        Button btn_save =  deleteDialogView.findViewById(R.id.btn_save);
+        if(posts.getUserId().equals(mAuth.getCurrentUser().getUid())){
+            btn_delete.setVisibility(View.VISIBLE);
+            btn_delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deletePost(posts);
+                    deleteDialog.dismiss();
+                }
+            });
+
+            btn_modify.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getActivity(),WritePostsActivity.class);
+                    intent.putExtra("post",posts);
+                    getActivity().startActivity(intent);
+                    deleteDialog.dismiss();
+                }
+            });
+
+        }else {
+            btn_delete.setVisibility(View.GONE);
+            btn_modify.setVisibility(View.GONE);
+        }
+
+        btn_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                savePost(posts);
+                deleteDialog.dismiss();
+            }
+        });
+
+
+        deleteDialog.show();
+    }
+
     public void readDataReadction(MyCallBackReaction myCallback, Posts posts) {
         mProgress.setMessage("Loading..");
         mProgress.setCancelable(false);
@@ -224,13 +280,51 @@ public class PostFragment extends Fragment implements OnPostClickListener , OnCl
                 });
     }
 
-    @Override
-    public void onClick(int position, String id) {
-        Intent intent = new Intent(getActivity(), ProfileActivity.class);
-        intent.putExtra("userId",id);
-        getActivity().startActivity(intent);
+
+    private void deletePost(Posts posts){
+        db.collection("posts").document(posts.getPostId())
+                .delete()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.e("successfully", "posts  deleted!");
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("Failed", " posts deleted!");
+                    }
+                });
     }
 
+    private void savePost(Posts posts){
+        mProgress.setMessage("Loading..");
+        mProgress.setCancelable(false);
+        mProgress.show();
+        ArrayList<String> postArray = userAccount.getPostArray();
+        if(postArray.contains(posts.getPostId())){
+            Toast.makeText(getActivity(),"this post already in saved posts!",Toast.LENGTH_SHORT).show();
+            Log.e("Failed", "this post already in saved posts!!");
+            mProgress.dismiss();
+        }else{
+            postArray.add(posts.getPostId());
+            userAccount.setPostArray(postArray);
+
+            db.collection("users").document(userAccount.getId())
+                    .set(userAccount).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if(task.isSuccessful()){
+                        Log.e("successfully", "posts saved!");
+                    }else{
+                        Log.e("Failed", " posts saved!");
+                    }
+                    mProgress.dismiss();
+                }
+            });
+        }
+    }
 
     private boolean isNetworkAvailable() {
         @SuppressLint("UseRequireInsteadOfGet") ConnectivityManager connectivityManager

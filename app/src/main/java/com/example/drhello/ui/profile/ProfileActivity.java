@@ -91,6 +91,8 @@ public class ProfileActivity extends AppCompatActivity {
 
         if(getIntent().getStringExtra("userId") !=null){
             userId = getIntent().getStringExtra("userId");
+            activityProfileBinding.imgEditUser.setVisibility(View.GONE);
+            activityProfileBinding.imgEditDr.setVisibility(View.GONE);
         }else{
             userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             activityProfileBinding.lnDr.setVisibility(View.GONE);

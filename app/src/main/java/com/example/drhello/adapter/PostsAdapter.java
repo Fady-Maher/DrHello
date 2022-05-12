@@ -13,20 +13,16 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.drhello.OnClickPostProfileListener;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
-import com.example.drhello.fragment.PostFragment;
 import com.example.drhello.ui.writepost.TimeAgo;
 import com.example.drhello.ui.writepost.FBReactionDialog;
 import com.example.drhello.model.Posts;
 import com.example.drhello.R;
-import com.example.drhello.ui.writepost.WritePostsActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.skyhope.showmoretextview.ShowMoreTextView;
 
@@ -38,8 +34,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
-import de.hdodenhof.circleimageview.CircleImageView;
-
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>  {
     private Context context;
     private ArrayList<Posts> posts=new ArrayList<>();
@@ -47,18 +41,15 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
     private PostsHolder postsHolder;
     private  FragmentManager supportFragmentManager;
     private String reactionType2 = "0";
-    private OnClickPostProfileListener onClickPostProfileListener;
 
     public PostsAdapter() {
     }
 
-    public PostsAdapter(Context context, ArrayList<Posts> posts, OnPostClickListener onPostClickListener, FragmentManager supportFragmentManager
-    ,OnClickPostProfileListener onClickPostProfileListener) {
+    public PostsAdapter(Context context, ArrayList<Posts> posts, OnPostClickListener onPostClickListener, FragmentManager supportFragmentManager) {
         this.context = context;
         this.posts = posts;
         this.onPostClickListener = onPostClickListener;
         this.supportFragmentManager = supportFragmentManager;
-        this.onClickPostProfileListener = onClickPostProfileListener;
 
         Log.e("PostsAdapter : ",posts.size()+"");
     }
@@ -253,7 +244,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
 
     public class PostsHolder  extends RecyclerView.ViewHolder {
         TextView   date_post , user_name,text_like,numreaction,commentnum,txt_comment;
-        ImageView user_image,image_comment,image_share,image_like;
+        ImageView user_image,image_comment,image_share,image_like,post_option;
         ShowMoreTextView txt_post;
         RecyclerView recyclerView;
         LinearLayout lay_like,img_reaction;
@@ -280,6 +271,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
             sad_react_use=itemView.findViewById(R.id.sad_react_use);
             wow_react_use=itemView.findViewById(R.id.wow_react_use);
             angry_react_use=itemView.findViewById(R.id.angry_react_use);
+            post_option = itemView.findViewById(R.id.post_option);
 
 
             commentnum.setOnClickListener(new View.OnClickListener() {
@@ -352,7 +344,14 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
             user_image.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onClickPostProfileListener.onClick(getAdapterPosition(),posts.get(getAdapterPosition()).getUserId());
+                    onPostClickListener.onClickProfile(getAdapterPosition(),posts.get(getAdapterPosition()).getUserId());
+                }
+            });
+
+            post_option.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onPostClickListener.onClickOption(getAdapterPosition(),posts.get(getAdapterPosition()));
                 }
             });
 

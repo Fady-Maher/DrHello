@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
 import com.example.drhello.ChatBotActivity;
+import com.example.drhello.SavedPostsActivity;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.connectionnewtwork.NetworkChangeListener;
 import com.example.drhello.model.UserAccount;
@@ -263,6 +264,11 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             adapter.setSelected(HOME);
         }else if (position==CHAT){
             Intent intent=new Intent(MainActivity.this, ChatBotActivity.class);
+            startActivity(intent);
+            adapter.setSelected(HOME);
+        }else if (position==FAV){
+            Intent intent=new Intent(MainActivity.this, SavedPostsActivity.class);
+            intent.putExtra("userAccount",userAccount);
             startActivity(intent);
             adapter.setSelected(HOME);
         }

@@ -40,17 +40,17 @@ def method_spellchecker(sentence):
 
 #for images
 def model(url,model):
-    if model == 'Corona':
-         base_url = ''
-    elif model == 'Skin':
-         base_url = 'https://skin-canncer-model.herokuapp.com/predict_disease?link=' +quote_plus(url)
-    elif model == 'Heart':
-         base_url = 'https://heart-beat-model.herokuapp.com/predict_disease?link=' +quote_plus(url)
-    else:
-         base_url = ''
-    print('base_url : ',base_url)
-    response = requests.get(base_url)
-    return response.text
+        if model == 'Corona':
+             base_url = 'https://chest-model.herokuapp.com/predict_disease?link='+quote_plus(url)
+        elif model == 'Skin':
+             base_url = 'https://skin-canncer-model.herokuapp.com/predict_disease?link=' +quote_plus(url)
+        elif model == 'Heart':
+             base_url = 'https://heart-beat-model.herokuapp.com/predict_disease?link=' +quote_plus(url)
+        else:
+             base_url = ''
+        print('base_url : ',base_url)
+        response = requests.get(base_url)
+        return response.text
 
 #for text
 def modelText(string):
@@ -113,5 +113,17 @@ def model_classifer(new_sysmptom):
     print(js_disease)
     #res_knn +"@"+res_svm + "@" + res_log+"0"
     return js_disease['prediction']
+
+
+
+#for images
+def modelTest(path):
+    print(path)
+    url  = "https://chest-model.herokuapp.com/predict_disease"
+    files = {'file': open(path, 'rb')}
+    response = requests.post(url, files=files)
+    print(response.status_code, response.text)
+    response = response.json()
+    return int(response['prediction'])
 
 

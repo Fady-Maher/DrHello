@@ -4,8 +4,11 @@ import com.example.drhello.FollowersModel;
 import com.example.drhello.ui.profile.UserInformation;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import retrofit2.http.POST;
 
 public class UserAccount implements Serializable {
     private String img_profile , name , email , pass ,date , id , tokenID , sign_up_method ,state,follows;
@@ -16,6 +19,7 @@ public class UserAccount implements Serializable {
     private Map<String, AddPersonModel> requestSsent = new HashMap<>();
     private int followers = 0;
     private Map<String, FollowersModel> followersModelMap = new HashMap<>();
+    private ArrayList<String> postArray = new ArrayList<>();
 
     public UserInformation getUserInformation() {
         return userInformation;
@@ -172,5 +176,13 @@ public class UserAccount implements Serializable {
 
     public void setFollowersModelMap(Map<String, FollowersModel> followersModelMap) {
         this.followersModelMap = followersModelMap;
+    }
+
+    public ArrayList<String> getPostArray() {
+        return postArray;
+    }
+
+    public void setPostArray(ArrayList<String> postArray) {
+        this.postArray = postArray;
     }
 }

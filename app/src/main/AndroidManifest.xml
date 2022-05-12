@@ -28,17 +28,21 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_app"
         android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_app"
         android:supportsRtl="false"
         android:theme="@style/Theme.DrHello"
         tools:ignore="AllowBackup"
         tools:replace="android:supportsRtl">
         <activity
+            android:name=".SavedPostsActivity"
+            android:exported="false" />
+        <activity
             android:name=".PostsUsersActivity"
             android:exported="false" />
         <activity
             android:name=".BotActivity"
-            android:exported="true"></activity>
+            android:exported="true" />
         <activity
             android:name=".ChatBotActivity"
             android:exported="false" />
