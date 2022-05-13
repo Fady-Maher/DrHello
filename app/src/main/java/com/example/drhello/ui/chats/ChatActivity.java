@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.loader.content.CursorLoader;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -29,6 +30,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.media.MediaRecorder;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -43,6 +45,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -53,6 +56,9 @@ import com.devlomi.record_view.OnBasketAnimationEnd;
 import com.devlomi.record_view.OnRecordClickListener;
 import com.devlomi.record_view.OnRecordListener;
 import com.devlomi.record_view.RecordPermissionHandler;
+import com.example.drhello.MyCallbackDeleteItem;
+import com.example.drhello.MyCallbackDeletePost;
+import com.example.drhello.model.AddPersonModel;
 import com.example.drhello.model.LastChat;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
 import com.example.drhello.connectionnewtwork.NetworkChangeListener;
@@ -64,6 +70,7 @@ import com.example.drhello.firebaseinterface.MyCallbackUser;
 import com.example.drhello.firebaseservice.FcmNotificationsSender;
 import com.example.drhello.model.LastMessages;
 import com.example.drhello.R;
+import com.example.drhello.model.Posts;
 import com.example.drhello.textclean.RequestPermissions;
 import com.example.drhello.adapter.Recycle_Message_Adapter;
 import com.example.drhello.databinding.ActivityChatBinding;
@@ -71,6 +78,8 @@ import com.example.drhello.model.ChatChannel;
 import com.example.drhello.model.ChatModel;
 import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.main.MainActivity;
+import com.example.drhello.ui.profile.ProfileActivity;
+import com.example.drhello.ui.writepost.WritePostsActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -96,8 +105,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -108,9 +119,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
-public class ChatActivity extends AppCompatActivity  implements com.google.android.gms.location.LocationListener,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+public class ChatActivity extends AppCompatActivity implements com.google.android.gms.location.LocationListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private static final int Gallary_REQUEST_CODE = 1, SONGS_REQUEST_CODE = 2, PERMISSION_ALL_STORAGE = 5000;
     private static final int CAMERA_REQUEST_CODE = 1888;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
@@ -131,12 +143,13 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
     public static MediaRecorder recorder = null;
     private File recordFile;
     private int currentFormat = 0;
-    private int output_formats[] = { MediaRecorder.OutputFormat.MPEG_4,MediaRecorder.OutputFormat.THREE_GPP };
+    private int output_formats[] = {MediaRecorder.OutputFormat.MPEG_4, MediaRecorder.OutputFormat.THREE_GPP};
     private Recycle_Message_Adapter recycle_message_adapter;
     private Bitmap bitmap;
     private RequestPermissions requestPermissions;
-    private double Lat = 0.0 ,Lon = 0.0;
+    private double Lat = 0.0, Lon = 0.0;
     NetworkChangeListener networkChangeListener = new NetworkChangeListener();
+    StorageReference storageReferenceAudio, storageReferenceImages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -214,7 +227,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         activityChatBinding.imageviewSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(CheckNetwork.getConnectivityStatusString(ChatActivity.this) == 1) {
+                if (CheckNetwork.getConnectivityStatusString(ChatActivity.this) == 1) {
                     if (!activityChatBinding.editMessage.getText().toString().equals("")) {
                         ChatModel chatModel = new ChatModel(activityChatBinding.editMessage.getText().toString(),
                                 getDateTime(), mAuth.getCurrentUser().getUid(),
@@ -225,9 +238,17 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                     } else {
                         Toast.makeText(ChatActivity.this, "Empty", Toast.LENGTH_SHORT).show();
                     }
-                }else{
+                } else {
                     Toast.makeText(ChatActivity.this, "Please, Check Internet", Toast.LENGTH_SHORT).show();
                 }
+            }
+        });
+
+
+        activityChatBinding.chatOption.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onClickOption();
             }
         });
 
@@ -311,9 +332,9 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                                             }
                                         recycle_message_adapter.updateMessage(chatsArrayList);
                                     }
-                                },iDChannel);
+                                }, iDChannel);
                             }
-                        },friendAccount.getId());
+                        }, friendAccount.getId());
 
                         retriveDate();
 
@@ -321,16 +342,16 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                             @Override
                             public void onCallBack(DocumentSnapshot value) {
                                 LastMessages lastMessages = value.toObject(LastMessages.class);
-                                if(lastMessages != null){
-                                    ChatModel chatModel = new ChatModel(lastMessages.getMessage(),lastMessages.getDate(),
-                                            lastMessages.getSenderid(),lastMessages.getRecieveid()
-                                            ,lastMessages.getImage(),lastMessages.getNameSender(),lastMessages.getRecord());
+                                if (lastMessages != null) {
+                                    ChatModel chatModel = new ChatModel(lastMessages.getMessage(), lastMessages.getDate(),
+                                            lastMessages.getSenderid(), lastMessages.getRecieveid()
+                                            , lastMessages.getImage(), lastMessages.getNameSender(), lastMessages.getRecord());
 
                                     recycle_message_adapter.addMessage(chatModel);
-                                    Log.e("chatsArray: ",chatsArrayList.get(0).getMessage());
+                                    Log.e("chatsArray: ", chatsArrayList.get(0).getMessage());
                                     ///     chatsArrayList.add(0,entry.getValue());
                                     recycle_message_adapter.notifyItemInserted(0);
-                                    if(chatModel.getSenderid().equals(mAuth.getCurrentUser().getUid())){
+                                    if (chatModel.getSenderid().equals(mAuth.getCurrentUser().getUid())) {
                                         int totalItemCount = activityChatBinding.rvChatFriend.getAdapter().getItemCount();
                                         if (totalItemCount > 0)
                                             activityChatBinding.rvChatFriend.getLayoutManager().smoothScrollToPosition(activityChatBinding.rvChatFriend,
@@ -339,11 +360,11 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                                 }
 
                             }
-                        },friendAccount.getId());
+                        }, friendAccount.getId());
                     }
                 }
             }
-        },id_massage);
+        }, id_massage);
     }
 
     public void readDataUser(MyCallbackUser myCallback) {
@@ -359,7 +380,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         }
     }
 
-    private void playRecordVoice(){
+    private void playRecordVoice() {
 
         //IMPORTANT
         activityChatBinding.recordButton.setRecordView(activityChatBinding.recordView);
@@ -439,10 +460,10 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
 
                 if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         != PackageManager.PERMISSION_GRANTED) {
-                    ActivityCompat.requestPermissions(ChatActivity.this,new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
+                    ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}
                             , PERMISSION_ALL_STORAGE);
                 } else {
-                    if ( ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.RECORD_AUDIO)!=
+                    if (ContextCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.RECORD_AUDIO) !=
                             PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions(ChatActivity.this, new String[]{Manifest.permission.RECORD_AUDIO},
                                 PERMISSION_ALL_STORAGE);
@@ -466,6 +487,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                     activityChatBinding.profileImageChat.setImageBitmap(resource);
                     //     Log.e(" bitmap.toString : ",  resource+"");
                 }
+
                 @Override
                 public void onLoadCleared(@Nullable Drawable placeholder) {
                 }
@@ -558,16 +580,16 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                                     == PackageManager.PERMISSION_GRANTED) {
                         if (isGPSEnabled(ChatActivity.this)) {
                             geoUri = "http://www.google.com/maps/place/" + Lat + "," + Lon + "";
-                            activityChatBinding.editMessage.setText(activityChatBinding.editMessage.getText()+" "+geoUri);
-                            Log.e("google",geoUri);
-                        }else{
+                            activityChatBinding.editMessage.setText(activityChatBinding.editMessage.getText() + " " + geoUri);
+                            Log.e("google", geoUri);
+                        } else {
                             requestGps();
                         }
                     } else {
                         requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                                 REQUESTPERMISSIONSLOCATION);
                     }
-                }else{
+                } else {
                     if (ActivityCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED ||
                             ActivityCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -575,8 +597,8 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                         if (isGPSEnabled(ChatActivity.this)) {
                             geoUri = "http://www.google.com/maps/place/" + Lat + "," + Lon + "";
                             activityChatBinding.editMessage.setText(geoUri);
-                            Log.e("google",geoUri);
-                        }else{
+                            Log.e("google", geoUri);
+                        } else {
                             requestGps();
                         }
                     }
@@ -629,7 +651,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                     }
                 }
                 break;
-            case REQUESTPERMISSIONSLOCATION :
+            case REQUESTPERMISSIONSLOCATION:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if (ActivityCompat.checkSelfPermission(ChatActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED ||
@@ -666,8 +688,8 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                     }
                     //code for deny
                 }
-            }
         }
+    }
 
     private String getDateTime() {
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss:SS a", Locale.US);
@@ -675,7 +697,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         return dateFormat.format(date);
     }
 
-    public void readDataFriendAccount(MyCallBackFriend myCallback,String idmassage) {
+    public void readDataFriendAccount(MyCallBackFriend myCallback, String idmassage) {
         db.collection("users").whereEqualTo("id", idmassage)
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -687,7 +709,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         });
     }
 
-    public void readDataChatsListener(MyCallBackChats myCallback,String idFriend) {
+    public void readDataChatsListener(MyCallBackChats myCallback, String idFriend) {
         db.collection("users").document(mAuth.getCurrentUser().getUid())
                 .collection("lastmessage").document(idFriend)
                 .addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -701,7 +723,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                 });
     }
 
-    public void readDataMessagesListener(MyCallBackMessage myCallback,String iDChannel) {
+    public void readDataMessagesListener(MyCallBackMessage myCallback, String iDChannel) {
         db.collection("chatsChannel").document(iDChannel).collection("messages").
                 orderBy("date", Query.Direction.DESCENDING).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -716,7 +738,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
 
     }
 
-    public void readDataChannelListener(MyCallBackChannel myCallback,String id_friend) {
+    public void readDataChannelListener(MyCallBackChannel myCallback, String id_friend) {
         db.collection("users").
                 document(id_friend).
                 collection("channels")
@@ -751,11 +773,11 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                 collection("messages")
                 .add(chatModel);
 
-        LastMessages lastMessages = new LastMessages("",friendAccount.getImg_profile(),
+        LastMessages lastMessages = new LastMessages("", friendAccount.getImg_profile(),
                 friendAccount.getName(),
-                chatModel.getDate(),chatModel.getImage(),chatModel.getMessage(),
-                chatModel.getNameSender(),chatModel.getRecieveid()
-                ,chatModel.getRecord(),chatModel.getSenderid());
+                chatModel.getDate(), chatModel.getImage(), chatModel.getMessage(),
+                chatModel.getNameSender(), chatModel.getRecieveid()
+                , chatModel.getRecord(), chatModel.getSenderid());
 
         db.collection("users").
                 document(mAuth.getCurrentUser().getUid())
@@ -769,24 +791,24 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                 .document(mAuth.getCurrentUser().getUid())
                 .set(lastMessages);
 
-        LastChat lastChat = new LastChat(friendAccount.getId(),friendAccount.getImg_profile(),
-                chatModel.getDate(),chatModel.getMessage(),chatModel.getNameSender());
+        LastChat lastChat = new LastChat(friendAccount.getId(), friendAccount.getImg_profile(),
+                chatModel.getDate(), chatModel.getMessage(), chatModel.getNameSender());
 
-        if(chatModel.getMessage().equals("") && chatModel.getRecord().equals("")){ // image
+        if (chatModel.getMessage().equals("") && chatModel.getRecord().equals("")) { // image
             lastChat.setMessage("image Message");
-        }else if(chatModel.getMessage().equals("") && chatModel.getImage().equals("")){ // record
+        } else if (chatModel.getMessage().equals("") && chatModel.getImage().equals("")) { // record
             lastChat.setMessage("record Message");
-        } else{
+        } else {
             lastChat.setMessage(chatModel.getMessage());
         }
 
 
-        Map<String,LastChat> map = friendAccount.getMap();
-        map.put(userAccountme.getId(),lastChat);
+        Map<String, LastChat> map = friendAccount.getMap();
+        map.put(userAccountme.getId(), lastChat);
         friendAccount.setMap(map);
 
         map = userAccountme.getMap();
-        map.put(friendAccount.getId(),lastChat);
+        map.put(friendAccount.getId(), lastChat);
         userAccountme.setMap(map);
 
         db.collection("users").
@@ -805,7 +827,9 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         ByteArrayOutputStream output_image = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output_image);
         byte[] data_image = output_image.toByteArray();
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child("images/imagesChat/" + userAccountme.getId());
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference()
+                .child("images/imagesChat/" + userAccountme.getId() + "/" + UUID.nameUUIDFromBytes(data_image));
+
         storageReference.putBytes(data_image).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -836,9 +860,9 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
             try {
                 Bitmap bitmap = (Bitmap) data.getExtras().get("data");
-                if(CheckNetwork.getConnectivityStatusString(ChatActivity.this) == 1) {
+                if (CheckNetwork.getConnectivityStatusString(ChatActivity.this) == 1) {
                     uploadImage(bitmap);
-                }else{
+                } else {
                     Toast.makeText(ChatActivity.this, "Please, Check Internet", Toast.LENGTH_SHORT).show();
                 }
 
@@ -848,9 +872,9 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         } else if (requestCode == Gallary_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getBaseContext().getContentResolver(), data.getData());
-                if(CheckNetwork.getConnectivityStatusString(ChatActivity.this) == 1) {
+                if (CheckNetwork.getConnectivityStatusString(ChatActivity.this) == 1) {
                     uploadImage(bitmap);
-                }else{
+                } else {
                     Toast.makeText(ChatActivity.this, "Please, Check Internet", Toast.LENGTH_SHORT).show();
                 }
             } catch (IOException e) {
@@ -859,9 +883,9 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         } else if (requestCode == SONGS_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
             Uri uri = data.getData();
             Log.e("uri : ", uri + "");
-            if(CheckNetwork.getConnectivityStatusString(ChatActivity.this) == 1) {
+            if (CheckNetwork.getConnectivityStatusString(ChatActivity.this) == 1) {
                 uploadAudio(Uri.fromFile(new File(getRealPathFromURI(uri))));
-            }else{
+            } else {
                 Toast.makeText(ChatActivity.this, "Please, Check Internet", Toast.LENGTH_SHORT).show();
             }
         } else if (resultCode == Activity.RESULT_CANCELED) {
@@ -884,7 +908,10 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         mProgress.setCancelable(false);
         mProgress.show();
         StorageReference storageReference = FirebaseStorage.getInstance().
-                getReference().child("audios/audiosChat/" + userAccountme.getId());
+                getReference().child("audios/audiosChat/" + userAccountme.getId() + "/"
+                + uri.getPath());
+        Log.e("audio.getPath() : ", uri.getPath());
+
         storageReference.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -897,7 +924,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                                 userAccountme.getName(), uri.toString());
                         storeMessageOnFirebase(chatModel);
                         sendNotification("Send an Record");
-                        if(recordFile!= null){
+                        if (recordFile != null) {
                             recordFile.delete();
                         }
                         mProgress.dismiss();
@@ -935,18 +962,18 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         stopLocationUpdate();
     }
 
-    public String getFilename(){
+    public String getFilename() {
         File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString()
-                ,AUDIO_RECORDER_FOLDER);
+                , AUDIO_RECORDER_FOLDER);
         Log.e("file : ", file.getAbsolutePath());
-        if(!file.exists()){
+        if (!file.exists()) {
             file.mkdirs();
         }
 
         return (file.getAbsolutePath() + "/" + "a" + ".mp3");
     }
 
-    public void startRecording(){
+    public void startRecording() {
         Log.e("MediaRecorder", "onStart");
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
@@ -957,7 +984,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         try {
             recorder.prepare();
             recorder.start();
-            Log.e("prepare : ","start");
+            Log.e("prepare : ", "start");
         } catch (IllegalStateException e) {
             Log.e("prepareERR:", e.getMessage());
             e.printStackTrace();
@@ -967,7 +994,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
         }
     }
 
-    public void stopRecording(){
+    public void stopRecording() {
         try {
             recorder.stop();
             recorder.release();
@@ -1015,7 +1042,10 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
                 createLocationRequest();
             }
         }
+
+
     }
+
 
     @Override
     public void startActivityForResult(Intent intent, int requestCode) {
@@ -1114,7 +1144,7 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
     }
 
     private void requestGps() {
-        Log.e("requestGps: ",geoUri);
+        Log.e("requestGps: ", geoUri);
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(mLocationRequest);
         builder.setAlwaysShow(true);
@@ -1170,8 +1200,8 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
 
             mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             if (mLocation != null) {
-               Lat = mLocation.getLatitude();
-               Lon = mLocation.getLongitude();
+                Lat = mLocation.getLatitude();
+                Lon = mLocation.getLongitude();
                 //mapFragment.getMapAsync(this);
             }
 
@@ -1189,5 +1219,261 @@ public class ChatActivity extends AppCompatActivity  implements com.google.andro
     }
 
 
+    public void onClickOption() {
+        LayoutInflater factory = LayoutInflater.from(ChatActivity.this);
+        final View deleteDialogView = factory.inflate(R.layout.alertdialogposts, null);
+        final AlertDialog deleteDialog = new AlertDialog.Builder(ChatActivity.this).create();
+        deleteDialog.setView(deleteDialogView);
+        Button btn_delete = deleteDialogView.findViewById(R.id.btn_delete);
+        Button btn_block = deleteDialogView.findViewById(R.id.btn_modify);
+        Button btn_view_profile = deleteDialogView.findViewById(R.id.btn_save);
 
+        btn_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //  deletePost(posts);
+                deleteDialog.dismiss();
+                deleteChat();
+            }
+        });
+
+        btn_view_profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*
+                deleteDialog.dismiss();
+                Intent intent = new Intent(ChatActivity.this, ProfileActivity.class);
+                intent.putExtra("userId", friendAccount.getId());
+                startActivity(intent);
+
+                 */
+                deleteDialog.dismiss();
+
+            }
+        });
+
+
+        deleteDialog.show();
+    }
+
+    private void deleteChat() {
+        mProgress.setMessage("Loading..");
+        mProgress.setCancelable(false);
+        mProgress.show();
+        storageReferenceAudio = FirebaseStorage.getInstance().
+                getReference().child("audios/audiosChat/" + userAccountme.getId());
+
+        storageReferenceImages = FirebaseStorage.getInstance().getReference()
+                .child("images/imagesChat/" + userAccountme.getId());
+
+        myCallBackListItemImages(new MyCallbackDeletePost() {
+            @Override
+            public void myCallBack(ListResult listResult) {
+                int numImages = listResult.getItems().size();
+                Log.e("first images : ", "images  " + numImages);
+                if (numImages > 0) {  // 5 IMAGES
+                    for (StorageReference item : listResult.getItems()) {  // 5 IMAGES
+                        // All the items under listRef.
+                        Log.e("img in loop1 : ", "images" + numImages);
+                        numImages = numImages - 1;
+                        StorageReference storageReference = FirebaseStorage.getInstance().getReference(item.getPath());
+                        int finalNumImages = numImages;
+                        myCallBackDeleteItem(new MyCallbackDeleteItem() {
+                            @Override
+                            public void myCallBackItem(Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Log.e("img in loop2: ", finalNumImages + "");
+                                }
+                            }
+                        }, storageReference);
+                        if (numImages == 0) { // finish delete images
+                            deleteAudios();
+                        }
+                    }
+                } else {
+                    deleteAudios();
+                }
+            }
+        }, storageReferenceImages);
+    }
+
+    private void deleteAudios() {
+        myCallBackListItemAudios(new MyCallbackDeletePost() {
+            @Override
+            public void myCallBack(ListResult listResult) {
+                int numaudios = listResult.getItems().size();
+                Log.e("first Audios : ", "audio" + numaudios);
+                if (numaudios > 0) {
+                    for (StorageReference item : listResult.getItems()) {   // 5 audios
+                        // All the items under listRef.
+                        numaudios = numaudios - 1;
+                        Log.e("aud in loop1 : ", numaudios + "");
+                        StorageReference storageReference = FirebaseStorage.getInstance().
+                                getReference(item.getPath());
+                        int finalNumImages = numaudios;
+                        myCallBackDeleteItem(new MyCallbackDeleteItem() {
+                            @Override
+                            public void myCallBackItem(Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Log.e("aud in loop2 : ", finalNumImages + "");
+                                }
+                            }
+                        }, storageReference);
+                        if (numaudios == 0) {  // finish delete audios
+                            Log.e("numaudios= 0 : ", "after deleteChatAndChatChannel");
+                            myCallBackDeleteChatChannel();
+                        }
+                    }
+                } else {
+                    Log.e("numaudios= 0 : ", "before deleteChatAndChatChannel");
+                    myCallBackDeleteChatChannel();
+                }
+            }
+        }, storageReferenceAudio);
+
+    }
+
+
+    private void myCallBackListItemImages(MyCallbackDeletePost myCallbackDeletePost
+            , StorageReference listRef) {
+        listRef.listAll()
+                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                    @Override
+                    public void onSuccess(ListResult listResult) {
+                        myCallbackDeletePost.myCallBack(listResult);   // 5 IMAGES
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Uh-oh, an error occurred!
+                        Log.e("failed : ", "images  " + 0);
+                        deleteAudios();
+                    }
+                });
+    }
+
+    private void myCallBackListItemAudios(MyCallbackDeletePost myCallbackDeletePost
+            , StorageReference listRef) {
+        listRef.listAll()
+                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                    @Override
+                    public void onSuccess(ListResult listResult) {
+                        myCallbackDeletePost.myCallBack(listResult);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Uh-oh, an error occurred!
+                        Log.e("failed : ", "audio  " + 0);
+                        myCallBackDeleteChatChannel();
+                    }
+                });
+    }
+
+    private void myCallBackDeleteItem(MyCallbackDeleteItem myCallbackDeleteItem,
+                                      StorageReference storageReference) {
+        storageReference.delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        myCallbackDeleteItem.myCallBackItem(task);
+                    }
+                });
+    }
+
+    private void myCallBackDeleteChatChannel() {
+        db.collection("users").
+                document(mAuth.getCurrentUser().getUid()).
+                collection("channels")
+                .document(friendAccount.getId())
+                .delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        db.collection("users").
+                                document(friendAccount.getId()).
+                                collection("channels")
+                                .document(mAuth.getCurrentUser().getUid())
+                                .delete()
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        db.collection("users").
+                                                document(friendAccount.getId()).
+                                                collection("lastmessage")
+                                                .document(mAuth.getCurrentUser().getUid())
+                                                .delete()
+                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                        db.collection("users").
+                                                                document(mAuth.getCurrentUser().getUid()).
+                                                                collection("lastmessage")
+                                                                .document(friendAccount.getId())
+                                                                .delete()
+                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                        Log.e("DELTET iDChannel : ", iDChannel);
+                                                                        db.collection("chatsChannel")
+                                                                                .document(iDChannel)
+                                                                                .collection("messages").
+                                                                                get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                int num = task.getResult().size();
+                                                                                Log.e("DELTET num : ", num + "");
+                                                                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                                    num = num - 1;
+                                                                                    db.collection("chatsChannel")
+                                                                                            .document(iDChannel)
+                                                                                            .collection("messages").document(document.getId())
+                                                                                            .delete();
+                                                                                    Log.e("delete num : ", num + "");
+                                                                                    if (num == 0) {
+                                                                                        Log.e("num  0 : ", num + "");
+                                                                                        Map<String, AddPersonModel> friendsmap = userAccountme.getFriendsmap();
+                                                                                        friendsmap.remove(friendAccount.getId());
+                                                                                        userAccountme.setFriendsmap(friendsmap);
+
+                                                                                        Map<String, AddPersonModel> friendsmap2 = friendAccount.getFriendsmap();
+                                                                                        friendsmap2.remove(userAccountme.getId());
+                                                                                        friendAccount.setFriendsmap(friendsmap);
+
+                                                                                        Map<String, LastChat> map = userAccountme.getMap();
+                                                                                        map.remove(friendAccount.getId());
+                                                                                        userAccountme.setMap(map);
+
+                                                                                        Map<String, LastChat> map2 = friendAccount.getMap();
+                                                                                        map2.remove(userAccountme.getId());
+                                                                                        friendAccount.setMap(map2);
+
+                                                                                        db.collection("users").
+                                                                                                document(mAuth.getCurrentUser().getUid()).
+                                                                                                set(userAccountme);
+
+                                                                                        db.collection("users").
+                                                                                                document(friendAccount.getId()).
+                                                                                                set(friendAccount);
+
+
+                                                                                        mProgress.dismiss();
+                                                                                        Intent intent = new Intent(ChatActivity.this, MainActivity.class);
+                                                                                        startActivity(intent);
+                                                                                    }
+                                                                                }
+
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                });
+                                                    }
+                                                });
+                                    }
+                                });
+                    }
+                });
+    }
 }

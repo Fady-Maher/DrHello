@@ -2,5 +2,4 @@ include ':record-view'
 include ':app'
 rootProject.name = "DrHello"
 include ':java'
-include ':OpenCv'
 include ':java'

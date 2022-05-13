@@ -53,6 +53,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 
@@ -104,6 +106,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         }else{
             getWindow().setStatusBarColor(Color.WHITE);
         }
+
+
 
         //to connect layout with java code
         com.example.drhello.databinding.ActivityMainBinding mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);

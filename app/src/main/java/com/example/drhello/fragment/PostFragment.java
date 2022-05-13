@@ -1,7 +1,6 @@
 package com.example.drhello.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -10,22 +9,33 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.drhello.MyCallbackDeleteItem;
+import com.example.drhello.MyCallbackDeletePost;
+import com.example.drhello.adapter.AddPersonAdapter;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
 import com.example.drhello.firebaseinterface.MyCallBackReaction;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
+import com.example.drhello.fragment.fragmentfriends.AddFriendFragment;
 import com.example.drhello.ui.profile.ProfileActivity;
 import com.example.drhello.ui.writepost.NumReactionActivity;
 import com.example.drhello.model.ReactionType;
@@ -47,20 +57,25 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.ListResult;
+import com.google.firebase.storage.StorageReference;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-
-import retrofit2.http.POST;
 
 public class PostFragment extends Fragment implements OnPostClickListener {
 
     private Button btn_write_post;
-    ArrayList<Posts> postsArrayList = new ArrayList<>();
+    ArrayList<Posts> postsArrayList = new ArrayList<>() , postsArrayListSeacrch = new ArrayList<>() ;
     private TextView textView;
     private RecyclerView recycler_posts;
     private PostsAdapter postsAdapter;
@@ -70,6 +85,13 @@ public class PostFragment extends Fragment implements OnPostClickListener {
     public static ProgressDialog mProgress;
     ImageView image_user;
     private UserAccount userAccount;
+    private FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+    private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a", Locale.US);
+    private  androidx.appcompat.widget.SearchView searchView;
+
+    private int numImages = 0;
+
+
     public PostFragment() {
         // Required empty public constructor
     }
@@ -77,6 +99,7 @@ public class PostFragment extends Fragment implements OnPostClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
 
     }
 
@@ -92,6 +115,7 @@ public class PostFragment extends Fragment implements OnPostClickListener {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         mProgress = new ProgressDialog(getActivity());
+
 
         readData(new MyCallbackUser() {
             @Override
@@ -120,27 +144,99 @@ public class PostFragment extends Fragment implements OnPostClickListener {
         });
 
         postsAdapter = new PostsAdapter(getActivity(), postsArrayList,
-                PostFragment.this, getActivity().getSupportFragmentManager());
+                PostFragment.this, getActivity().getSupportFragmentManager(),"PostFragment");
         recycler_posts.setAdapter(postsAdapter);
 
-        readDataPostsListener(new MyCallBackListenerComments() {
-            @Override
-            public void onCallBack(QuerySnapshot value) {
-                Log.e("lostart2 : ", postsArrayList.size() + "");
-                for (DocumentSnapshot document : value.getDocuments()) {
-                    Posts singele_posts = document.toObject(Posts.class);
-                    postsArrayList.add(singele_posts);
-                    postsAdapter.FunPostsAdapter(postsArrayList);
-                    postsAdapter.notifyDataSetChanged();
-                }
-            }
-        });
+        setData();
 
         return view;
     }
 
+    private void setData(){
+        readDataPostsListener(new MyCallBackListenerComments() {
+            @Override
+            public void onCallBack(QuerySnapshot value) {
+                Log.e("lostart2 : ", postsArrayList.size() + "");
+                postsAdapter.notifyDataSetChanged();
+                for (DocumentSnapshot document : value.getDocuments()) {
+                    Posts singele_posts = document.toObject(Posts.class);
+                    postsArrayList.add(singele_posts);
+                }
+
+                Collections.sort(postsArrayList, new Comparator<Posts>() {
+                    @Override
+                    public int compare(Posts lhs, Posts rhs) {
+                        try {
+                            return dateFormat.parse(rhs.getDate())
+                                    .compareTo(dateFormat.parse(lhs.getDate()));
+                        } catch (ParseException e) {
+                            throw new IllegalArgumentException(e);
+                        }
+                    }
+                });
+
+                postsAdapter.FunPostsAdapter(postsArrayList);
+                postsAdapter.notifyDataSetChanged();
+
+            }
+        });
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+
+        inflater.inflate(R.menu.search_btn,menu);
+        MenuItem item = menu.findItem(R.id.search_people);
+        searchView = (androidx.appcompat.widget.SearchView) MenuItemCompat.getActionView(item);
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.setQueryHint("Search");
+
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                setData();
+                return false;
+            }
+        });
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (newText.isEmpty()){
+                    postsArrayListSeacrch.clear();
+                    postsAdapter.FunPostsAdapter(postsArrayListSeacrch);
+                    postsAdapter.notifyDataSetChanged();
+                    return false;
+                }
+                postsArrayListSeacrch.clear();
+                postsAdapter.notifyDataSetChanged();
+                for(Posts d : postsArrayList){
+                    if(d.getWritePost() != null && d.getWritePost().toLowerCase()
+                            .contains(newText.toLowerCase())){
+                        Log.e("UserName : ",d.getWritePost());
+                        postsArrayListSeacrch.add(d);
+                    }
+                }
+
+                if (postsArrayListSeacrch.size()!=0){
+                    postsAdapter.FunPostsAdapter(postsArrayListSeacrch);
+                    postsAdapter.notifyDataSetChanged();
+                }
+
+                return false;
+            }
+        });
+
+    }
+
     public void readDataPostsListener(MyCallBackListenerComments myCallback) {
-        db.collection("posts").orderBy("date", Query.Direction.DESCENDING)
+        db.collection("posts")
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -222,49 +318,20 @@ public class PostFragment extends Fragment implements OnPostClickListener {
     }
 
     @Override
-    public void onClickOption(int position, Posts posts) {
-        LayoutInflater factory = LayoutInflater.from(getActivity());
-        final View deleteDialogView = factory.inflate(R.layout.alertdialogposts, null);
-        final AlertDialog deleteDialog = new AlertDialog.Builder(getActivity()).create();
-        deleteDialog.setView(deleteDialogView);
-        Button btn_delete = deleteDialogView.findViewById(R.id.btn_delete);
-        Button btn_modify = deleteDialogView.findViewById(R.id.btn_modify);
-        Button btn_save =  deleteDialogView.findViewById(R.id.btn_save);
-        if(posts.getUserId().equals(mAuth.getCurrentUser().getUid())){
-            btn_delete.setVisibility(View.VISIBLE);
-            btn_delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    deletePost(posts);
-                    deleteDialog.dismiss();
-                }
-            });
-
-            btn_modify.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(getActivity(),WritePostsActivity.class);
-                    intent.putExtra("post",posts);
-                    getActivity().startActivity(intent);
-                    deleteDialog.dismiss();
-                }
-            });
-
-        }else {
-            btn_delete.setVisibility(View.GONE);
-            btn_modify.setVisibility(View.GONE);
-        }
-
-        btn_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    public void onClickOption(int position, Posts posts, MenuItem menuItem ) {
+        switch (menuItem.getItemId()){
+            case R.id.btn_delete:
+                deletePost(posts);
+                break;
+            case R.id.btn_modify:
+                Intent intent = new Intent(getActivity(),WritePostsActivity.class);
+                intent.putExtra("post",posts);
+                getActivity().startActivity(intent);
+                break;
+            case R.id.btn_save:
                 savePost(posts);
-                deleteDialog.dismiss();
-            }
-        });
-
-
-        deleteDialog.show();
+                break;
+        }
     }
 
     public void readDataReadction(MyCallBackReaction myCallback, Posts posts) {
@@ -282,20 +349,57 @@ public class PostFragment extends Fragment implements OnPostClickListener {
 
 
     private void deletePost(Posts posts){
-        db.collection("posts").document(posts.getPostId())
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
+        mProgress.setMessage("Loading..");
+        mProgress.setCancelable(false);
+        mProgress.show();
+        if(posts.getImgUri().size() > 0){
+            numImages = posts.getImgUri().size();
+            Log.e("numImages : ", numImages + "");
+            myCallBackListItem(new MyCallbackDeletePost() {
+                @Override
+                public void myCallBack(ListResult listResult) {
+                      for (StorageReference item : listResult.getItems()) {
+                            // All the items under listRef.
+                            numImages = numImages - 1 ;
+                            StorageReference storageReference = firebaseStorage.getReference(item.getPath());
+                            myCallBackDeleteItem(new MyCallbackDeleteItem() {
+                                @Override
+                                public void myCallBackItem(Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        Log.e("task : ", numImages + "");
+                                    }
+                                }
+                            },storageReference);
+                            if(numImages == 0){
+                                myCallBackDeletePost(new MyCallbackDeleteItem() {
+                                    @Override
+                                    public void myCallBackItem(Task<Void> task) {
+                                       if(task.isSuccessful()){
+                                           Log.e("successfully", "posts  deleted!");
+                                       } else{
+                                           Log.e("Failed", " posts deleted!");
+                                       }
+                                        mProgress.dismiss();
+                                    }
+                                },posts);
+                            }
+                        }
+                }
+            },posts);
+
+        }else{
+            myCallBackDeletePost(new MyCallbackDeleteItem() {
+                @Override
+                public void myCallBackItem(Task<Void> task) {
+                    if(task.isSuccessful()){
                         Log.e("successfully", "posts  deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
+                    } else{
                         Log.e("Failed", " posts deleted!");
                     }
-                });
+                    mProgress.dismiss();
+                }
+            },posts);
+        }
     }
 
     private void savePost(Posts posts){
@@ -311,10 +415,9 @@ public class PostFragment extends Fragment implements OnPostClickListener {
             postArray.add(posts.getPostId());
             userAccount.setPostArray(postArray);
 
-            db.collection("users").document(userAccount.getId())
-                    .set(userAccount).addOnCompleteListener(new OnCompleteListener<Void>() {
+            myCallBackSavePost(new MyCallbackDeleteItem() {
                 @Override
-                public void onComplete(@NonNull Task<Void> task) {
+                public void myCallBackItem(Task<Void> task) {
                     if(task.isSuccessful()){
                         Log.e("successfully", "posts saved!");
                     }else{
@@ -331,5 +434,56 @@ public class PostFragment extends Fragment implements OnPostClickListener {
                 = (ConnectivityManager) Objects.requireNonNull(getActivity()).getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    private void myCallBackListItem(MyCallbackDeletePost myCallbackDeletePost, Posts posts){
+        StorageReference storageReference = firebaseStorage.getReference(posts.getUserId());
+        String path = "/"+posts.getPostId()+"/images";
+        StorageReference listRef = storageReference.child(path);
+        listRef.listAll()
+                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                    @Override
+                    public void onSuccess(ListResult listResult) {
+                        myCallbackDeletePost.myCallBack(listResult);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Uh-oh, an error occurred!
+                    }
+                });
+    }
+
+    private void myCallBackDeleteItem(MyCallbackDeleteItem myCallbackDeleteItem,
+                                      StorageReference storageReference){
+        storageReference.delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                myCallbackDeleteItem.myCallBackItem(task);
+            }
+        });
+    }
+
+    private void myCallBackDeletePost(MyCallbackDeleteItem myCallbackDeleteItem,Posts posts){
+        db.collection("posts").document(posts.getPostId())
+                .delete()
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        myCallbackDeleteItem.myCallBackItem(task);
+                    }
+                });
+    }
+
+    private void myCallBackSavePost(MyCallbackDeleteItem myCallbackDeleteItem){
+        db.collection("users").document(userAccount.getId())
+                .set(userAccount).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+               myCallbackDeleteItem.myCallBackItem(task);
+            }
+        });
     }
 }

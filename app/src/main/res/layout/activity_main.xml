@@ -23,7 +23,10 @@
             android:layout_height="?attr/actionBarSize"
             android:id="@+id/toolbar"
             android:minHeight="?attr/actionBarSize"
-            app:titleTextColor="@color/appColor" />
+            app:titleTextColor="@color/appColor"
+            >
+
+        </androidx.appcompat.widget.Toolbar>
 
         <FrameLayout
             app:layout_constraintTop_toBottomOf="@id/toolbar"

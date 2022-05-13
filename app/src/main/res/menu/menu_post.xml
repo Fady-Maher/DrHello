@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:title="Option"
+        >
+        <menu>
+
+            <item
+                android:id="@+id/btn_delete"
+                android:icon="@drawable/delete_24"
+                android:title="Delete"
+                app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/btn_modify"
+                android:icon="@drawable/edit_24"
+                android:title="Edit"
+                app:showAsAction="never"/>
+            <item
+                android:id="@+id/btn_save"
+                android:icon="@drawable/favorite_24"
+                android:title="Save"
+                app:showAsAction="never"/>
+
+        </menu>
+
+    </item>
+
+</menu>

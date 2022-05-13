@@ -13,14 +13,17 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.PopupMenu;
 
 import com.example.drhello.adapter.OnPostClickListener;
 import com.example.drhello.adapter.PostsAdapter;
 import com.example.drhello.databinding.ActivityPostsUsersBinding;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
 import com.example.drhello.firebaseinterface.MyCallBackReaction;
+import com.example.drhello.firebaseinterface.MyCallbackUser;
 import com.example.drhello.model.Posts;
 import com.example.drhello.model.ReactionType;
 import com.example.drhello.model.UserAccount;
@@ -30,7 +33,6 @@ import com.example.drhello.ui.writepost.NumReactionActivity;
 import com.example.drhello.ui.writepost.ShowImageActivity;
 import com.example.drhello.ui.writepost.WritePostsActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -41,7 +43,13 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Locale;
 import java.util.Map;
 
 public class SavedPostsActivity extends AppCompatActivity implements OnPostClickListener {
@@ -52,6 +60,7 @@ public class SavedPostsActivity extends AppCompatActivity implements OnPostClick
     private ActivityPostsUsersBinding activityPostsUsersBinding;
     private UserAccount userAccount;
     private ArrayList<String>  stringArrayList = new ArrayList<>();
+    private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a", Locale.US);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,29 +76,71 @@ public class SavedPostsActivity extends AppCompatActivity implements OnPostClick
         db = FirebaseFirestore.getInstance();
         mProgress = new ProgressDialog(SavedPostsActivity.this);
 
-        if (getIntent().getSerializableExtra("userAccount") != null) {
-            userAccount = (UserAccount) getIntent().getSerializableExtra("userAccount");
-            stringArrayList = userAccount.getPostArray();
-            readDataPostsListener(new MyCallBackListenerComments() {
-                @Override
-                public void onCallBack(QuerySnapshot value) {
-                    Log.e("lostart2 : ", postsArrayList.size() + "");
-                    for (DocumentSnapshot document : value.getDocuments()) {
-                        Posts post = document.toObject(Posts.class);
-                        if(stringArrayList.contains(post.getPostId())){
-                            postsArrayList.add(post);
+        readData(new MyCallbackUser() {
+            @Override
+            public void onCallback(DocumentSnapshot documentSnapshot) {
+                if(!documentSnapshot.exists()){
+                    FirebaseAuth.getInstance().getCurrentUser().delete();
+                }else {
+                    userAccount = documentSnapshot.toObject(UserAccount.class);
+                    stringArrayList = userAccount.getPostArray();
+                    readDataPostsListener(new MyCallBackListenerComments() {
+                        @Override
+                        public void onCallBack(QuerySnapshot value) {
+                            Log.e("lostart2 : ", postsArrayList.size() + "");
+                            Log.e("lost : ", value.getDocuments().size() + "");
+                            for (DocumentSnapshot document : value.getDocuments()) {
+                                Posts post = document.toObject(Posts.class);
+                                if(stringArrayList.contains(post.getPostId())){
+                                    postsArrayList.add(post);
+                                }
+                            }
+
+                            Collections.sort(postsArrayList, new Comparator<Posts>() {
+                                @Override
+                                public int compare(Posts lhs, Posts rhs) {
+                                    try {
+                                        return dateFormat.parse(rhs.getDate())
+                                                .compareTo(dateFormat.parse(lhs.getDate()));
+                                    } catch (ParseException e) {
+                                        throw new IllegalArgumentException(e);
+                                    }
+                                }
+                            });
+
                             postsAdapter.FunPostsAdapter(postsArrayList);
+                            postsAdapter.notifyDataSetChanged();
+
+                            mProgress.dismiss();
                         }
-                    }
+                    });
                 }
-            });
-        }
+            }
+        });
+
+
 
         postsAdapter = new PostsAdapter(SavedPostsActivity.this, postsArrayList,
                 SavedPostsActivity.this,
-                getSupportFragmentManager());
+                getSupportFragmentManager(),"SavedPostsActivity");
         activityPostsUsersBinding.recyclePosts.setAdapter(postsAdapter);
 
+    }
+
+    public void readData(MyCallbackUser myCallback) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (userId != null) {
+            mProgress.setMessage("Loading..");
+            mProgress.setCancelable(false);
+            mProgress.show();
+            FirebaseFirestore.getInstance().collection("users")
+                    .document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    myCallback.onCallback(documentSnapshot);
+                }
+            });
+        }
     }
 
     public void readDataPostsListener(MyCallBackListenerComments myCallback) {
@@ -157,41 +208,13 @@ public class SavedPostsActivity extends AppCompatActivity implements OnPostClick
     }
 
     @Override
-    public void onClickOption(int position, Posts posts) {
-        LayoutInflater factory = LayoutInflater.from(SavedPostsActivity.this);
-        final View deleteDialogView = factory.inflate(R.layout.alertdialogposts, null);
-        final AlertDialog deleteDialog = new AlertDialog.Builder(SavedPostsActivity.this).create();
-        deleteDialog.setView(deleteDialogView);
-        Button btn_delete = deleteDialogView.findViewById(R.id.btn_delete);
-        Button btn_modify = deleteDialogView.findViewById(R.id.btn_modify);
-        if(posts.getUserId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-            btn_delete.setVisibility(View.VISIBLE);
-            btn_delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    deletePost(posts);
-                    deleteDialog.dismiss();
-                }
-            });
-
-            btn_modify.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(SavedPostsActivity.this,WritePostsActivity.class);
-                    intent.putExtra("post",posts);
-                    startActivity(intent);
-                    deleteDialog.dismiss();
-                }
-            });
-
-        }else {
-            btn_delete.setVisibility(View.GONE);
-            btn_modify.setVisibility(View.GONE);
+    public void onClickOption(int position, Posts posts, MenuItem menuItem  ) {
+        switch (menuItem.getItemId()){
+            case R.id.btn_delete:
+                deletePost(posts);
+                break;
         }
-
-        deleteDialog.show();
     }
-
     private void deletePost(Posts posts){
         stringArrayList.remove(posts.getPostId());
         userAccount.setPostArray(stringArrayList);
@@ -201,6 +224,8 @@ public class SavedPostsActivity extends AppCompatActivity implements OnPostClick
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
                     Log.e("successfully", "posts  deleted!");
+                    postsArrayList.remove(posts);
+                    postsAdapter.notifyDataSetChanged();
                 }else{
                     Log.e("Failed", " posts deleted!");
                 }

@@ -18,8 +18,7 @@ android {
                 {
                     buildPython "C:\\Users\\Fady\\AppData\\Local\\Programs\\Python\\Python39\\python.exe"
                     pip {
-                        install "nltk"
-                        install "Pillow"
+
                         install "requests"
                         install "pyspellchecker"
                         install "deep_translator"

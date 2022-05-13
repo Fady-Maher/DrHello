@@ -67,6 +67,8 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
         return newsModelList.size();
     }
 
+
+
     public static class NewsViewHolder extends RecyclerView.ViewHolder {
         private final ImageView articleImage;
         private final TextView title;

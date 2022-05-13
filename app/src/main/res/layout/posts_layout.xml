@@ -69,7 +69,7 @@
                         android:id="@+id/post_option"
                         android:layout_width="@dimen/_24sdp"
                         android:layout_height="@dimen/_24sdp"
-                        android:src="@drawable/more_options"
+                        android:src="@drawable/option_vert"
                         android:padding="@dimen/_5sdp"
                         android:layout_marginTop="-3dp"
                         android:layout_marginRight="@dimen/_5sdp"

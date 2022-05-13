@@ -4,10 +4,12 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,16 +43,19 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
     private PostsHolder postsHolder;
     private  FragmentManager supportFragmentManager;
     private String reactionType2 = "0";
+    private String name_activity ;
 
     public PostsAdapter() {
     }
 
-    public PostsAdapter(Context context, ArrayList<Posts> posts, OnPostClickListener onPostClickListener, FragmentManager supportFragmentManager) {
+    public PostsAdapter(Context context, ArrayList<Posts> posts,
+                        OnPostClickListener onPostClickListener,
+                        FragmentManager supportFragmentManager,String name_activity) {
         this.context = context;
         this.posts = posts;
         this.onPostClickListener = onPostClickListener;
         this.supportFragmentManager = supportFragmentManager;
-
+        this.name_activity = name_activity;
         Log.e("PostsAdapter : ",posts.size()+"");
     }
 
@@ -351,7 +356,37 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
             post_option.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    onPostClickListener.onClickOption(getAdapterPosition(),posts.get(getAdapterPosition()));
+                    PopupMenu popupMenu = new PopupMenu(context, post_option);
+
+                    // Inflating popup menu from popup_menu.xml file
+                    popupMenu.getMenuInflater().inflate(R.menu.menu_post, popupMenu.getMenu());
+
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem menuItem) {
+                            // Toast message on menu item clicked
+                            if(posts.get(getAdapterPosition()).getUserId().equals(FirebaseAuth.getInstance()
+                                    .getCurrentUser().getUid())) {
+                                popupMenu.getMenu().findItem(R.id.btn_delete).setVisible(true);
+                                popupMenu.getMenu().findItem(R.id.btn_modify).setVisible(true);
+                            }else{
+                                popupMenu.getMenu().findItem(R.id.btn_delete).setVisible(false);
+                                popupMenu.getMenu().findItem(R.id.btn_modify).setVisible(false);
+                            }
+
+                            if(!name_activity.equals("PostFragment")){
+                                popupMenu.getMenu().findItem(R.id.btn_save).setVisible(false);
+                                popupMenu.getMenu().findItem(R.id.btn_modify).setVisible(false);
+                                popupMenu.getMenu().findItem(R.id.btn_delete).setVisible(true);
+                            }
+
+                            onPostClickListener.onClickOption(getAdapterPosition(),posts.get(getAdapterPosition()),menuItem);
+
+                            return true;
+                        }
+                    });
+                    // Showing the popup menu
+                    popupMenu.show();
                 }
             });
 

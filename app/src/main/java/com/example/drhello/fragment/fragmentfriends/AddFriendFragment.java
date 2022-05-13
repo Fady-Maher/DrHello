@@ -45,7 +45,7 @@ import java.util.Map;
 public class AddFriendFragment extends Fragment  implements OnClickAddPersonListener {
 
     private AddPersonAdapter addPersonAdapter;
-    private ArrayList<UserAccount> addPersonModelArrayList = new ArrayList<>(),accountsSearch=new ArrayList<>();
+    private ArrayList<UserAccount> addPersonModelArrayList = new ArrayList<>(), accountsSearch=new ArrayList<>();
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private RecyclerView rec_view;

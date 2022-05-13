@@ -54,7 +54,6 @@ public class ChatFragment extends Fragment implements OnFriendsClickListener {
     private ArrayList<LastChat> userAccountArrayList = new ArrayList<>();
     private UserAccount userAccount1;
     private FloatingActionButton add_user;
-    Map<String, AddPersonModel> mapFriend = new HashMap<>();
     private CircleImageView img_cur_user;
     private UserAccount userAccount;
     public static ProgressDialog mProgress;
@@ -77,6 +76,7 @@ public class ChatFragment extends Fragment implements OnFriendsClickListener {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         mProgress = new ProgressDialog(getActivity());
+
 
         readData(new MyCallbackUser() {
             @Override

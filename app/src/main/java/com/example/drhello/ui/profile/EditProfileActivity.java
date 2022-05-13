@@ -448,7 +448,6 @@ public class EditProfileActivity extends AppCompatActivity {
         //users//id//userinformation//id --> to seperate data
         if(!url.equals("")){
             userAccount.setImg_profile(url);
-
         }
         db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .set(userAccount)

@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -12,16 +11,15 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.PopupMenu;
 
 import com.example.drhello.adapter.OnPostClickListener;
 import com.example.drhello.adapter.PostsAdapter;
 import com.example.drhello.databinding.ActivityPostsUsersBinding;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
 import com.example.drhello.firebaseinterface.MyCallBackReaction;
-import com.example.drhello.fragment.PostFragment;
 import com.example.drhello.model.Posts;
 import com.example.drhello.model.ReactionType;
 import com.example.drhello.model.UserAccount;
@@ -84,7 +82,7 @@ public class PostsUsersActivity extends AppCompatActivity implements  OnPostClic
 
         postsAdapter = new PostsAdapter(PostsUsersActivity.this, postsArrayList,
                 PostsUsersActivity.this,
-                getSupportFragmentManager());
+                getSupportFragmentManager(),"PostsUsersActivity");
         activityPostsUsersBinding.recyclePosts.setAdapter(postsAdapter);
 
 
@@ -154,7 +152,7 @@ public class PostsUsersActivity extends AppCompatActivity implements  OnPostClic
     }
 
     @Override
-    public void onClickOption(int position, Posts posts) {
+    public void onClickOption(int position, Posts posts, MenuItem menuItem) {
 
     }
 
