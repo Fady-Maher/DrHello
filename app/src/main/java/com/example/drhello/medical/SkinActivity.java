@@ -8,7 +8,9 @@ import androidx.databinding.DataBindingUtil;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
@@ -72,8 +74,8 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
     PyObject main_program;
     public static ProgressDialog mProgress;
     private Bitmap bitmap;
-    private StorageReference storageReference;
     private RequestPermissions requestPermissions;
+    String path = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -84,16 +86,12 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
         } else {
             getWindow().setStatusBarColor(Color.WHITE);
         }
-        storageReference = FirebaseStorage.getInstance().getReference();
 
         requestPermissions = new RequestPermissions(SkinActivity.this,SkinActivity.this);
 
         mProgress = new ProgressDialog(SkinActivity.this);
-        if (!Python.isStarted()) {
-            Python.start(new AndroidPlatform(SkinActivity.this));//error is here!
-        }
-        final Python py = Python.getInstance();
-        main_program = py.getModule("prolog");
+        AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
+        asyncTaskDownload.execute();
 
         activitySkinBinding = DataBindingUtil.setContentView(SkinActivity.this, R.layout.activity_skin);
 
@@ -143,11 +141,10 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
             @Override
             public void onClick(View view) {
                 if (bitmap != null) {
-                    byte[] bytesOutImg;
-                    ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytesStream);
-                    bytesOutImg = bytesStream.toByteArray();
-                    uploadImage(bytesOutImg,storageReference);
+                    if(!path.equals("")){
+                        AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD(path,"");
+                        asyncTaskDownloadAudio.execute();
+                    }
                     bitmap = null;
                 }else{
                     Toast.makeText(SkinActivity.this, "Please, Choose Image First!!", Toast.LENGTH_SHORT).show();
@@ -163,7 +160,9 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(SkinActivity.this.getContentResolver(), data.getData());
                 activitySkinBinding.imgCorona.setImageBitmap(bitmap);
-                //  byte[] a = fromBitmap(bitmap);
+                File file = new File(getRealPathFromURI(getImageUri(getApplicationContext(),bitmap)));
+                Log.e("file: ", file.getPath());
+                path = file.getPath();
             } catch (IOException e) {
                 Log.e("gallary exception: ", e.getMessage());
             }
@@ -176,47 +175,74 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
 
     }
 
+
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
+    public String getRealPathFromURI(Uri uri) {
+        Cursor cursor = getContentResolver().query(uri,
+                null, null, null, null);
+        cursor.moveToFirst();
+        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+        Log.e("result: " ,cursor.getString(idx)+"     1");
+        String result = cursor.getString(idx);
+        cursor.close();
+        return result;
+    }
+
+
     public class AsyncTaskD extends AsyncTask<String, String, String> {
 
-        String url;
-        public AsyncTaskD(String url){
-            this.url = url;
+        String path;
+        String action;
+        public AsyncTaskD(String path,String action){
+            this.path = path;
+            this.action = action;
         }
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            mProgress.setMessage("Image Processing..");
+            mProgress.setCancelable(false);
+            mProgress.show();
         }
 
         @Override
         protected String doInBackground(String... f_url) {
-
-            String str = main_program.callAttr("model",url,"Skin").toString();
-            int prediction = Integer.parseInt(str.split(",")[0].replaceAll("[^0-9]", ""));;
-            String probability = str.split(",")[1].replaceAll("]", "");
-            probability = probability.replaceAll("\"", "").replace("}","").substring(14);
-
-            String[] arrayList = probability.split(" ");
-            Log.e("prediction : ",prediction+"");
-            Log.e("probability : ",probability);
-            Log.e("arrayList : ",arrayList.toString());
-            String result = String.format("%.2f", Float.parseFloat(arrayList[prediction]) * 100);
-
-            if (prediction == 0) {
-                activitySkinBinding.txtResult.setText(stringsSkin[0] + " :  " + result);
-            } else if (prediction == 1) {
-                activitySkinBinding.txtResult.setText(stringsSkin[1] + " :  " + result);
-            } else if (prediction == 2) {
-                activitySkinBinding.txtResult.setText(stringsSkin[2] + " :  " + result);
-            } else if (prediction == 3) {
-                activitySkinBinding.txtResult.setText(stringsSkin[3] + " :  " + result);
-            } else if (prediction == 4) {
-                activitySkinBinding.txtResult.setText(stringsSkin[4] + " :  " + result);
-            }  else if (prediction == 5) {
-                activitySkinBinding.txtResult.setText(stringsSkin[5] + " :  " + result);
-            } else {
-                activitySkinBinding.txtResult.setText(stringsSkin[6] + " :  " + result);
+            if(action.equals("first")){
+                if (! Python.isStarted()) {
+                    Python.start(new AndroidPlatform(SkinActivity.this));//error is here!
+                }
+                final Python py = Python.getInstance();
+                main_program = py.getModule("prolog");
+            }else{
+                String result = main_program.callAttr("model",path,"Skin").toString();
+                String[] listResult = result.split("@");
+                int prediction = Integer.parseInt(listResult[0]);
+                String probStr = listResult[1].replace("[","")
+                        .replace("]","")
+                        .replace("\"","");
+                String[] prop = probStr.split(" ");
+                if (prediction == 0) {
+                    activitySkinBinding.txtResult.setText(stringsSkin[0] + " :  " + String.format("%.2f", Float.parseFloat(prop[0]) * 100) );
+                } else if (prediction == 1) {
+                    activitySkinBinding.txtResult.setText(stringsSkin[1] + " :  " + String.format("%.2f", Float.parseFloat(prop[1]) * 100) );
+                } else if (prediction == 2) {
+                    activitySkinBinding.txtResult.setText(stringsSkin[2] + " :  " + String.format("%.2f", Float.parseFloat(prop[2]) * 100) );
+                } else if (prediction == 3) {
+                    activitySkinBinding.txtResult.setText(stringsSkin[3] + " :  " + String.format("%.2f", Float.parseFloat(prop[3]) * 100) );
+                }else if (prediction == 4) {
+                    activitySkinBinding.txtResult.setText(stringsSkin[4] + " :  " + String.format("%.2f", Float.parseFloat(prop[4]) * 100) );
+                }else if (prediction == 5) {
+                    activitySkinBinding.txtResult.setText(stringsSkin[5] + " :  " + String.format("%.2f", Float.parseFloat(prop[5]) * 100) );
+                }else if (prediction == 6) {
+                    activitySkinBinding.txtResult.setText(stringsSkin[6] + " :  " + String.format("%.2f", Float.parseFloat(prop[6]) * 100) );
+                }
             }
-
             mProgress.dismiss();
             return null;
         }
@@ -225,45 +251,4 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
         protected void onPostExecute(String file_url) {
         }
     }
-
-    private void uploadImage(byte[] bytes, StorageReference storageReference) {
-        mProgress.setMessage("Image Processing..");
-        mProgress.setCancelable(false);
-        mProgress.show();
-        StorageReference ref = storageReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid()
-                + "/Model/"+ UUID.nameUUIDFromBytes(bytes));
-        ref.putBytes(bytes)
-                .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            saveUri(ref);
-                        } else {
-                            //Toast.makeText(WritePostsActivity.this, "Loading not done", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                //Toast.makeText(WritePostsActivity.this, "Image not loading error : "+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void saveUri(StorageReference ref) {
-        ref.getDownloadUrl()
-                .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        AsyncTaskD asyncTask = new AsyncTaskD(uri.toString());
-                        asyncTask.execute();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e("errorH : ", e.getMessage());
-            }
-        });
-    }
-
 }

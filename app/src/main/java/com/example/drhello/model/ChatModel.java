@@ -3,7 +3,7 @@ package com.example.drhello.model;
 import java.io.Serializable;
 
 public class ChatModel implements Serializable {
-    String message, date,senderid ,recieveid, image, nameSender , record ;
+    String message, date,senderid ,recieveid, image, nameSender , record ,id ;
 
     public ChatModel() {
     }
@@ -72,5 +72,13 @@ public class ChatModel implements Serializable {
 
     public void setRecord(String record) {
         this.record = record;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

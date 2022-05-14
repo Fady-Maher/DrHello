@@ -1,15 +1,8 @@
 package com.example.drhello.medical;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.loader.content.CursorLoader;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.CompositePageTransformer;
-import androidx.viewpager2.widget.MarginPageTransformer;
-import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
 import android.app.Activity;
@@ -23,8 +16,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -36,105 +27,75 @@ import com.chaquo.python.android.AndroidPlatform;
 import com.example.drhello.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
-import com.example.drhello.databinding.ActivityChatBinding;
-import com.example.drhello.databinding.ActivityChestBinding;
-import com.example.drhello.databinding.ActivityNumReactionBinding;
-import com.example.drhello.fragment.HomeFragment;
-import com.example.drhello.model.CommentModel;
-import com.example.drhello.model.Posts;
+import com.example.drhello.databinding.ActivityHeartBinding;
 import com.example.drhello.model.SliderItem;
 import com.example.drhello.textclean.RequestPermissions;
-import com.example.drhello.ui.writecomment.InsideCommentActivity;
-import com.example.drhello.ui.writecomment.WriteCommentActivity;
-import com.example.drhello.ui.writepost.NumReactionActivity;
-import com.example.drhello.ui.writepost.WritePostsActivity;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.ml.modeldownloader.CustomModel;
-import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
-import com.google.firebase.ml.modeldownloader.DownloadType;
-import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
-import org.tensorflow.lite.Interpreter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
-public class ChestActivity extends AppCompatActivity implements OnClickDoctorInterface {
-    private ActivityChestBinding activityChestBinding;
-    private ArrayList<SliderItem> sliderItems=new ArrayList<>();
-    private String[] stringsChest = {"Covid19", "Lung Opacity","Normal", "Pneumonia"};
+public class HeartActivity extends AppCompatActivity implements OnClickDoctorInterface {
+    private ActivityHeartBinding activityHeartBinding;
+    private String[] stringsHeart = {"Fusion", "Normal", "Supraventricular",
+            "Unknown", "Ventricular"};
     private static final int Gallary_REQUEST_CODE = 1;
     PyObject main_program;
     public static ProgressDialog mProgress;
-    String path = "";
     private Bitmap bitmap;
     private RequestPermissions requestPermissions;
+    String path = "";
+    private ArrayList<SliderItem> sliderItems = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chest);
+        setContentView(R.layout.activity_heart);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) ;
-        }else{
+            getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        } else {
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
-        requestPermissions = new RequestPermissions(ChestActivity.this,ChestActivity.this);
+        requestPermissions = new RequestPermissions(HeartActivity.this,HeartActivity.this);
 
-        mProgress = new ProgressDialog(ChestActivity.this);
-
-        activityChestBinding = DataBindingUtil.setContentView(ChestActivity.this, R.layout.activity_chest);
-
+        mProgress = new ProgressDialog(HeartActivity.this);
         AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
         asyncTaskDownload.execute();
 
-        activityChestBinding.back.setOnClickListener(new View.OnClickListener() {
+        activityHeartBinding = DataBindingUtil.setContentView(HeartActivity.this, R.layout.activity_heart);
+
+        activityHeartBinding.back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
 
-        sliderItems.add(new SliderItem(R.drawable.normal_xray,"Normal"));
-        sliderItems.add(new SliderItem(R.drawable.covid19,"Covid19"));
-        sliderItems.add(new SliderItem(R.drawable.lung_opacity,"Lung Opacity"));
-        sliderItems.add(new SliderItem(R.drawable.pneumonia,"Pneumonia"));
+        sliderItems.add(new SliderItem(R.drawable.actinic_keratoses, "Actinic keratoses"));
+        sliderItems.add(new SliderItem(R.drawable.basal_cell_carcinoma, "Basal Cell Carcinoma"));
+        sliderItems.add(new SliderItem(R.drawable.benign_keratosis_like, "Benign Keratosis Like"));
+        sliderItems.add(new SliderItem(R.drawable.der, "Dermatofibroma"));
+        sliderItems.add(new SliderItem(R.drawable.melanocytic_nevi, "Melanocytic Nevi"));
+        sliderItems.add(new SliderItem(R.drawable.vascular_lesions, "Vascular Lesions"));
 
-        SliderAdapter sliderAdapter=new SliderAdapter(sliderItems,ChestActivity.this,ChestActivity.this);
 
-        activityChestBinding.viewPagerImageSlider.setAdapter(sliderAdapter);
+        SliderAdapter sliderAdapter = new SliderAdapter(sliderItems, HeartActivity.this,HeartActivity.this);
 
-        activityChestBinding.viewPagerImageSlider.startAutoScroll();
 
-        activityChestBinding.viewPagerImageSlider.setLoopEnabled(true);
-        activityChestBinding.viewPagerImageSlider.setCanTouch(true);
+        activityHeartBinding.viewPagerImageSlider.setAdapter(sliderAdapter);
 
-        activityChestBinding.selImg.setOnClickListener(new View.OnClickListener() {
+        activityHeartBinding.viewPagerImageSlider.startAutoScroll();
+
+        activityHeartBinding.viewPagerImageSlider.setLoopEnabled(true);
+        activityHeartBinding.viewPagerImageSlider.setCanTouch(true);
+
+        activityHeartBinding.selImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (requestPermissions.permissionStorageRead()) {
-                    ActivityCompat.requestPermissions(ChestActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    ActivityCompat.requestPermissions(HeartActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                             Gallary_REQUEST_CODE);
                 } else {
                     Intent intent = new Intent();
@@ -147,7 +108,7 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
             }
         });
 
-        activityChestBinding.result.setOnClickListener(new View.OnClickListener() {
+        activityHeartBinding.result.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (bitmap != null) {
@@ -155,21 +116,23 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
                         AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD(path,"");
                         asyncTaskDownloadAudio.execute();
                     }
-
                     bitmap = null;
                 }else{
-                    Toast.makeText(ChestActivity.this, "Please, Choose Image First!!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(HeartActivity.this, "Please, Choose Image First!!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+
     }
+
+
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Gallary_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
             try {
-                bitmap = MediaStore.Images.Media.getBitmap(ChestActivity.this.getContentResolver(), data.getData());
-                activityChestBinding.imgCorona.setImageBitmap(bitmap);
+                bitmap = MediaStore.Images.Media.getBitmap(HeartActivity.this.getContentResolver(), data.getData());
+                activityHeartBinding.imgCorona.setImageBitmap(bitmap);
                 File file = new File(getRealPathFromURI(getImageUri(getApplicationContext(),bitmap)));
                 Log.e("file: ", file.getPath());
                 path = file.getPath();
@@ -181,10 +144,6 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         }
     }
 
-    @Override
-    public void OnClick(String spec) {
-
-    }
 
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
@@ -202,6 +161,11 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         String result = cursor.getString(idx);
         cursor.close();
         return result;
+    }
+
+    @Override
+    public void OnClick(String spec) {
+
     }
 
 
@@ -225,12 +189,12 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         protected String doInBackground(String... f_url) {
             if(action.equals("first")){
                 if (! Python.isStarted()) {
-                    Python.start(new AndroidPlatform(ChestActivity.this));//error is here!
+                    Python.start(new AndroidPlatform(HeartActivity.this));//error is here!
                 }
                 final Python py = Python.getInstance();
                 main_program = py.getModule("prolog");
             }else{
-                String result = main_program.callAttr("model",path,"Corona").toString();
+                String result = main_program.callAttr("model",path,"Heart").toString();
                 String[] listResult = result.split("@");
                 int prediction = Integer.parseInt(listResult[0]);
                 String probStr = listResult[1].replace("[","")
@@ -238,13 +202,15 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
                         .replace("\"","");
                 String[] prop = probStr.split(" ");
                 if (prediction == 0) {
-                    activityChestBinding.txtResult.setText(stringsChest[0] + " :  " + String.format("%.2f", Float.parseFloat(prop[0]) * 100) );
+                    activityHeartBinding.txtResult.setText(stringsHeart[0] + " :  " + String.format("%.2f", Float.parseFloat(prop[0]) * 100) );
                 } else if (prediction == 1) {
-                    activityChestBinding.txtResult.setText(stringsChest[1] + " :  " + String.format("%.2f", Float.parseFloat(prop[1]) * 100) );
+                    activityHeartBinding.txtResult.setText(stringsHeart[1] + " :  " + String.format("%.2f", Float.parseFloat(prop[1]) * 100) );
                 } else if (prediction == 2) {
-                    activityChestBinding.txtResult.setText(stringsChest[2] + " :  " + String.format("%.2f", Float.parseFloat(prop[2]) * 100) );
+                    activityHeartBinding.txtResult.setText(stringsHeart[2] + " :  " + String.format("%.2f", Float.parseFloat(prop[2]) * 100) );
                 } else if (prediction == 3) {
-                    activityChestBinding.txtResult.setText(stringsChest[3] + " :  " + String.format("%.2f", Float.parseFloat(prop[3]) * 100) );
+                    activityHeartBinding.txtResult.setText(stringsHeart[3] + " :  " + String.format("%.2f", Float.parseFloat(prop[3]) * 100) );
+                }else if (prediction == 4) {
+                    activityHeartBinding.txtResult.setText(stringsHeart[4] + " :  " + String.format("%.2f", Float.parseFloat(prop[4]) * 100) );
                 }
             }
             mProgress.dismiss();

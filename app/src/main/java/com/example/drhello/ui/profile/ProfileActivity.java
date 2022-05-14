@@ -67,7 +67,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     ActivityProfileBinding activityProfileBinding;
     public static ProgressDialog mProgress;
-    private UserAccount userAccount;
+    private UserAccount userAccount, userAccountme;
     private boolean flag_follow = false;
     private FirebaseFirestore db;
     private static final int REQUEST_CODE = 1;
@@ -89,17 +89,30 @@ public class ProfileActivity extends AppCompatActivity {
 
         activityProfileBinding = DataBindingUtil.setContentView(this, R.layout.activity_profile);
 
-        if(getIntent().getStringExtra("userId") !=null){
+        readDataMe(new MyCallbackUser() {
+            @Override
+            public void onCallback(DocumentSnapshot documentSnapshot) {
+                userAccountme = documentSnapshot.toObject(UserAccount.class);
+                Log.e("userAc: ", userAccountme.getId());
+                mProgress.dismiss();
+            }
+        });
+
+        if (getIntent().getStringExtra("userId") != null) {
             userId = getIntent().getStringExtra("userId");
             activityProfileBinding.imgEditUser.setVisibility(View.GONE);
             activityProfileBinding.imgEditDr.setVisibility(View.GONE);
-        }else{
+            activityProfileBinding.floatbtnuser.setVisibility(View.VISIBLE);
+            activityProfileBinding.floatbtndr.setVisibility(View.VISIBLE);
+        } else {
             userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             activityProfileBinding.lnDr.setVisibility(View.GONE);
             activityProfileBinding.lnUser.setVisibility(View.GONE);
+            activityProfileBinding.floatbtnuser.setVisibility(View.GONE);
+            activityProfileBinding.floatbtndr.setVisibility(View.GONE);
         }
 
-        if(userId != null){
+        if (userId != null) {
             readDateInfo();
         }
 
@@ -113,8 +126,8 @@ public class ProfileActivity extends AppCompatActivity {
         activityProfileBinding.imgEditDr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ProfileActivity.this,EditProfileActivity.class);
-                intent.putExtra("userAccount",userAccount);
+                Intent intent = new Intent(ProfileActivity.this, EditProfileActivity.class);
+                intent.putExtra("userAccount", userAccount);
                 startActivity(intent);
             }
         });
@@ -129,8 +142,8 @@ public class ProfileActivity extends AppCompatActivity {
         activityProfileBinding.imgEditUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ProfileActivity.this,EditProfileActivity.class);
-                intent.putExtra("userAccount",userAccount);
+                Intent intent = new Intent(ProfileActivity.this, EditProfileActivity.class);
+                intent.putExtra("userAccount", userAccount);
                 startActivity(intent);
             }
         });
@@ -159,14 +172,14 @@ public class ProfileActivity extends AppCompatActivity {
                     ActivityCompat.requestPermissions(ProfileActivity.this,
                             new String[]{Manifest.permission.CALL_PHONE},
                             REQUEST_CODE);
-                    Log.e("PERS","PERS");
+                    Log.e("PERS", "PERS");
                 } else {
                     // else block means user has already accepted.And make your phone call here.
                     String uri = "tel:" + userAccount.getUserInformation().getPhone();
                     Intent intent = new Intent(Intent.ACTION_CALL);
                     intent.setData(Uri.parse(uri));
                     startActivity(intent);
-                    Log.e("PERS","intent");
+                    Log.e("PERS", "intent");
                 }
             }
         });
@@ -177,7 +190,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String location = userAccount.getUserInformation().getAddress_work();
                 String lat = location.substring(10).split(",")[0];
-                String lon = location.substring(10).split(",")[1].replace(")","");
+                String lon = location.substring(10).split(",")[1].replace(")", "");
                 String geoUri = "http://www.google.com/maps/place/" + lat + "," + lon + "";
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
                 startActivity(intent);
@@ -188,7 +201,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ProfileActivity.this, PostsUsersActivity.class);
-                intent.putExtra("userAccount",userAccount);
+                intent.putExtra("userAccount", userAccount);
                 startActivity(intent);
             }
         });
@@ -197,19 +210,63 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ProfileActivity.this, PostsUsersActivity.class);
-                intent.putExtra("userAccount",userAccount);
+                intent.putExtra("userAccount", userAccount);
                 startActivity(intent);
             }
         });
 
+    }
 
+    private void actionFriends() {
+        mProgress.setMessage("Loading..");
+        mProgress.setCancelable(false);
+        mProgress.show();
+        if (userAccount.getFriendsmap().containsKey(userAccountme.getId())) { // friends
+            Map<String, AddPersonModel> friendsmapme = userAccountme.getFriendsmap();
+            friendsmapme.remove(userAccount.getId());
+            userAccountme.setFriendsmap(friendsmapme);
 
+            Map<String, AddPersonModel> friendsmap = userAccount.getFriendsmap();
+            friendsmap.remove(userAccountme.getId());
+            userAccount.setFriendsmap(friendsmap);
+
+            db.collection("users").document(userAccount.getId())
+                    .set(userAccount);
+
+            db.collection("users").document(userAccountme.getId())
+                    .set(userAccountme);
+
+            activityProfileBinding.floatbtnuser.setVisibility(View.GONE);
+            activityProfileBinding.floatbtndr.setVisibility(View.GONE);
+        } else if (userAccountme.getRequests().containsKey(userAccount.getId())
+                || userAccountme.getRequestSsent().containsKey(userAccount.getId())) { //
+            activityProfileBinding.floatbtnuser.setVisibility(View.GONE);
+            activityProfileBinding.floatbtndr.setVisibility(View.GONE);
+        } else {
+            Map<String, AddPersonModel> friendsmapme = userAccountme.getRequestSsent();
+            friendsmapme.put(userAccount.getId(), new AddPersonModel(userAccount.getName(), userAccount.getImg_profile(), userAccount.getId()));
+            userAccountme.setRequestSsent(friendsmapme);
+
+            Map<String, AddPersonModel> friends = userAccount.getRequests();
+            friends.put(userAccountme.getId(), new AddPersonModel(userAccountme.getName(), userAccountme.getImg_profile(), userAccountme.getId()));
+            userAccount.setRequests(friends);
+
+            db.collection("users").document(userAccount.getId())
+                    .set(userAccount);
+
+            db.collection("users").document(userAccountme.getId())
+                    .set(userAccountme);
+
+            activityProfileBinding.floatbtnuser.setVisibility(View.GONE);
+            activityProfileBinding.floatbtndr.setVisibility(View.GONE);
+        }
+        mProgress.dismiss();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==REQUEST_CODE && resultCode==RESULT_OK){
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             String uri = "tel:" + userAccount.getUserInformation().getPhone();
             Intent intent = new Intent(Intent.ACTION_CALL);
             intent.setData(Uri.parse(uri));
@@ -239,7 +296,7 @@ public class ProfileActivity extends AppCompatActivity {
                         // or open another dialog explaining
                         // again the permission and directing to
                         // the app setting
-                        Log.e("PERS","setting");
+                        Log.e("PERS", "setting");
                         Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
                         Uri uri = Uri.fromParts("package", getPackageName(), null);
                         intent.setData(uri);
@@ -250,7 +307,7 @@ public class ProfileActivity extends AppCompatActivity {
                         // this is a good place to explain the user
                         // why you need the permission and ask if he wants
                         // to accept it (the rationale)
-                        Log.e("PERS","rationale");
+                        Log.e("PERS", "rationale");
 
                     }
                 }
@@ -277,15 +334,29 @@ public class ProfileActivity extends AppCompatActivity {
                 });
     }
 
-    private void readDateInfo(){
+    private void readDateInfo() {
         readData(new MyCallbackUser() {
             @Override
             public void onCallback(DocumentSnapshot documentSnapshot) {
-                if(!documentSnapshot.exists()){
+                if (!documentSnapshot.exists()) {
                     FirebaseAuth.getInstance().getCurrentUser().delete();
-                }else{
+                } else {
                     userAccount = documentSnapshot.toObject(UserAccount.class);
-                    if(userAccount.getUserInformation().getType().equals("normal user")){
+
+                    if (userAccount.getFriendsmap().containsKey(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                        activityProfileBinding.floatbtnuser.setImageResource(R.drawable.ic_add_disabled);
+                        activityProfileBinding.floatbtndr.setImageResource(R.drawable.ic_add_disabled);
+                    } else if (userAccountme.getRequests().containsKey(userAccount.getId())
+                            || userAccountme.getRequestSsent().containsKey(userAccount.getId())) { //
+                        activityProfileBinding.floatbtnuser.setVisibility(View.GONE);
+                        activityProfileBinding.floatbtndr.setVisibility(View.GONE);
+                    }else {
+                        activityProfileBinding.floatbtnuser.setImageResource(R.drawable.ic_add_person);
+                        activityProfileBinding.floatbtndr.setImageResource(R.drawable.ic_add_person);
+                    }
+
+
+                    if (userAccount.getUserInformation().getType().equals("normal user")) {
                         activityProfileBinding.layUr.setVisibility(View.VISIBLE);
                         activityProfileBinding.layDr.setVisibility(View.GONE);
                         activityProfileBinding.txtAddressUser.setText(userAccount.getUserInformation().getAddress_home());
@@ -296,29 +367,38 @@ public class ProfileActivity extends AppCompatActivity {
                         activityProfileBinding.txtNameUserUr.setText(userAccount.getName());
                         activityProfileBinding.txtGenderUser.setText(userAccount.getUserInformation().getGender());
                         activityProfileBinding.txtPhoneUser.setText(userAccount.getUserInformation().getPhone());
-                        if(userId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-                            activityProfileBinding.txtStarUser.setText(userAccount.getFollowersModelMap().size()+"");
-                        }else{
-                            if(userAccount.getFollowersModelMap().containsKey(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                        if (userId.equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                            activityProfileBinding.txtStarUser.setText(userAccount.getFollowersModelMap().size() + "");
+                        } else {
+                            if (userAccount.getFollowersModelMap().containsKey(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                                 activityProfileBinding.txtStarUser.setText("Follow");
                                 activityProfileBinding.imgbtnUser.setImageResource(R.drawable.select_star1);
-                            }else{
+                            } else {
                                 activityProfileBinding.txtStarUser.setText("unFollow");
                                 activityProfileBinding.imgbtnUser.setImageResource(R.drawable.star1);
                             }
                         }
 
-                        String name = "flag_"+userAccount.getUserInformation().getCountry().toLowerCase();
+                        String name = "flag_" + userAccount.getUserInformation().getCountry().toLowerCase();
                         int id = getResources().getIdentifier(name, "drawable", getPackageName());
                         activityProfileBinding.imgCountryUser.setImageResource(id);
 
-                        try{
+                        try {
                             Glide.with(ProfileActivity.this).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
                                     error(R.drawable.user).into(activityProfileBinding.imgCurUserUr);
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             activityProfileBinding.imgCurUserUr.setImageResource(R.drawable.user);
                         }
-                    }else{
+
+                        activityProfileBinding.floatbtnuser.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                actionFriends();
+                            }
+                        });
+
+
+                    } else {
                         activityProfileBinding.layDr.setVisibility(View.VISIBLE);
                         activityProfileBinding.layUr.setVisibility(View.GONE);
                         activityProfileBinding.txtAddressDr.setText(userAccount.getUserInformation().getAddress_home());
@@ -332,25 +412,35 @@ public class ProfileActivity extends AppCompatActivity {
                         activityProfileBinding.txtSpecInDr.setText(userAccount.getUserInformation().getSpecification_in());
                         activityProfileBinding.txtGenderDr.setText(userAccount.getUserInformation().getGender());
                         activityProfileBinding.txtNameUserDr.setText(userAccount.getName());
-                        activityProfileBinding.txtStartDr.setText(userAccount.getFollowersModelMap().size()+"");
-                        if(userAccount.getFollowersModelMap().containsKey(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                        activityProfileBinding.txtStartDr.setText(userAccount.getFollowersModelMap().size() + "");
+                        if (userAccount.getFollowersModelMap().containsKey(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                             activityProfileBinding.imgbtnDr.setImageResource(R.drawable.select_star1);
-                        }else{
+                        } else {
                             activityProfileBinding.imgbtnDr.setImageResource(R.drawable.star1);
                         }
 
-                        String name = "flag_"+userAccount.getUserInformation().getCountry().toLowerCase();
+                        String name = "flag_" + userAccount.getUserInformation().getCountry().toLowerCase();
                         int id = getResources().getIdentifier(name, "drawable", getPackageName());
                         activityProfileBinding.imgCountryDr.setImageResource(id);
 
-                        try{
+                        try {
                             Glide.with(ProfileActivity.this).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
                                     error(R.drawable.user).into(activityProfileBinding.imgCurUserDr);
-                        }catch (Exception e){
+                        } catch (Exception e) {
                             activityProfileBinding.imgCurUserDr.setImageResource(R.drawable.user);
                         }
+
+                        activityProfileBinding.floatbtndr.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                actionFriends();
+                            }
+                        });
+
                     }
                 }
+
+
                 mProgress.dismiss();
             }
         });
@@ -370,6 +460,19 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    public void readDataMe(MyCallbackUser myCallback) {
+        mProgress.setMessage("Loading..");
+        mProgress.setCancelable(false);
+        mProgress.show();
+        FirebaseFirestore.getInstance().collection("users")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                myCallback.onCallback(documentSnapshot);
+            }
+        });
     }
 
     @Override
@@ -394,10 +497,10 @@ public class ProfileActivity extends AppCompatActivity {
         String userIdMe = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Map<String, FollowersModel> followersModelMap = userAccountfriend.getFollowersModelMap();
 
-        if (!followersModelMap.containsKey(userIdMe)){ //follow
+        if (!followersModelMap.containsKey(userIdMe)) { //follow
             followersModelMap.put(userIdMe, new FollowersModel(userIdMe));
             userAccountfriend.setFollowersModelMap(followersModelMap);
-        }else{
+        } else {
             followersModelMap.remove(userIdMe);
             userAccountfriend.setFollowersModelMap(followersModelMap);
         }

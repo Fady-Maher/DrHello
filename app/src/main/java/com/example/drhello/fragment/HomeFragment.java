@@ -49,6 +49,7 @@ import com.example.drhello.firebaseinterface.MyCallbackAllUser;
 import com.example.drhello.firebaseinterface.MyCallbackSignIn;
 import com.example.drhello.medical.BrainActivity;
 import com.example.drhello.medical.ChestActivity;
+import com.example.drhello.medical.HeartActivity;
 import com.example.drhello.medical.SkinActivity;
 import com.example.drhello.model.SliderItem;
 import com.example.drhello.model.UserAccount;
@@ -155,8 +156,8 @@ public class HomeFragment extends Fragment implements OnClickDoctorInterface {
         cancer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Intent intent = new Intent(getActivity(), AddPersonActivity.class);
-//                startActivity(intent);
+               Intent intent = new Intent(getActivity(), HeartActivity.class);
+               startActivity(intent);
             }
         });
 

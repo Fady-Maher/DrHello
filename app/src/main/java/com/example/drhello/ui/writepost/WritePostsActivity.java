@@ -289,7 +289,7 @@ public class WritePostsActivity extends AppCompatActivity {
                         //To save in FirebaseStorage
                         bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgUri);
                         ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytesStream);
+                        bitmap.compress(Bitmap.CompressFormat.PNG , 100, bytesStream);
                         byte[] bytesOutImg = bytesStream.toByteArray();
                         bytes.add(bytesOutImg);
 

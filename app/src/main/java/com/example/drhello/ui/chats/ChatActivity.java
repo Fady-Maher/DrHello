@@ -58,6 +58,7 @@ import com.devlomi.record_view.OnRecordListener;
 import com.devlomi.record_view.RecordPermissionHandler;
 import com.example.drhello.MyCallbackDeleteItem;
 import com.example.drhello.MyCallbackDeletePost;
+import com.example.drhello.adapter.OnClickMessageListener;
 import com.example.drhello.model.AddPersonModel;
 import com.example.drhello.model.LastChat;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
@@ -122,7 +123,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity implements com.google.android.gms.location.LocationListener,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, OnClickMessageListener {
     private static final int Gallary_REQUEST_CODE = 1, SONGS_REQUEST_CODE = 2, PERMISSION_ALL_STORAGE = 5000;
     private static final int CAMERA_REQUEST_CODE = 1888;
     private static final int MY_CAMERA_PERMISSION_CODE = 100;
@@ -248,7 +249,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
         activityChatBinding.chatOption.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                onClickOption();
+              //  onClickOption();
             }
         });
 
@@ -259,7 +260,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
         getBitmapFromImage();
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        recycle_message_adapter = new Recycle_Message_Adapter(chatsArrayList, ChatActivity.this, bitmap);
+        recycle_message_adapter = new Recycle_Message_Adapter(chatsArrayList, ChatActivity.this, bitmap, ChatActivity.this);
         activityChatBinding.rvChatFriend.setAdapter(recycle_message_adapter);
         idFriend = (String) getIntent().getSerializableExtra("friendAccount");
 
@@ -277,7 +278,13 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
 
         } else {
             id_massage = idFriend;
-            userAccountme = (UserAccount) getIntent().getSerializableExtra("userAccount");
+            readDataUser(new MyCallbackUser() {
+                @Override
+                public void onCallback(DocumentSnapshot documentSnapshot) {
+                    userAccountme = documentSnapshot.toObject(UserAccount.class);
+                }
+            });
+           // userAccountme = (UserAccount) getIntent().getSerializableExtra("userAccount");
         }
 
         readDataFriendAccount(new MyCallBackFriend() {
@@ -287,6 +294,14 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
                     Log.e("task : ", " tast");
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         friendAccount = document.toObject(UserAccount.class);
+                        activityChatBinding.profileImageChat.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent intent = new Intent(ChatActivity.this, ProfileActivity.class);
+                                intent.putExtra("userId", friendAccount.getId());
+                                startActivity(intent);
+                            }
+                        });
 
                         readDataChannelListener(new MyCallBackChannel() {
                             @Override
@@ -346,6 +361,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
                                     ChatModel chatModel = new ChatModel(lastMessages.getMessage(), lastMessages.getDate(),
                                             lastMessages.getSenderid(), lastMessages.getRecieveid()
                                             , lastMessages.getImage(), lastMessages.getNameSender(), lastMessages.getRecord());
+                                    chatModel.setId(value.getId());
 
                                     recycle_message_adapter.addMessage(chatModel);
                                     Log.e("chatsArray: ", chatsArrayList.get(0).getMessage());
@@ -771,7 +787,16 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
         db.collection("chatsChannel").
                 document(iDChannel).
                 collection("messages")
-                .add(chatModel);
+                .add(chatModel).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentReference> task) {
+                chatModel.setId(task.getResult().getId());
+                db.collection("chatsChannel").
+                        document(iDChannel).
+                        collection("messages").document(chatModel.getId())
+                        .set(chatModel);
+            }
+        });
 
         LastMessages lastMessages = new LastMessages("", friendAccount.getImg_profile(),
                 friendAccount.getName(),
@@ -825,10 +850,11 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
         mProgress.setCancelable(false);
         mProgress.show();
         ByteArrayOutputStream output_image = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output_image);
+        bitmap.compress(Bitmap.CompressFormat.PNG , 100, output_image);
         byte[] data_image = output_image.toByteArray();
+        String data = getDateTime();
         StorageReference storageReference = FirebaseStorage.getInstance().getReference()
-                .child("images/imagesChat/" + userAccountme.getId() + "/" + UUID.nameUUIDFromBytes(data_image));
+                .child("images/imagesChat/" + userAccountme.getId() + "/" + data);
 
         storageReference.putBytes(data_image).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
             @Override
@@ -837,7 +863,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
                     @Override
                     public void onSuccess(Uri uri) {
                         Log.e("uri.toString() : ", uri.toString());
-                        ChatModel chatModel = new ChatModel("", getDateTime(),
+                        ChatModel chatModel = new ChatModel("", data,
                                 mAuth.getCurrentUser().getUid(), friendAccount.getId(), uri.toString(),
                                 userAccountme.getName(), "");
                         storeMessageOnFirebase(chatModel);
@@ -907,9 +933,10 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
         mProgress.setMessage("Uploading..");
         mProgress.setCancelable(false);
         mProgress.show();
+        String data = getDateTime();
         StorageReference storageReference = FirebaseStorage.getInstance().
                 getReference().child("audios/audiosChat/" + userAccountme.getId() + "/"
-                + uri.getPath());
+                + data);
         Log.e("audio.getPath() : ", uri.getPath());
 
         storageReference.putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -919,7 +946,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
                     @Override
                     public void onSuccess(Uri uri) {
                         Log.e("uri.toString() : ", uri.toString());
-                        ChatModel chatModel = new ChatModel("", getDateTime(),
+                        ChatModel chatModel = new ChatModel("", data,
                                 mAuth.getCurrentUser().getUid(), friendAccount.getId(), "",
                                 userAccountme.getName(), uri.toString());
                         storeMessageOnFirebase(chatModel);
@@ -1219,158 +1246,6 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
     }
 
 
-    public void onClickOption() {
-        LayoutInflater factory = LayoutInflater.from(ChatActivity.this);
-        final View deleteDialogView = factory.inflate(R.layout.alertdialogposts, null);
-        final AlertDialog deleteDialog = new AlertDialog.Builder(ChatActivity.this).create();
-        deleteDialog.setView(deleteDialogView);
-        Button btn_delete = deleteDialogView.findViewById(R.id.btn_delete);
-        Button btn_block = deleteDialogView.findViewById(R.id.btn_modify);
-        Button btn_view_profile = deleteDialogView.findViewById(R.id.btn_save);
-
-        btn_delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //  deletePost(posts);
-                deleteDialog.dismiss();
-                deleteChat();
-            }
-        });
-
-        btn_view_profile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*
-                deleteDialog.dismiss();
-                Intent intent = new Intent(ChatActivity.this, ProfileActivity.class);
-                intent.putExtra("userId", friendAccount.getId());
-                startActivity(intent);
-
-                 */
-                deleteDialog.dismiss();
-
-            }
-        });
-
-
-        deleteDialog.show();
-    }
-
-    private void deleteChat() {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
-        storageReferenceAudio = FirebaseStorage.getInstance().
-                getReference().child("audios/audiosChat/" + userAccountme.getId());
-
-        storageReferenceImages = FirebaseStorage.getInstance().getReference()
-                .child("images/imagesChat/" + userAccountme.getId());
-
-        myCallBackListItemImages(new MyCallbackDeletePost() {
-            @Override
-            public void myCallBack(ListResult listResult) {
-                int numImages = listResult.getItems().size();
-                Log.e("first images : ", "images  " + numImages);
-                if (numImages > 0) {  // 5 IMAGES
-                    for (StorageReference item : listResult.getItems()) {  // 5 IMAGES
-                        // All the items under listRef.
-                        Log.e("img in loop1 : ", "images" + numImages);
-                        numImages = numImages - 1;
-                        StorageReference storageReference = FirebaseStorage.getInstance().getReference(item.getPath());
-                        int finalNumImages = numImages;
-                        myCallBackDeleteItem(new MyCallbackDeleteItem() {
-                            @Override
-                            public void myCallBackItem(Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Log.e("img in loop2: ", finalNumImages + "");
-                                }
-                            }
-                        }, storageReference);
-                        if (numImages == 0) { // finish delete images
-                            deleteAudios();
-                        }
-                    }
-                } else {
-                    deleteAudios();
-                }
-            }
-        }, storageReferenceImages);
-    }
-
-    private void deleteAudios() {
-        myCallBackListItemAudios(new MyCallbackDeletePost() {
-            @Override
-            public void myCallBack(ListResult listResult) {
-                int numaudios = listResult.getItems().size();
-                Log.e("first Audios : ", "audio" + numaudios);
-                if (numaudios > 0) {
-                    for (StorageReference item : listResult.getItems()) {   // 5 audios
-                        // All the items under listRef.
-                        numaudios = numaudios - 1;
-                        Log.e("aud in loop1 : ", numaudios + "");
-                        StorageReference storageReference = FirebaseStorage.getInstance().
-                                getReference(item.getPath());
-                        int finalNumImages = numaudios;
-                        myCallBackDeleteItem(new MyCallbackDeleteItem() {
-                            @Override
-                            public void myCallBackItem(Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Log.e("aud in loop2 : ", finalNumImages + "");
-                                }
-                            }
-                        }, storageReference);
-                        if (numaudios == 0) {  // finish delete audios
-                            Log.e("numaudios= 0 : ", "after deleteChatAndChatChannel");
-                            myCallBackDeleteChatChannel();
-                        }
-                    }
-                } else {
-                    Log.e("numaudios= 0 : ", "before deleteChatAndChatChannel");
-                    myCallBackDeleteChatChannel();
-                }
-            }
-        }, storageReferenceAudio);
-
-    }
-
-
-    private void myCallBackListItemImages(MyCallbackDeletePost myCallbackDeletePost
-            , StorageReference listRef) {
-        listRef.listAll()
-                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
-                    @Override
-                    public void onSuccess(ListResult listResult) {
-                        myCallbackDeletePost.myCallBack(listResult);   // 5 IMAGES
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Uh-oh, an error occurred!
-                        Log.e("failed : ", "images  " + 0);
-                        deleteAudios();
-                    }
-                });
-    }
-
-    private void myCallBackListItemAudios(MyCallbackDeletePost myCallbackDeletePost
-            , StorageReference listRef) {
-        listRef.listAll()
-                .addOnSuccessListener(new OnSuccessListener<ListResult>() {
-                    @Override
-                    public void onSuccess(ListResult listResult) {
-                        myCallbackDeletePost.myCallBack(listResult);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Uh-oh, an error occurred!
-                        Log.e("failed : ", "audio  " + 0);
-                        myCallBackDeleteChatChannel();
-                    }
-                });
-    }
 
     private void myCallBackDeleteItem(MyCallbackDeleteItem myCallbackDeleteItem,
                                       StorageReference storageReference) {
@@ -1383,97 +1258,397 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
                 });
     }
 
-    private void myCallBackDeleteChatChannel() {
-        db.collection("users").
-                document(mAuth.getCurrentUser().getUid()).
-                collection("channels")
-                .document(friendAccount.getId())
-                .delete()
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
+
+    @Override
+    public void onLongClickImage(ChatModel chatModel, int position, boolean flagLongClick, int action) {
+
+        storageReferenceImages = FirebaseStorage.getInstance().getReference()
+                .child("images/imagesChat/" + userAccountme.getId() + "/" + chatModel.getDate());
+        Log.e("img delete : ", "success --> " + chatModel.getId());
+        if (flagLongClick) {
+            activityChatBinding.imgDelete.setVisibility(View.VISIBLE);
+        } else {
+            if (action == 1 || action == 2) {
+                activityChatBinding.imgDelete.setVisibility(View.VISIBLE);
+            } else {
+                activityChatBinding.imgDelete.setVisibility(View.GONE);
+            }
+        }
+
+        activityChatBinding.imgDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mProgress.setMessage("Loading..");
+                mProgress.setCancelable(false);
+                mProgress.show();
+                Log.e("img onClick : ", "success --> " + chatModel.getId());
+                myCallBackDeleteChat(new MyCallbackDeleteItem() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        db.collection("users").
-                                document(friendAccount.getId()).
-                                collection("channels")
-                                .document(mAuth.getCurrentUser().getUid())
-                                .delete()
-                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        db.collection("users").
-                                                document(friendAccount.getId()).
-                                                collection("lastmessage")
-                                                .document(mAuth.getCurrentUser().getUid())
-                                                .delete()
-                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        db.collection("users").
-                                                                document(mAuth.getCurrentUser().getUid()).
-                                                                collection("lastmessage")
-                                                                .document(friendAccount.getId())
-                                                                .delete()
-                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                                    @Override
-                                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                                        Log.e("DELTET iDChannel : ", iDChannel);
-                                                                        db.collection("chatsChannel")
-                                                                                .document(iDChannel)
-                                                                                .collection("messages").
-                                                                                get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                                                            @Override
-                                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                                                                int num = task.getResult().size();
-                                                                                Log.e("DELTET num : ", num + "");
-                                                                                for (QueryDocumentSnapshot document : task.getResult()) {
-                                                                                    num = num - 1;
-                                                                                    db.collection("chatsChannel")
-                                                                                            .document(iDChannel)
-                                                                                            .collection("messages").document(document.getId())
-                                                                                            .delete();
-                                                                                    Log.e("delete num : ", num + "");
-                                                                                    if (num == 0) {
-                                                                                        Log.e("num  0 : ", num + "");
-                                                                                        Map<String, AddPersonModel> friendsmap = userAccountme.getFriendsmap();
-                                                                                        friendsmap.remove(friendAccount.getId());
-                                                                                        userAccountme.setFriendsmap(friendsmap);
-
-                                                                                        Map<String, AddPersonModel> friendsmap2 = friendAccount.getFriendsmap();
-                                                                                        friendsmap2.remove(userAccountme.getId());
-                                                                                        friendAccount.setFriendsmap(friendsmap);
-
-                                                                                        Map<String, LastChat> map = userAccountme.getMap();
-                                                                                        map.remove(friendAccount.getId());
-                                                                                        userAccountme.setMap(map);
-
-                                                                                        Map<String, LastChat> map2 = friendAccount.getMap();
-                                                                                        map2.remove(userAccountme.getId());
-                                                                                        friendAccount.setMap(map2);
-
-                                                                                        db.collection("users").
-                                                                                                document(mAuth.getCurrentUser().getUid()).
-                                                                                                set(userAccountme);
-
-                                                                                        db.collection("users").
-                                                                                                document(friendAccount.getId()).
-                                                                                                set(friendAccount);
-
-
-                                                                                        mProgress.dismiss();
-                                                                                        Intent intent = new Intent(ChatActivity.this, MainActivity.class);
-                                                                                        startActivity(intent);
-                                                                                    }
-                                                                                }
-
-                                                                            }
-                                                                        });
-                                                                    }
-                                                                });
-                                                    }
-                                                });
+                    public void myCallBackItem(Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.e("messages delete : ", "success");
+                            myCallBackDeleteItem(new MyCallbackDeleteItem() {
+                                @Override
+                                public void myCallBackItem(Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.e("img delete : ", "success" + chatModel.getId());
+                                        chatsArrayList.remove(chatModel);
+                                        recycle_message_adapter.notifyItemRemoved(position);
+                                        activityChatBinding.imgDelete.setVisibility(View.GONE);
+                                        mProgress.dismiss();
+                                    } else {
+                                        Log.e("img delete : ", "failed");
                                     }
-                                });
+                                }
+                            }, storageReferenceImages);
+
+                        } else {
+                            Log.e("messages delete : ", "failed");
+                        }
                     }
-                });
+                }, chatModel);
+            }
+        });
     }
+
+    private void myCallBackDeleteChat(MyCallbackDeleteItem myCallbackDeleteItem,
+                                      ChatModel chatModel) {
+        Log.e("chat id: ", chatModel.getId() + "++");
+        db.collection("chatsChannel")
+                .document(iDChannel)
+                .collection("messages")
+                .document(chatModel.getId())
+                .delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                myCallbackDeleteItem.myCallBackItem(task);
+            }
+        });
+    }
+
+    @Override
+    public void onLongClickAudio(ChatModel chatModel, int position, boolean flagLongClick, int action) {
+        storageReferenceAudio = FirebaseStorage.getInstance().
+                getReference().child("audios/audiosChat/" + userAccountme.getId() + "/"
+                + chatModel.getDate());
+        if (flagLongClick) {
+            activityChatBinding.imgDelete.setVisibility(View.VISIBLE);
+        } else {
+            if (action == 1 || action == 2) {
+                activityChatBinding.imgDelete.setVisibility(View.VISIBLE);
+            } else {
+                activityChatBinding.imgDelete.setVisibility(View.GONE);
+            }
+        }
+
+        activityChatBinding.imgDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mProgress.setMessage("Loading..");
+                mProgress.setCancelable(false);
+                mProgress.show();
+                Log.e("audio onClick : ", "success --> " + chatModel.getId());
+                myCallBackDeleteChat(new MyCallbackDeleteItem() {
+                    @Override
+                    public void myCallBackItem(Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.e("messages delete : ", "success");
+                            myCallBackDeleteItem(new MyCallbackDeleteItem() {
+                                @Override
+                                public void myCallBackItem(Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.e("img delete : ", "success" + chatModel.getId());
+                                        chatsArrayList.remove(chatModel);
+                                        recycle_message_adapter.notifyItemRemoved(position);
+                                        activityChatBinding.imgDelete.setVisibility(View.GONE);
+                                        mProgress.dismiss();
+                                    } else {
+                                        Log.e("img delete : ", "failed");
+                                    }
+                                }
+                            }, storageReferenceAudio);
+
+                        } else {
+                            Log.e("messages delete : ", "failed");
+                        }
+                    }
+                }, chatModel);
+            }
+        });
+
+    }
+
+    @Override
+    public void onLongClickText(ChatModel chatModel, int position, boolean flagLongClick, int action) {
+        if (flagLongClick) {
+            activityChatBinding.imgDelete.setVisibility(View.VISIBLE);
+        } else {
+            if (action == 1 || action == 2) {
+                activityChatBinding.imgDelete.setVisibility(View.VISIBLE);
+            } else {
+                activityChatBinding.imgDelete.setVisibility(View.GONE);
+            }
+        }
+
+        activityChatBinding.imgDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mProgress.setMessage("Loading..");
+                mProgress.setCancelable(false);
+                mProgress.show();
+                Log.e("text onClick : ", "success --> " + chatModel.getId());
+                myCallBackDeleteChat(new MyCallbackDeleteItem() {
+                    @Override
+                    public void myCallBackItem(Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            Log.e("messages delete : ", "success");
+                            chatsArrayList.remove(chatModel);
+                            recycle_message_adapter.notifyItemRemoved(position);
+                            activityChatBinding.imgDelete.setVisibility(View.GONE);
+                            mProgress.dismiss();
+                        } else {
+                            Log.e("messages delete : ", "failed");
+                        }
+                    }
+                }, chatModel);
+            }
+        });
+
+    }
+
+
+    /*
+        public void onClickOption() {
+            LayoutInflater factory = LayoutInflater.from(ChatActivity.this);
+            final View deleteDialogView = factory.inflate(R.layout.alertdialogposts, null);
+            final AlertDialog deleteDialog = new AlertDialog.Builder(ChatActivity.this).create();
+            deleteDialog.setView(deleteDialogView);
+            Button btn_delete = deleteDialogView.findViewById(R.id.btn_delete);
+            Button btn_block = deleteDialogView.findViewById(R.id.btn_modify);
+            Button btn_view_profile = deleteDialogView.findViewById(R.id.btn_save);
+
+            btn_delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //  deletePost(posts);
+                    deleteDialog.dismiss();
+                    deleteChat();
+                }
+            });
+
+            deleteDialog.show();
+        }
+
+        private void deleteChat() {
+            mProgress.setMessage("Loading..");
+            mProgress.setCancelable(false);
+            mProgress.show();
+
+            storageReferenceAudio = FirebaseStorage.getInstance().
+                    getReference().child("audios/audiosChat/" + userAccountme.getId());
+
+            storageReferenceImages = FirebaseStorage.getInstance().getReference()
+                    .child("images/imagesChat/" + userAccountme.getId());
+
+            myCallBackListItemImages(new MyCallbackDeletePost() {
+                @Override
+                public void myCallBack(ListResult listResult) {
+                    int numImages = listResult.getItems().size();
+                    Log.e("first images : ", "images  " + numImages);
+                    if (numImages > 0) {  // 5 IMAGES
+                        for (StorageReference item : listResult.getItems()) {  // 5 IMAGES
+                            // All the items under listRef.
+                            Log.e("img in loop1 : ", "images" + numImages);
+                            numImages = numImages - 1;
+                            StorageReference storageReference = FirebaseStorage.getInstance().getReference(item.getPath());
+                            int finalNumImages = numImages;
+                            myCallBackDeleteItem(new MyCallbackDeleteItem() {
+                                @Override
+                                public void myCallBackItem(Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.e("img in loop2: ", finalNumImages + "");
+                                    }
+                                }
+                            }, storageReference);
+                            if (numImages == 0) { // finish delete images
+                                deleteAudios();
+                            }
+                        }
+                    } else {
+                        deleteAudios();
+                    }
+                }
+            }, storageReferenceImages);
+        }
+
+        private void deleteAudios() {
+            myCallBackListItemAudios(new MyCallbackDeletePost() {
+                @Override
+                public void myCallBack(ListResult listResult) {
+                    int numaudios = listResult.getItems().size();
+                    Log.e("first Audios : ", "audio" + numaudios);
+                    if (numaudios > 0) {
+                        for (StorageReference item : listResult.getItems()) {   // 5 audios
+                            // All the items under listRef.
+                            numaudios = numaudios - 1;
+                            Log.e("aud in loop1 : ", numaudios + "");
+                            StorageReference storageReference = FirebaseStorage.getInstance().
+                                    getReference(item.getPath());
+                            int finalNumImages = numaudios;
+                            myCallBackDeleteItem(new MyCallbackDeleteItem() {
+                                @Override
+                                public void myCallBackItem(Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Log.e("aud in loop2 : ", finalNumImages + "");
+                                    }
+                                }
+                            }, storageReference);
+                            if (numaudios == 0) {  // finish delete audios
+                                Log.e("numaudios= 0 : ", "after deleteChatAndChatChannel");
+                                myCallBackDeleteChatChannel();
+                            }
+                        }
+                    } else {
+                        Log.e("numaudios= 0 : ", "before deleteChatAndChatChannel");
+                        myCallBackDeleteChatChannel();
+                    }
+                }
+            }, storageReferenceAudio);
+
+        }
+
+        private void myCallBackListItemImages(MyCallbackDeletePost myCallbackDeletePost
+                , StorageReference listRef) {
+            listRef.listAll()
+                    .addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                        @Override
+                        public void onSuccess(ListResult listResult) {
+                            myCallbackDeletePost.myCallBack(listResult);   // 5 IMAGES
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Uh-oh, an error occurred!
+                            Log.e("failed : ", "images  " + 0);
+                            deleteAudios();
+                        }
+                    });
+        }
+
+        private void myCallBackListItemAudios(MyCallbackDeletePost myCallbackDeletePost
+                , StorageReference listRef) {
+            listRef.listAll()
+                    .addOnSuccessListener(new OnSuccessListener<ListResult>() {
+                        @Override
+                        public void onSuccess(ListResult listResult) {
+                            myCallbackDeletePost.myCallBack(listResult);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Uh-oh, an error occurred!
+                            Log.e("failed : ", "audio  " + 0);
+                            myCallBackDeleteChatChannel();
+                        }
+                    });
+        }
+
+
+        private void myCallBackDeleteChatChannel() {
+            db.collection("users").
+                    document(mAuth.getCurrentUser().getUid()).
+                    collection("channels")
+                    .document(friendAccount.getId())
+                    .delete()
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            db.collection("users").
+                                    document(friendAccount.getId()).
+                                    collection("channels")
+                                    .document(mAuth.getCurrentUser().getUid())
+                                    .delete()
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            db.collection("users").
+                                                    document(friendAccount.getId()).
+                                                    collection("lastmessage")
+                                                    .document(mAuth.getCurrentUser().getUid())
+                                                    .delete()
+                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            db.collection("users").
+                                                                    document(mAuth.getCurrentUser().getUid()).
+                                                                    collection("lastmessage")
+                                                                    .document(friendAccount.getId())
+                                                                    .delete()
+                                                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                                            Log.e("DELTET iDChannel : ", iDChannel);
+                                                                            db.collection("chatsChannel")
+                                                                                    .document(iDChannel)
+                                                                                    .collection("messages").
+                                                                                    get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                                @Override
+                                                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                    int num = task.getResult().size();
+                                                                                    Log.e("DELTET num : ", num + "");
+                                                                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                                        num = num - 1;
+                                                                                        db.collection("chatsChannel")
+                                                                                                .document(iDChannel)
+                                                                                                .collection("messages").document(document.getId())
+                                                                                                .delete();
+                                                                                        Log.e("delete num : ", num + "");
+                                                                                        if (num == 0) {
+                                                                                            Log.e("num  0 : ", num + "");
+                                                                                            Map<String, AddPersonModel> friendsmap = userAccountme.getFriendsmap();
+                                                                                            friendsmap.remove(friendAccount.getId());
+                                                                                            userAccountme.setFriendsmap(friendsmap);
+
+                                                                                            Map<String, AddPersonModel> friendsmap2 = friendAccount.getFriendsmap();
+                                                                                            friendsmap2.remove(userAccountme.getId());
+                                                                                            friendAccount.setFriendsmap(friendsmap);
+
+                                                                                            Map<String, LastChat> map = userAccountme.getMap();
+                                                                                            map.remove(friendAccount.getId());
+                                                                                            userAccountme.setMap(map);
+
+                                                                                            Map<String, LastChat> map2 = friendAccount.getMap();
+                                                                                            map2.remove(userAccountme.getId());
+                                                                                            friendAccount.setMap(map2);
+
+                                                                                            db.collection("users").
+                                                                                                    document(mAuth.getCurrentUser().getUid()).
+                                                                                                    set(userAccountme);
+
+                                                                                            db.collection("users").
+                                                                                                    document(friendAccount.getId()).
+                                                                                                    set(friendAccount);
+
+
+                                                                                            mProgress.dismiss();
+                                                                                            Intent intent = new Intent(ChatActivity.this, MainActivity.class);
+                                                                                            startActivity(intent);
+                                                                                        }
+                                                                                    }
+
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                    });
+                                                        }
+                                                    });
+                                        }
+                                    });
+                        }
+                    });
+        }
+    */
+
 }

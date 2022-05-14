@@ -5,9 +5,12 @@ import androidx.databinding.DataBindingUtil;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,9 +52,8 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
     private static final int Gallary_REQUEST_CODE = 1;
     PyObject main_program;
     public static ProgressDialog mProgress;
-    PyObject str;
-    ByteBuffer input;
     private Bitmap bitmap;
+    String path = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,14 +66,9 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
-
         mProgress = new ProgressDialog(BrainActivity.this);
-        if (!Python.isStarted()) {
-            Python.start(new AndroidPlatform(BrainActivity.this));//error is here!
-        }
-        final Python py = Python.getInstance();
-        main_program = py.getModule("prolog");
-
+        AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
+        asyncTaskDownload.execute();
 
         activityBrainBinding = DataBindingUtil.setContentView(BrainActivity.this, R.layout.activity_brain);
 
@@ -89,7 +86,6 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
         sliderItems.add(new SliderItem(R.drawable.pneumonia, "Pneumonia"));
 
         SliderAdapter sliderAdapter = new SliderAdapter(sliderItems, BrainActivity.this,BrainActivity.this);
-
 
         activityBrainBinding.viewPagerImageSlider.setAdapter(sliderAdapter);
 
@@ -115,8 +111,12 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
             @Override
             public void onClick(View view) {
                 if (bitmap != null) {
-                    AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD("Tumor");
-                    asyncTaskDownloadAudio.execute("");
+                    if(!path.equals("")){
+                        AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD(path,"");
+                        asyncTaskDownloadAudio.execute();
+                    }
+
+                    bitmap = null;
                 } else {
                     Toast.makeText(BrainActivity.this, "Please, Choose Image First!!", Toast.LENGTH_SHORT).show();
                 }
@@ -126,56 +126,6 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
 
     }
 
-    private void imageModel(String name_model, int width, int height, String[] stringArrayList) {
-        bitmap = Bitmap.createScaledBitmap(bitmap, width, height, true);
-
-        CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
-                .requireWifi()
-                .build();
-        FirebaseModelDownloader.getInstance()
-                .getModel(name_model, DownloadType.LOCAL_MODEL, conditions)
-                .addOnSuccessListener(new OnSuccessListener<CustomModel>() {
-                    @Override
-                    public void onSuccess(CustomModel model) {
-                        // which you can use to instantiate a TensorFlow Lite interpreter.
-                        File modelFile = model.getFile();
-                        if (modelFile != null) {
-                            Interpreter interpreter = new Interpreter(modelFile);
-                            int bufferSize = 4 * java.lang.Float.SIZE / java.lang.Byte.SIZE;
-                            ByteBuffer modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
-                            interpreter.run(input, modelOutput);
-                            modelOutput.rewind();
-                            FloatBuffer probabilities = modelOutput.asFloatBuffer();
-                            double max = probabilities.get(0);
-                            int k = 0;
-                            Log.e("capacity: ", probabilities.capacity() + "");
-                            for (int i = 0; i < probabilities.capacity(); i++) {
-                                Log.e("probabilities: ", probabilities.get(i) + "");
-                                if (max < probabilities.get(i)) {
-                                    k = i;
-                                    max = probabilities.get(i);
-                                }
-                            }
-                            String result = String.format("%.2f", max * 100);
-
-                            if (k == 0) {
-                                activityBrainBinding.txtResult.setText(stringArrayList[0] + " :  " + result);
-                            } else if (k == 1) {
-                                activityBrainBinding.txtResult.setText(stringArrayList[1] + " :  " + result);
-                            } else if (k == 2) {
-                                activityBrainBinding.txtResult.setText(stringArrayList[2] + " :  " + result);
-                            } else {
-                                activityBrainBinding.txtResult.setText(stringArrayList[3] + " :  " + result);
-                            }
-                            mProgress.dismiss();
-                            interpreter.close();
-                            Log.e("probabilities: ", max + "     " + k);
-                        }
-                    }
-                });
-
-
-    }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -183,7 +133,9 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(BrainActivity.this.getContentResolver(), data.getData());
                 activityBrainBinding.imgCorona.setImageBitmap(bitmap);
-                //  byte[] a = fromBitmap(bitmap);
+                File file = new File(getRealPathFromURI(getImageUri(getApplicationContext(),bitmap)));
+                Log.e("file: ", file.getPath());
+                path = file.getPath();
             } catch (IOException e) {
                 Log.e("gallary exception: ", e.getMessage());
             }
@@ -198,13 +150,33 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
 
     }
 
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
+    }
+
+    public String getRealPathFromURI(Uri uri) {
+        Cursor cursor = getContentResolver().query(uri,
+                null, null, null, null);
+        cursor.moveToFirst();
+        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+        Log.e("result: " ,cursor.getString(idx)+"     1");
+        String result = cursor.getString(idx);
+        cursor.close();
+        return result;
+    }
+
+
     public class AsyncTaskD extends AsyncTask<String, String, String> {
-        private String name_model;
 
-        public AsyncTaskD(String name_model) {
-            this.name_model = name_model;
+        String path;
+        String action;
+        public AsyncTaskD(String path,String action){
+            this.path = path;
+            this.action = action;
         }
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -215,33 +187,36 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
 
         @Override
         protected String doInBackground(String... f_url) {
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-            byte[] byteArray = byteArrayOutputStream.toByteArray();
-
-            str = main_program.callAttr("call", byteArray, "Tumor");
-            input = ByteBuffer.allocateDirect(400 * 400 * 1 * 4)
-                    .order(ByteOrder.nativeOrder());
-
-
-            String A = str.asList().toString();
-            A = A.replace("[", "");
-            A = A.replace(",", "");
-            A = A.replace("]", "");
-            String[] s = A.split(" ");
-
-            for (int y = 0; y < s.length; y++) {
-                if (!s[y].equals("")) {
-                    input.putFloat((float) (Float.parseFloat(s[y]) / 255.0));
+            if(action.equals("first")){
+                if (! Python.isStarted()) {
+                    Python.start(new AndroidPlatform(BrainActivity.this));//error is here!
+                }
+                final Python py = Python.getInstance();
+                main_program = py.getModule("prolog");
+            }else{
+                String result = main_program.callAttr("model",path,"Brain").toString();
+                String[] listResult = result.split("@");
+                int prediction = Integer.parseInt(listResult[0]);
+                String probStr = listResult[1].replace("[","")
+                        .replace("]","")
+                        .replace("\"","");
+                String[] prop = probStr.split(" ");
+                if (prediction == 0) {
+                    activityBrainBinding.txtResult.setText(stringsTumor[0] + " :  " + String.format("%.2f", Float.parseFloat(prop[0]) * 100) );
+                } else if (prediction == 1) {
+                    activityBrainBinding.txtResult.setText(stringsTumor[1] + " :  " + String.format("%.2f", Float.parseFloat(prop[1]) * 100) );
+                } else if (prediction == 2) {
+                    activityBrainBinding.txtResult.setText(stringsTumor[2] + " :  " + String.format("%.2f", Float.parseFloat(prop[2]) * 100) );
+                } else if (prediction == 3) {
+                    activityBrainBinding.txtResult.setText(stringsTumor[3] + " :  " + String.format("%.2f", Float.parseFloat(prop[3]) * 100) );
                 }
             }
-
+            mProgress.dismiss();
             return null;
         }
 
         @Override
         protected void onPostExecute(String file_url) {
-            imageModel("Brain_Tumor_Model", 400, 400, stringsTumor);
         }
     }
 

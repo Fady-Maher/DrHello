@@ -87,7 +87,7 @@ public class DoctorsActivity extends AppCompatActivity implements OnDoctorsClick
     public void OnClickChat(int position,UserAccount userAccount) {
         Intent intent = new Intent(DoctorsActivity.this, ChatActivity.class);
         intent.putExtra("friendAccount", userAccount.getId());
-        intent.putExtra("userAccount", userAccount);
+        //intent.putExtra("userAccount", userAccount);
         startActivity(intent);
     }
 

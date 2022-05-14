@@ -35,6 +35,9 @@
         tools:ignore="AllowBackup"
         tools:replace="android:supportsRtl">
         <activity
+            android:name=".medical.HeartActivity"
+            android:exported="false" />
+        <activity
             android:name=".SavedPostsActivity"
             android:exported="false" />
         <activity

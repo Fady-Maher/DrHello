@@ -35,15 +35,17 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
     Bitmap bitmap;
     private final FirebaseUser user;
     final private int viewholdermeID = 0, viewholderotherID = 1;
-
-    private int lastPosition = 0;
-
+    private int lastPosition = 0,action = 0;
+    private boolean flagLongClick = true;
     private final MediaPlayerCustom player;
+    private OnClickMessageListener onClickMessageListener;
+    private int lastLongClickPosition = -2;
 
-    public Recycle_Message_Adapter(ArrayList<ChatModel> list_message, Context context, Bitmap bitmap) {
+    public Recycle_Message_Adapter(ArrayList<ChatModel> list_message, Context context, Bitmap bitmap,OnClickMessageListener onClickMessageListener) {
         this.list_message = list_message;
         this.context = context;
         this.bitmap = bitmap;
+        this.onClickMessageListener = onClickMessageListener;
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
         player = new MediaPlayerCustom();
@@ -77,6 +79,8 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
         switch (holder.getItemViewType()) {
             case viewholdermeID:
                 ChatViewHolderMe chatViewHolderMe = (ChatViewHolderMe) holder;
+                chatViewHolderMe.getAll_contraint().setBackgroundColor(0xFFFFFFFF);
+
                 if (message.getMessage().equals("") && message.getRecord().equals("")) { // image recieve
                     chatViewHolderMe.getTxt_date().setText(splitDateTime(message.getDate())[0]);
                     chatViewHolderMe.getTxt_timestamp().setText(timestamp);
@@ -92,17 +96,47 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
                         @Override
                         public void onClick(View view) {
                             Intent intent = new Intent(context, ShowImageActivity.class);
-                            byte[] byteArray;
-                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                            byteArray = stream.toByteArray();
-                            intent.putExtra("image_profile",byteArray);
-                            stream = new ByteArrayOutputStream();
-                            getBitmapFromImage(chatViewHolderMe).compress(Bitmap.CompressFormat.PNG, 100, stream);
-                            byteArray = stream.toByteArray();
-
-                            intent.putExtra("image_show",byteArray);
+                            intent.putExtra("uri_image",list_message.get(chatViewHolderMe.getAdapterPosition()).getImage());
                             context.startActivity(intent);
+                        }
+                    });
+
+                    chatViewHolderMe.getImageView().setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View view) {
+                            if(flagLongClick){
+                                lastLongClickPosition = chatViewHolderMe.getAdapterPosition();
+                                chatViewHolderMe.getAll_contraint().setBackgroundColor(0xA8C1F6FF);
+                                flagLongClick = false;
+                                action = 2;
+                            }else{
+                                if(chatViewHolderMe.getAdapterPosition() !=  lastLongClickPosition){
+                                    notifyItemChanged(lastLongClickPosition);
+                                    lastLongClickPosition = chatViewHolderMe.getAdapterPosition();
+                                    chatViewHolderMe.getAll_contraint().setBackgroundColor(0xA8C1F6FF);
+                                    Log.e("LONG CLICK","IMAGES 0xA8C1F6FF");
+                                    action = 2;
+                                }else{
+                                    if(action == 2){
+                                        action = 0 ;
+                                        chatViewHolderMe.getAll_contraint().setBackgroundColor(0xFFFFFFFF);
+                                        Log.e("action == 2","IMAGES 0xFFFFFFFF");
+                                    }else if(action == 0){
+                                        action = 1 ;
+                                        chatViewHolderMe.getAll_contraint().setBackgroundColor(0xA8C1F6FF);
+                                        Log.e("action == 0 ","IMAGES 0xA8C1F6FF");
+                                    }else if(action == 1){
+                                        action = 0;
+                                        chatViewHolderMe.getAll_contraint().setBackgroundColor(0xFFFFFFFF);
+                                        Log.e("action== 1 ","IMAGES 0xFFFFFFFF");
+                                    }
+                                }
+                            }
+
+                            onClickMessageListener.onLongClickImage(list_message.get(chatViewHolderMe.getAdapterPosition())
+                                    ,chatViewHolderMe.getAdapterPosition(),flagLongClick,action);
+
+                            return false;
                         }
                     });
 
@@ -120,9 +154,51 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
                     chatViewHolderMe.getImageView().setVisibility(View.GONE);
                     chatViewHolderMe.getConstraint().setVisibility(View.GONE);
                     chatViewHolderMe.getTxt_message().setVisibility(View.VISIBLE);
+
+
                     if(message.getMessage().contains("http")){
                         chatViewHolderMe.getTxt_message().setLinkTextColor(Color.WHITE);
                     }
+
+                    chatViewHolderMe.getTxt_message().setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View view) {
+                            if(flagLongClick){
+                                lastLongClickPosition = chatViewHolderMe.getAdapterPosition();
+                                chatViewHolderMe.getAll_contraint().setBackgroundColor(0xA8C1F6FF);
+                                flagLongClick = false;
+                                action = 2;
+                            }else{
+                                if(chatViewHolderMe.getAdapterPosition() !=  lastLongClickPosition){
+                                    notifyItemChanged(lastLongClickPosition);
+                                    lastLongClickPosition = chatViewHolderMe.getAdapterPosition();
+                                    chatViewHolderMe.getAll_contraint().setBackgroundColor(0xA8C1F6FF);
+                                    Log.e("LONG CLICK","IMAGES 0xA8C1F6FF");
+                                    action = 2;
+                                }else{
+                                    if(action == 2){
+                                        action = 0 ;
+                                        chatViewHolderMe.getAll_contraint().setBackgroundColor(0xFFFFFFFF);
+                                        Log.e("action == 2","IMAGES 0xFFFFFFFF");
+                                    }else if(action == 0){
+                                        action = 1 ;
+                                        chatViewHolderMe.getAll_contraint().setBackgroundColor(0xA8C1F6FF);
+                                        Log.e("action == 0 ","IMAGES 0xA8C1F6FF");
+                                    }else if(action == 1){
+                                        action = 0;
+                                        chatViewHolderMe.getAll_contraint().setBackgroundColor(0xFFFFFFFF);
+                                        Log.e("action== 1 ","IMAGES 0xFFFFFFFF");
+                                    }
+                                }
+                            }
+
+                            onClickMessageListener.onLongClickText(list_message.get(chatViewHolderMe.getAdapterPosition())
+                                        ,chatViewHolderMe.getAdapterPosition(),flagLongClick,action);
+
+                            return false;
+                        }
+                    });
+
 
                 } else {
                     //record recieve
@@ -139,6 +215,44 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
                     chatViewHolderMe.getConstraint().setVisibility(View.VISIBLE);
                     chatViewHolderMe.getBtn_download_record_me().setVisibility(View.VISIBLE);
 
+                    chatViewHolderMe.getConstraint().setOnLongClickListener(new View.OnLongClickListener() {
+                        @Override
+                        public boolean onLongClick(View view) {
+                            if(flagLongClick){
+                                lastLongClickPosition = chatViewHolderMe.getAdapterPosition();
+                                chatViewHolderMe.getAll_contraint().setBackgroundColor(0xA8C1F6FF);
+                                flagLongClick = false;
+                                action = 2;
+                            }else{
+                                if(chatViewHolderMe.getAdapterPosition() !=  lastLongClickPosition){
+                                    notifyItemChanged(lastLongClickPosition);
+                                    lastLongClickPosition = chatViewHolderMe.getAdapterPosition();
+                                    chatViewHolderMe.getAll_contraint().setBackgroundColor(0xA8C1F6FF);
+                                    Log.e("LONG CLICK","IMAGES 0xA8C1F6FF");
+                                    action = 2;
+                                }else{
+                                    if(action == 2){
+                                        action = 0 ;
+                                        chatViewHolderMe.getAll_contraint().setBackgroundColor(0xFFFFFFFF);
+                                        Log.e("action == 2","IMAGES 0xFFFFFFFF");
+                                    }else if(action == 0){
+                                        action = 1 ;
+                                        chatViewHolderMe.getAll_contraint().setBackgroundColor(0xA8C1F6FF);
+                                        Log.e("action == 0 ","IMAGES 0xA8C1F6FF");
+                                    }else if(action == 1){
+                                        action = 0;
+                                        chatViewHolderMe.getAll_contraint().setBackgroundColor(0xFFFFFFFF);
+                                        Log.e("action== 1 ","IMAGES 0xFFFFFFFF");
+                                    }
+                                }
+                            }
+
+                            onClickMessageListener.onLongClickAudio(list_message.get(chatViewHolderMe.getAdapterPosition())
+                                    ,chatViewHolderMe.getAdapterPosition(),flagLongClick,action);
+
+                            return false;
+                        }
+                    });
 
                     chatViewHolderMe.getSeekBarDuration().setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                         @Override
@@ -257,17 +371,7 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
                         @Override
                         public void onClick(View view) {
                             Intent intent = new Intent(context, ShowImageActivity.class);
-                            byte[] byteArray;
-                            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                            byteArray = stream.toByteArray();
-                            intent.putExtra("image_profile",byteArray);
-                            stream = new ByteArrayOutputStream();
-                            getBitmapFromImage(chatViewHolderOther).compress(Bitmap.CompressFormat.PNG, 100, stream);
-                            byteArray = stream.toByteArray();
-
-                            intent.putExtra("image_show",byteArray);
-
+                            intent.putExtra("uri_image",list_message.get(chatViewHolderOther.getAdapterPosition()).getImage());
                             context.startActivity(intent);
                         }
                     });
@@ -442,30 +546,4 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
         player.stopPlaying();
     }
 
-    private Bitmap getBitmapFromImage(ChatViewHolderMe chatViewHolderMe) {
-        Bitmap bitmap;
-        try {
-            bitmap = ((BitmapDrawable) chatViewHolderMe.getImageView().getDrawable()).getBitmap();
-        } catch (Exception E) {
-            bitmap = Bitmap.createBitmap(chatViewHolderMe.getImageView().getDrawable().getIntrinsicWidth(), chatViewHolderMe.getImageView().getDrawable().getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            chatViewHolderMe.getImageView().getDrawable().setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-            chatViewHolderMe.getImageView().getDrawable().draw(canvas);
-        }
-        return bitmap;
-    }
-
-
-    private Bitmap getBitmapFromImage(ChatViewHolderOther chatViewHolderOther) {
-        Bitmap bitmap;
-        try {
-            bitmap = ((BitmapDrawable) chatViewHolderOther.getImageView().getDrawable()).getBitmap();
-        } catch (Exception E) {
-            bitmap = Bitmap.createBitmap(chatViewHolderOther.getImageView().getDrawable().getIntrinsicWidth(), chatViewHolderOther.getImageView().getDrawable().getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            chatViewHolderOther.getImageView().getDrawable().setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-            chatViewHolderOther.getImageView().getDrawable().draw(canvas);
-        }
-        return bitmap;
-    }
 }

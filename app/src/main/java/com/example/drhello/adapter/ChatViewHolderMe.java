@@ -21,7 +21,7 @@ public class ChatViewHolderMe extends RecyclerView.ViewHolder {
     private ImageButton btn_start_pause , btn_share_message ,btn_download_record_me;
     private TextView txt_time_end, txt_time_start;
     private SeekBar seekBarDuration;
-    private ConstraintLayout constraint;
+    private ConstraintLayout constraint,all_contraint;
 
 
     public ChatViewHolderMe(@NonNull View itemView) {
@@ -41,6 +41,7 @@ public class ChatViewHolderMe extends RecyclerView.ViewHolder {
         constraint = itemView.findViewById(R.id.constraint_me);
         txt_speed = itemView.findViewById(R.id.txt_speed_me);
         btn_download_record_me = itemView.findViewById(R.id.btn_download_record_me);
+        all_contraint = itemView.findViewById(R.id.all_contraint);
     }
 
     public ImageButton getBtn_download_record_me() {
@@ -137,5 +138,13 @@ public class ChatViewHolderMe extends RecyclerView.ViewHolder {
 
     public void setConstraint(ConstraintLayout constraint) {
         this.constraint = constraint;
+    }
+
+    public ConstraintLayout getAll_contraint() {
+        return all_contraint;
+    }
+
+    public void setAll_contraint(ConstraintLayout all_contraint) {
+        this.all_contraint = all_contraint;
     }
 }

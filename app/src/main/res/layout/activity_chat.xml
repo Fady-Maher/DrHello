@@ -64,6 +64,8 @@
                         android:textSize="25sp"
                         android:textStyle="bold" />
 
+
+
                     <ImageView
                         android:id="@+id/chat_option"
                         android:layout_width="@dimen/_24sdp"
@@ -74,6 +76,18 @@
                         android:layout_marginRight="@dimen/_5sdp"
                         android:layout_gravity="right"
                         tools:ignore="ContentDescription" />
+
+                    <ImageView
+                        android:id="@+id/img_delete"
+                        android:layout_width="@dimen/_24sdp"
+                        android:layout_height="@dimen/_24sdp"
+                        android:src="@drawable/delete_24"
+                        android:padding="@dimen/_5sdp"
+                        android:layout_marginTop="-3dp"
+                        android:layout_marginRight="@dimen/_5sdp"
+                        android:layout_gravity="right"
+                        tools:ignore="ContentDescription"
+                        android:visibility="gone"/>
 
                 </androidx.appcompat.widget.Toolbar>
 

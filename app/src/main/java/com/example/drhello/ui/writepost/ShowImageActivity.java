@@ -66,7 +66,7 @@ public class ShowImageActivity extends AppCompatActivity {
 
 
         uri = getIntent().getStringExtra("uri_image");
-        image_show = getIntent().getByteArrayExtra("image_show");
+        Log.e("url  : " ,uri);
         if(uri != null){
             try{
                 Glide.with(ShowImageActivity.this).load(uri).
@@ -76,9 +76,6 @@ public class ShowImageActivity extends AppCompatActivity {
                 activityShowImageBinding.imageViewShow.setImageResource(R.drawable.ic_chat);
                 Log.e("url  catch : " ,e.getMessage());
             }
-        }else if(image_show != null){
-            Bitmap bitmap = BitmapFactory.decodeByteArray(image_show, 0, image_show.length);
-            activityShowImageBinding.imageViewShow.setImageBitmap(bitmap);
         }
 
 
@@ -96,9 +93,14 @@ public class ShowImageActivity extends AppCompatActivity {
         activityShowImageBinding.fabShareImage.setOnClickListener(v -> {
             if(isStoragePermissionGranted()){
                 if(bitmap!=null){
+                    Log.e("bitmap: " , 1 +"");
                     savePhotoAndShare(bitmap);
+                }else{
+                    Log.e("bitmap: " , "else");
                 }
-            }
+            }else{
+            Log.e("bitmap: " , "isStoragePermissionGranted");
+        }
         });
 
     }
@@ -138,7 +140,7 @@ public class ShowImageActivity extends AppCompatActivity {
             String filename = getFilename();
             File outputFile = new File(filename);
             savePhoto(bitmap,filename);
-
+            Log.e("savePhotoAndShare :","1");
             shareImage(FileProvider.getUriForFile(this, "com.example.drhello.provider", outputFile));
 
         } catch (Exception e) {
@@ -227,7 +229,7 @@ public class ShowImageActivity extends AppCompatActivity {
 
     public  boolean isStoragePermissionGranted() {
         if (Build.VERSION.SDK_INT >= 23) {
-            if (requestPermissions.permissionStorage()) {
+            if (!requestPermissions.permissionStorage()) {
                 getBitmapFromImage();
                 return true;
             } else {
