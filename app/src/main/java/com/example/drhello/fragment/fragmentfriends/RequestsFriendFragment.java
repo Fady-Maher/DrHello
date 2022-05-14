@@ -126,7 +126,7 @@ public class RequestsFriendFragment extends Fragment implements OnClickRequestsP
         mProgress.show();
         UserAccount friendsAccountOld = friend;
         Map<String, AddPersonModel> friends = userAccountme.getFriendsmap();
-        friends.put(friend.getId(), new AddPersonModel(friend.getName(), friend.getImg_profile(), friend.getId()));
+        friends.put(friend.getId(), new AddPersonModel(friend.getName(), friend.getImg_profile(), friend.getId(),friend.getUserInformation().getType()));
 
         Map<String, AddPersonModel> requests = userAccountme.getRequests();
         requests.remove(friend.getId());
@@ -135,7 +135,7 @@ public class RequestsFriendFragment extends Fragment implements OnClickRequestsP
         requestsSent.remove(userAccountme.getId());
 
         Map<String, AddPersonModel> mapFriends = friend.getFriendsmap();
-        mapFriends.put(userAccountme.getId(), new AddPersonModel(userAccountme.getName(), userAccountme.getImg_profile(), userAccountme.getId()));
+        mapFriends.put(userAccountme.getId(), new AddPersonModel(userAccountme.getName(), userAccountme.getImg_profile(), userAccountme.getId(),userAccountme.getUserInformation().getType()));
 
         userAccountme.setFriendsmap(friends);
         userAccountme.setRequests(requests);

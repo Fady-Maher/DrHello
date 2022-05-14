@@ -33,45 +33,24 @@ import java.util.Calendar;
 public class AlarmAddActivity extends AppCompatActivity implements View.OnClickListener, TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
     @SuppressLint("StaticFieldLeak")
     public static ActivityAlarmAddBinding alarmAddBinding;
-
     private Calendar mCalendar;
-
     private int mYear, mMonth, mHour, mMinute, mDay;
-
     private long mRepeatTime;
-
     private String mTitle, mTime, mDate, mRepeat, mRepeatNo, mRepeatType, mActive;
-
-
     // Values for orientation change
-
     private static final String KEY_TITLE = "title_key";
-
     private static final String KEY_TIME = "time_key";
-
     private static final String KEY_DATE = "date_key";
-
     private static final String KEY_REPEAT = "repeat_key";
-
     private static final String KEY_REPEAT_NO = "repeat_no_key";
-
     private static final String KEY_REPEAT_TYPE = "repeat_type_key";
-
     private static final String KEY_ACTIVE = "active_key";
-
-
     // Constant values in milliseconds
-
     private static final long milMinute = 60000L;
-
     private static final long milHour = 3600000L;
-
     private static final long milDay = 86400000L;
-
     private static final long milWeek = 604800000L;
-
     private static final long milMonth = 2592000000L;
-
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -88,31 +67,17 @@ public class AlarmAddActivity extends AppCompatActivity implements View.OnClickL
         // Initialize default values
 
         mActive = "true";
-
         mRepeat = "true";
-
         mRepeatNo = Integer.toString(1);
-
         mRepeatType = "Hour";
-
-
         mCalendar = Calendar.getInstance();
-
         mHour = mCalendar.get(Calendar.HOUR_OF_DAY);
-
         mMinute = mCalendar.get(Calendar.MINUTE);
-
         mYear = mCalendar.get(Calendar.YEAR);
-
         mMonth = mCalendar.get(Calendar.MONTH) + 1;
-
         mDay = mCalendar.get(Calendar.DATE);
-
-
         mDate = mDay + "/" + mMonth + "/" + mYear;
-
         mTime = mHour + ":" + mMinute;
-
         alarmAddBinding.imgBackAlarm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -126,86 +91,46 @@ public class AlarmAddActivity extends AppCompatActivity implements View.OnClickL
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
 
-
             @Override
-
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
                 mTitle = s.toString().trim();
-
                 alarmAddBinding.reminderTitle.setError(null);
-
             }
 
-
             @Override
-
             public void afterTextChanged(Editable s) {
             }
 
         });
 
         alarmAddBinding.repeatSwitch.setOnClickListener(this);
-
         alarmAddBinding.setDate.setText(mDate);
-
         alarmAddBinding.setTime.setText(mTime);
-
         alarmAddBinding.setRepeatNo.setText(mRepeatNo);
-
         alarmAddBinding.setRepeatType.setText(mRepeatType);
-
         alarmAddBinding.setRepeat.setText("Every " + mRepeatNo + " " + mRepeatType + "(s)");
 
-
         // To save state on device rotation
-
         if (savedInstanceState != null) {
-
             String savedTitle = savedInstanceState.getString(KEY_TITLE);
-
             alarmAddBinding.reminderTitle.setText(savedTitle);
-
             mTitle = savedTitle;
-
-
             String savedTime = savedInstanceState.getString(KEY_TIME);
-
             alarmAddBinding.setTime.setText(savedTime);
-
             mTime = savedTime;
-
-
             String savedDate = savedInstanceState.getString(KEY_DATE);
-
             alarmAddBinding.setDate.setText(savedDate);
-
             mDate = savedDate;
-
-
             String saveRepeat = savedInstanceState.getString(KEY_REPEAT);
-
             alarmAddBinding.repeatText.setText(saveRepeat);
-
             mRepeat = saveRepeat;
-
-
             String savedRepeatNo = savedInstanceState.getString(KEY_REPEAT_NO);
-
             alarmAddBinding.repeatNoText.setText(savedRepeatNo);
-
             mRepeatNo = savedRepeatNo;
-
-
             String savedRepeatType = savedInstanceState.getString(KEY_REPEAT_TYPE);
-
             alarmAddBinding.repeatTypeText.setText(savedRepeatType);
-
             mRepeatType = savedRepeatType;
-
-
             mActive = savedInstanceState.getString(KEY_ACTIVE);
-
         }
 
         alarmAddBinding.linearTime.setOnClickListener(this);
@@ -213,8 +138,6 @@ public class AlarmAddActivity extends AppCompatActivity implements View.OnClickL
         alarmAddBinding.repeateInterval.setOnClickListener(this);
         alarmAddBinding.repeatType.setOnClickListener(this);
         alarmAddBinding.btnSave.setOnClickListener(this);
-
-
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -418,159 +341,89 @@ public class AlarmAddActivity extends AppCompatActivity implements View.OnClickL
     // On clicking the save button
 
     public void saveReminder() {
-
         ReminderDatabase rb = new ReminderDatabase(this);
-
-
         // Creating Reminder
-
         int ID = rb.addReminder(new Reminder(mTitle, mDate, mTime, mRepeat, mRepeatNo, mRepeatType, mActive));
-
-
         // Set up calender for creating the notification
-
         mCalendar.set(Calendar.MONTH, --mMonth);
-
         mCalendar.set(Calendar.YEAR, mYear);
-
         mCalendar.set(Calendar.DAY_OF_MONTH, mDay);
-
         mCalendar.set(Calendar.HOUR_OF_DAY, mHour);
-
         mCalendar.set(Calendar.MINUTE, mMinute);
-
         mCalendar.set(Calendar.SECOND, 0);
-
-
         // Check repeat type
-
         switch (mRepeatType) {
             case "Minute":
-
                 mRepeatTime = Integer.parseInt(mRepeatNo) * milMinute;
-
                 break;
             case "Hour":
-
                 mRepeatTime = Integer.parseInt(mRepeatNo) * milHour;
-
                 break;
             case "Day":
-
                 mRepeatTime = Integer.parseInt(mRepeatNo) * milDay;
-
                 break;
             case "Week":
-
                 mRepeatTime = Integer.parseInt(mRepeatNo) * milWeek;
-
                 break;
             case "Month":
-
                 mRepeatTime = Integer.parseInt(mRepeatNo) * milMonth;
-
                 break;
         }
 
-
         // Create a new notification
-
         if (mActive.equals("true")) {
-
             if (mRepeat.equals("true")) {
-
                 new AlarmReceiver().setRepeatAlarm(getApplicationContext(), mCalendar, ID, mRepeatTime);
-
             } else if (mRepeat.equals("false")) {
-
                 new AlarmReceiver().setAlarm(getApplicationContext(), mCalendar, ID);
-
             }
-
         }
-
-
         // Create toast to confirm new reminder
-
         Toast.makeText(getApplicationContext(), "Saved",
-
                 Toast.LENGTH_SHORT).show();
-
-
         onBackPressed();
-
     }
 
-
     // On pressing the back button
-
     @Override
-
     public void onBackPressed() {
-
         super.onBackPressed();
-
     }
 
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         month++;
-
         mDay = dayOfMonth;
-
         mMonth = month;
-
         mYear = year;
-
         mDate = dayOfMonth + "/" + month + "/" + year;
-
         alarmAddBinding.setDate.setText(mDate);
-
     }
 
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         mHour = hourOfDay;
-
         mMinute = minute;
-
         if (minute < 10) {
-
             mTime = hourOfDay + ":" + "0" + minute;
-
         } else {
-
             mTime = hourOfDay + ":" + minute;
-
         }
-
         alarmAddBinding.setTime.setText(mTime);
-
-
     }
 
     // On clicking the repeat switch
-
     @SuppressLint("SetTextI18n")
     public void onSwitchRepeat(View view) {
-
         boolean on = ((Switch) view).isChecked();
-
         if (on) {
-
             mRepeat = "true";
-
             alarmAddBinding.setRepeat.setText("Every " + mRepeatNo + " " + mRepeatType + "(s)");
-
         } else {
-
             mRepeat = "false";
-
             alarmAddBinding.setRepeat.setText(R.string.repeat_off);
-
         }
-
     }
     @Override
     protected void onResume() {

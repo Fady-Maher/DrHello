@@ -157,7 +157,8 @@ public class TestHardwareActivity extends AppCompatActivity {
                 Constraints constraints = new Constraints.Builder().setRequiresCharging(true)
                         .setRequiredNetworkType(NetworkType.UNMETERED).build();
 
-                final PeriodicWorkRequest periodicWorkRequest1 = new PeriodicWorkRequest.Builder(UploadWorker.class,30, TimeUnit.SECONDS)
+                final PeriodicWorkRequest periodicWorkRequest1 = new PeriodicWorkRequest.Builder(UploadWorker.class,
+                        30, TimeUnit.SECONDS)
                         .setInitialDelay(1,TimeUnit.SECONDS)
                         .setConstraints(constraints).setBackoffCriteria(
                                 BackoffPolicy.LINEAR,

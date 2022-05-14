@@ -126,11 +126,11 @@ public class AddFriendFragment extends Fragment  implements OnClickAddPersonList
         mProgress.show();
         if (state.equals("add")){
             Map<String, AddPersonModel> friends = friendsAccount.getRequests();
-            friends.put(userAccountme.getId(), new AddPersonModel(userAccountme.getName(), userAccountme.getImg_profile(), userAccountme.getId()));
+            friends.put(userAccountme.getId(), new AddPersonModel(userAccountme.getName(), userAccountme.getImg_profile(), userAccountme.getId(),userAccountme.getUserInformation().getType()));
             friendsAccount.setRequests(friends);
 
             Map<String, AddPersonModel> requestsSent = userAccountme.getRequestSsent();
-            requestsSent.put(friendsAccount.getId(), new AddPersonModel(friendsAccount.getName(), friendsAccount.getImg_profile(), friendsAccount.getId()));
+            requestsSent.put(friendsAccount.getId(), new AddPersonModel(friendsAccount.getName(), friendsAccount.getImg_profile(), friendsAccount.getId(),friendsAccount.getUserInformation().getType()));
             userAccountme.setRequestSsent(requestsSent);
 
             readDataAddFriendListener(new MyCallBackAddFriend() {

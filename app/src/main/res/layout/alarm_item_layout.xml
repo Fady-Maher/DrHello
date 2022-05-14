@@ -110,25 +110,15 @@
     </androidx.cardview.widget.CardView>
 
 
-
-
-
     <ImageView
-        android:layout_width="wrap_content"
-
-        android:layout_alignParentRight="true"
-
-        android:layout_height="64dp"
-
-        android:layout_marginLeft="16dp"
-
-        android:layout_marginRight="16dp"
-
-        android:src="@drawable/ic_notifications_off_24"
-
-        android:layout_centerVertical="true"
-
         android:id="@+id/active_image"
+        android:layout_width="wrap_content"
+        android:layout_height="64dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:src="@drawable/delete_24"
         tools:ignore="ContentDescription" />
 
 

@@ -64,7 +64,8 @@ public class AddPersonActivity extends AppCompatActivity {
                 );
         activityAddPersonBinding.viewPager.setAdapter(adapter);
 
-        activityAddPersonBinding.viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(activityAddPersonBinding.TabReaction));
+        activityAddPersonBinding.viewPager.addOnPageChangeListener(new
+                TabLayout.TabLayoutOnPageChangeListener(activityAddPersonBinding.TabReaction));
 
         activityAddPersonBinding.TabReaction.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override

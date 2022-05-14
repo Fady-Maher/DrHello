@@ -42,7 +42,8 @@ public class SearchMapsAdapter extends RecyclerView.Adapter<SearchMapsAdapter.Pl
         holder.place_name.setText(placesSearchMaps.getPlace_name());
         holder.place_address.setText(placesSearchMaps.getPlace_address());
         holder.place_distance.setText(placesSearchMaps.getDistance());
-
+        holder.time.setText(placesSearchMaps.getTime());
+        holder.speed.setText(placesSearchMaps.getSpeed());
     }
 
     @Override
@@ -57,13 +58,15 @@ public class SearchMapsAdapter extends RecyclerView.Adapter<SearchMapsAdapter.Pl
 
     public class PlaceSearchMapsHolder  extends RecyclerView.ViewHolder{
 
-        TextView place_name,place_address,place_distance;
+        TextView place_name,place_address,place_distance,speed,time;
 
         public PlaceSearchMapsHolder(@NonNull View itemView) {
             super(itemView);
             place_distance=itemView.findViewById(R.id.txt_distance_hospital);
             place_address=itemView.findViewById(R.id.txt_address_hospital);
             place_name=itemView.findViewById(R.id.txt_name_hospital);
+            speed=itemView.findViewById(R.id.speed);
+            time=itemView.findViewById(R.id.time);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

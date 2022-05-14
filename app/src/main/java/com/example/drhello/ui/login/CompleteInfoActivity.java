@@ -61,7 +61,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
     private ActivityCompleteInfoBinding activityCompleteInfoBinding;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private String gender;
+    private String gender ="";
     private Locale[] locales = Locale.getAvailableLocales();
     private ArrayList<String> countries = new ArrayList<String>();
     private String[] specialist = new String[]{"Occupational and environmental medicine",
@@ -292,24 +292,10 @@ public class CompleteInfoActivity extends AppCompatActivity {
         activityCompleteInfoBinding.btnComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mProgress.setMessage("Loading..");
-                mProgress.show();
                 if (activityCompleteInfoBinding.switchLayout.isChecked()) {  //doctor
                     checkValidation();
                 } else { // normal user
-                    String fullNumber = activityCompleteInfoBinding.ccp.getFullNumber();
-                    UserInformation userInformation = new UserInformation(
-                            countries.get(activityCompleteInfoBinding.spinnerCountryUser.getSelectedItemPosition()),
-                            activityCompleteInfoBinding.editAddressUser.getText().toString(),
-                            arrayAdaptermapcity.get(activityCompleteInfoBinding.spinnerCityUser.getSelectedItemPosition()),
-                            activityCompleteInfoBinding.editStateUser.getText().toString(),
-                            "",
-                            "",
-                            "",
-                            activityCompleteInfoBinding.txtBirthdayUser.getText().toString(),
-                            gender, "normal user");
-                    userInformation.setPhone(activityCompleteInfoBinding.editPhoneUser.getText().toString());
-                    checkphonenumbercorrecy(userAccount, activityCompleteInfoBinding.editPhoneUser.getText().toString(), fullNumber + activityCompleteInfoBinding.editPhoneUser.getText().toString(), userInformation);
+                    checkValidationUser();
                 }
             }
         });
@@ -410,26 +396,11 @@ public class CompleteInfoActivity extends AppCompatActivity {
         String editEducationDr = Objects.requireNonNull(activityCompleteInfoBinding.editEducationDr).getText().toString().trim();
         String editAddressHomeDr = Objects.requireNonNull(activityCompleteInfoBinding.editAddressHomeDr).getText().toString().trim();
         String editPhoneDr = Objects.requireNonNull(activityCompleteInfoBinding.editPhoneDr).getText().toString().trim();
-
+        String editBirth = activityCompleteInfoBinding.txtBirthdayDr.getText().toString();
 
         if (editClinicDr.isEmpty()) {
             activityCompleteInfoBinding.editClinicDr.setError("Name Clinic is needed");
             activityCompleteInfoBinding.editClinicDr.requestFocus();
-            return;
-        }
-        if (editAddressWorkDr.isEmpty()) {
-            activityCompleteInfoBinding.editAddressWorkDr.setError("Address Work is needed");
-            activityCompleteInfoBinding.editAddressWorkDr.requestFocus();
-            return;
-        }
-        if (editStateDr.isEmpty()) {
-            activityCompleteInfoBinding.editStateDr.setError("Address State is needed");
-            activityCompleteInfoBinding.editStateDr.requestFocus();
-            return;
-        }
-        if (editEducationDr.isEmpty()) {
-            activityCompleteInfoBinding.editEducationDr.setError("Education State is needed");
-            activityCompleteInfoBinding.editEducationDr.requestFocus();
             return;
         }
         if (editAddressHomeDr.isEmpty()) {
@@ -437,11 +408,39 @@ public class CompleteInfoActivity extends AppCompatActivity {
             activityCompleteInfoBinding.editAddressHomeDr.requestFocus();
             return;
         }
+        if (editStateDr.isEmpty()) {
+            activityCompleteInfoBinding.editStateDr.setError("Address State is needed");
+            activityCompleteInfoBinding.editStateDr.requestFocus();
+            return;
+        }
+
+        if (editEducationDr.isEmpty()) {
+            activityCompleteInfoBinding.editEducationDr.setError("Education State is needed");
+            activityCompleteInfoBinding.editEducationDr.requestFocus();
+            return;
+        }
+
+        if (editAddressWorkDr.isEmpty()) {
+            activityCompleteInfoBinding.editAddressWorkDr.setError("Address Work is needed");
+            activityCompleteInfoBinding.editAddressWorkDr.requestFocus();
+            return;
+        }
+
         if (editPhoneDr.isEmpty()) {
             activityCompleteInfoBinding.editPhoneDr.setError("Phone State is needed");
             activityCompleteInfoBinding.editPhoneDr.requestFocus();
             return;
         }
+        if (editBirth.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Please, Check your Birth", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (gender.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Please, Check your Gender", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
         if (bitmap == null) {
             Toast.makeText(getApplicationContext(), "Please, Check your Certificate", Toast.LENGTH_SHORT).show();
             return;
@@ -449,9 +448,61 @@ public class CompleteInfoActivity extends AppCompatActivity {
             uploadImage(bitmap);
         }
     }
+    private void checkValidationUser() {
+
+        String editAddressUser = Objects.requireNonNull(activityCompleteInfoBinding.editAddressUser).getText().toString().trim();
+        String editStateUser = Objects.requireNonNull(activityCompleteInfoBinding.editStateUser).getText().toString().trim();
+        String editPhoneUser = Objects.requireNonNull(activityCompleteInfoBinding.editPhoneUser).getText().toString().trim();
+        String txtBirthdayUser = activityCompleteInfoBinding.txtBirthdayUser.getText().toString();
+
+        if (editAddressUser.isEmpty()) {
+            activityCompleteInfoBinding.editAddressUser.setError("Address is needed");
+            activityCompleteInfoBinding.editAddressUser.requestFocus();
+            return;
+        }
+        if (editStateUser.isEmpty()) {
+            activityCompleteInfoBinding.editStateUser.setError("State is needed");
+            activityCompleteInfoBinding.editStateUser.requestFocus();
+            return;
+        }
+        if (editPhoneUser.isEmpty()) {
+            activityCompleteInfoBinding.editPhoneUser.setError("Address Phone is needed");
+            activityCompleteInfoBinding.editPhoneUser.requestFocus();
+            return;
+        }
+
+        if (txtBirthdayUser.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Please, Check your Birth", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (gender.isEmpty()) {
+            Toast.makeText(getApplicationContext(), "Please, Check your Gender", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mProgress.setMessage("Loading..");
+        mProgress.show();
+        String fullNumber = activityCompleteInfoBinding.ccp.getFullNumber();
+        UserInformation userInformation = new UserInformation(
+                countries.get(activityCompleteInfoBinding.spinnerCountryUser.getSelectedItemPosition()),
+                activityCompleteInfoBinding.editAddressUser.getText().toString(),
+                arrayAdaptermapcity.get(activityCompleteInfoBinding.spinnerCityUser.getSelectedItemPosition()),
+                activityCompleteInfoBinding.editStateUser.getText().toString(),
+                "",
+                "",
+                "",
+                activityCompleteInfoBinding.txtBirthdayUser.getText().toString(),
+                gender, "normal user");
+        userInformation.setPhone(activityCompleteInfoBinding.editPhoneUser.getText().toString());
+        checkphonenumbercorrecy(userAccount, activityCompleteInfoBinding.editPhoneUser.getText().toString(), fullNumber + activityCompleteInfoBinding.editPhoneUser.getText().toString(), userInformation);
+
+    }
 
 
     private void uploadImage(Bitmap bitmap) {
+        mProgress.setMessage("Loading..");
+        mProgress.show();
         ByteArrayOutputStream output_image = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output_image);
         byte[] data_image = output_image.toByteArray();

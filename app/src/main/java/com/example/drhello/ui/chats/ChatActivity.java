@@ -245,14 +245,6 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
             }
         });
 
-
-        activityChatBinding.chatOption.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-              //  onClickOption();
-            }
-        });
-
     }
 
     private void init() {

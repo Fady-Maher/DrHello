@@ -244,11 +244,11 @@ public class ProfileActivity extends AppCompatActivity {
             activityProfileBinding.floatbtndr.setVisibility(View.GONE);
         } else {
             Map<String, AddPersonModel> friendsmapme = userAccountme.getRequestSsent();
-            friendsmapme.put(userAccount.getId(), new AddPersonModel(userAccount.getName(), userAccount.getImg_profile(), userAccount.getId()));
+            friendsmapme.put(userAccount.getId(), new AddPersonModel(userAccount.getName(), userAccount.getImg_profile(), userAccount.getId(),userAccount.getUserInformation().getType()));
             userAccountme.setRequestSsent(friendsmapme);
 
             Map<String, AddPersonModel> friends = userAccount.getRequests();
-            friends.put(userAccountme.getId(), new AddPersonModel(userAccountme.getName(), userAccountme.getImg_profile(), userAccountme.getId()));
+            friends.put(userAccountme.getId(), new AddPersonModel(userAccountme.getName(), userAccountme.getImg_profile(), userAccountme.getId(),userAccountme.getUserInformation().getType()));
             userAccount.setRequests(friends);
 
             db.collection("users").document(userAccount.getId())

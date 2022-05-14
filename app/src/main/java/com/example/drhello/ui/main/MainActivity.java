@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
@@ -58,6 +59,7 @@ import com.google.firebase.storage.StorageReference;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnItemSelectedListener{
@@ -96,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private  UserAccount userAccount;
 
     NetworkChangeListener networkChangeListener = new NetworkChangeListener();
+    private UserInfo userInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,8 +142,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                         Log.e("task : " , " tast");
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             userAccount = document.toObject(UserAccount.class);
-                            adapter=new DrawerAdapter(Arrays.asList(
-                                    new UserInfo(userAccount.getName(),userAccount.getImg_profile(),MainActivity.this),
+                            userInfo = new UserInfo(userAccount.getName(),userAccount.getImg_profile(),MainActivity.this);
+                            adapter=new DrawerAdapter(Arrays.asList(userInfo,
                                     createFor(HOME).setChecked(true),
                                     createFor(PROFILE),
                                     createFor(ALARM),
@@ -259,9 +262,11 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             startActivity(intent);
             adapter.setSelected(HOME);
         }else if (position==Maps){
+
             Intent intent=new Intent(MainActivity.this, MapsActivity.class);
             startActivity(intent);
             adapter.setSelected(HOME);
+
         }else if (position==Health){
             Intent intent=new Intent(MainActivity.this, HardwareActivity.class);
             startActivity(intent);

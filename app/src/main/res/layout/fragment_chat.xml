@@ -94,13 +94,29 @@
     </LinearLayout>
 
 
-
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rec_view"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/Tab"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/_10sdp"/>
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:tabSelectedTextColor="#535FD1"
+        app:tabRippleColor="#535FD1"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        app:tabInlineLabel="true"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_co"/>
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_5sdp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_toolbar2"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
 
 </LinearLayout>

@@ -1,5 +1,6 @@
 package com.example.drhello.ui.mapping;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -18,7 +19,11 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -41,6 +46,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.adapter.OnPlaceClickListener;
 import com.example.drhello.adapter.OnSearchPlaceClickListener;
@@ -61,6 +68,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
@@ -99,7 +107,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     TextView edit_search,txt_search;
     EditText  edit_search_inside;
     ImageView mic_search, img_search_inside, img_search_back,img_back;
-
+    Marker markerOptionscur = null,markerOptions = null;
     /*new*/
     SupportMapFragment mapFragment;
     private GoogleMap mMap;
@@ -119,6 +127,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private CoordinatorLayout coordinator_map_inside;
     private Polyline polyline = null;
     private boolean flag_map = false;
+    private BitmapDescriptor bitmapDescriptorcur = null ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +141,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if(getIntent().getStringExtra("map") != null){
             flag_map = true;
         }
+
+
+
+        bitmapDescriptorcur = bitmapDescriptorFromVectorcur(this);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -327,7 +340,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onMapLongClick(LatLng latLng) {
                 //add to mark on location
-                mMap.addMarker(new MarkerOptions().position(latLng));
+                if(markerOptions!=null){
+                    markerOptions.remove();
+                }
+                markerOptions = mMap.addMarker(new MarkerOptions().position(latLng)
+                        .icon(BitmapDescriptorFactory
+                                .defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
+
                 mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                 Log.e("flag LONG CLICK: ", latLng.latitude+"  "+latLng.longitude +"");
                 if(flag_map){
@@ -341,12 +360,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(Marker marker) {
+                /*
                 if(polyline != null){
                     polyline.remove();
                 }
                 polyline = mMap.addPolyline(new PolylineOptions().add(marker.getPosition(),
                         new LatLng(newLat,newLon)).width(5).color(Color.RED));
 
+                 */
                 return false;
             }
         });
@@ -502,7 +523,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onLocationChanged(Location location) {
         Log.e("onLocationChanged : ", "onLocationChanged");
         Log.e("getAccuracy() : ", location.getAccuracy() + "");
-
+        LatLng latLngcur = new LatLng(location.getLatitude(),location.getLongitude());
+        if(markerOptionscur!= null){
+            markerOptionscur.remove();
+        }
+        if(bitmapDescriptorcur != null){
+            markerOptionscur = mMap.addMarker(new MarkerOptions().position(latLngcur)
+                    .icon(bitmapDescriptorcur));
+        }else{
+            mMap.addMarker(new MarkerOptions().position(latLngcur)
+                    .icon(bitmapDescriptorcur));
+        }
         if (location != null && location.hasAccuracy()) {
             // Accuracy is in rage of 20 meters, stop listening we have a fix
             double newTime = System.currentTimeMillis();
@@ -517,6 +548,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 oldLat = location.getLatitude();
                 oldLon = location.getLongitude();
                 CalcFromNearestHospital();
+
             }
 
             if (location.getAccuracy() < 15) {
@@ -871,7 +903,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         float   HUE_VIOLET
         float   HUE_YELLOW
         */
-
+        if(markerOptions!=null){
+            markerOptions.remove();
+        }
         List<Address> addressList = null;
         if (location != null && !location.equals("")) {
             if (Geocoder.isPresent()) {
@@ -881,17 +915,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     if (addressList.size() > 0 && addressList != null) {
                         Address address = addressList.get(0);
                         LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-                        mMap.addMarker(new MarkerOptions().position(latLng).title(location)
+
+                        markerOptions = mMap.addMarker(new MarkerOptions().position(latLng).title(location)
                                 .icon(BitmapDescriptorFactory
-                                        .defaultMarker(BitmapDescriptorFactory.HUE_VIOLET)));
+                                        .defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA)));
                         mMap.animateCamera(CameraUpdateFactory.newLatLng(latLng));
                         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
+                        /*
                         if(polyline != null){
                             polyline.remove();
                         }
                         polyline =  mMap.addPolyline(new PolylineOptions().add(new LatLng(newLat, newLon),
                                 latLng).width(5).color(Color.RED));
+
+                         */
 
                     } else {
                         Toast.makeText(getApplicationContext(), "Location not Found, Please try again !!", Toast.LENGTH_SHORT).show();
@@ -926,6 +964,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onSearchPlaceClick(int pos) {
         if (placeDetailsArrayListSearch.size() > 0) {
+            if(markerOptions!=null){
+                markerOptions.remove();
+            }
+            markerOptions = mMap.addMarker(new MarkerOptions().position(placeDetailsArrayListSearch.get(pos).getPlace_latLng()));
             mMap.animateCamera(CameraUpdateFactory.newLatLng(placeDetailsArrayListSearch.get(pos).getPlace_latLng()));
             edit_search.setText(placeDetailsArrayListSearch.get(pos).place_name);
             constraint_map_search.setVisibility(View.GONE);
@@ -934,27 +976,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Window w = getWindow();
                 w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
             }
-
+/*
             if(polyline != null){
                 polyline.remove();
             }
             polyline =  mMap.addPolyline(new PolylineOptions().add(new LatLng(newLat, newLon),
                     placeDetailsArrayList.get(pos).getPlace_latLng()).width(5).color(Color.RED));
+
+ */
         }
     }
 
     @Override
     public void onPlaceClick(int pos) {
+        if(markerOptions!=null){
+            markerOptions.remove();
+        }
+        markerOptions = mMap.addMarker(new MarkerOptions().position(placeDetailsArrayListSearch.get(pos).getPlace_latLng()));
         mMap.animateCamera(CameraUpdateFactory.newLatLng(placeDetailsArrayList.get(pos).getPlace_latLng()));
         edit_search.setText(placeDetailsArrayList.get(pos).place_name);
         constraint_map_search.setVisibility(View.GONE);
         coordinator_map_inside.setVisibility(View.VISIBLE);
 
+        /*
         if(polyline != null){
             polyline.remove();
         }
         polyline =  mMap.addPolyline(new PolylineOptions().add(new LatLng(newLat, newLon),
                 placeDetailsArrayList.get(pos).getPlace_latLng()).width(5).color(Color.RED));
+         */
     }
 
     public void zoomout(View view) {
@@ -966,5 +1016,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(CameraUpdateFactory.zoomIn());
     }
 
+    private BitmapDescriptor bitmapDescriptorFromVectorcur(Context context) {
+        Drawable background = ContextCompat.getDrawable(context, R.drawable.motorcycle_1);
+        background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        background.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
 
+    /*
+    private BitmapDescriptor bitmapDescriptorFromVector(Context context, @DrawableRes  int vectorDrawableResourceId) {
+        Drawable background = ContextCompat.getDrawable(context, R.drawable.motorcycle_2);
+        background.setBounds(0, 0, background.getIntrinsicWidth(), background.getIntrinsicHeight());
+
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorDrawableResourceId);
+        vectorDrawable.setBounds(40, 20, vectorDrawable.getIntrinsicWidth() + 40, vectorDrawable.getIntrinsicHeight() + 20);
+
+        Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(), background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        background.draw(canvas);
+        //vectorDrawable.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+    */
 }

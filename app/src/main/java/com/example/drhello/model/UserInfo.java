@@ -1,6 +1,10 @@
 package com.example.drhello.model;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +23,7 @@ public class UserInfo extends DrawerItem<UserInfo.ViewHolder> {
     private final String nameUser;
     private final String imgUser;
     private final Context context;
+    private Bitmap bitmap = null;
 
 
     public UserInfo(String nameUser, String imgUser, Context context) {
@@ -42,11 +47,27 @@ public class UserInfo extends DrawerItem<UserInfo.ViewHolder> {
         }else {
             holder.imgUser.setImageResource(R.drawable.user);
         }
+
+        try {
+            bitmap = ((BitmapDrawable) holder.imgUser.getDrawable()).getBitmap();
+        } catch (Exception E) {
+            bitmap = Bitmap.createBitmap(holder.imgUser.getDrawable().getIntrinsicWidth(),
+                    holder.imgUser.getDrawable().getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            holder.imgUser.getDrawable().setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            holder.imgUser.getDrawable().draw(canvas);
+            Log.e("catch  catch : " ,E.getMessage());
+        }
+
     }
 
     @Override
     public boolean isSelectable() {
         return false;
+    }
+
+    public Bitmap getBitmapFromImage() {
+        return bitmap;
     }
 
     public static class ViewHolder extends DrawerAdapter.ViewHolder{

@@ -3,15 +3,16 @@ package com.example.drhello.model;
 import java.io.Serializable;
 
 public class AddPersonModel implements Serializable {
-    private String name_person,image_person,id;
+    private String name_person,image_person,id,type;
 
     public AddPersonModel() {
     }
 
-    public AddPersonModel(String name_person, String image_person,String id) {
+    public AddPersonModel(String name_person, String image_person,String id,String type) {
         this.name_person = name_person;
         this.image_person = image_person;
         this.id = id;
+        this.type = type;
     }
 
     public String getName_person() {
@@ -36,5 +37,13 @@ public class AddPersonModel implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

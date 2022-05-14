@@ -202,9 +202,9 @@
                             android:textStyle="bold"
                             android:textSize="17dp"/>
                         <ImageButton
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:src="@drawable/ic_location"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:src="@drawable/locate"
                             android:background="@color/white"/>
                     </LinearLayout>
 
@@ -309,7 +309,7 @@
                         android:layout_marginTop="10dp">
 
                         <LinearLayout
-                            android:id="@+id/btn_address"
+                            android:id="@+id/btn_address1"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal">
@@ -322,9 +322,10 @@
                                 android:textStyle="bold"
                                 android:textSize="17dp"/>
                             <ImageButton
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:src="@drawable/ic_location"
+                                android:id="@+id/btn_address"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/locate"
                                 android:background="@color/white"/>
                         </LinearLayout>
 
