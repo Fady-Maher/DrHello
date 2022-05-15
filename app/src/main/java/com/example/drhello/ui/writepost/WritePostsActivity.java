@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -25,6 +26,10 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.bumptech.glide.Glide;
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
+import com.example.drhello.medical.ChestActivity;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
@@ -76,8 +81,9 @@ public class WritePostsActivity extends AppCompatActivity {
     private static final String TAG = "Posts Activity";
     private ActivityWritePostsBinding activityWritePostsBinding;
     private RequestPermissions requestPermissions;
-
     private UserAccount userAccount;
+    PyObject main_program;
+    float prop;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +98,9 @@ public class WritePostsActivity extends AppCompatActivity {
 
         inti();
 
+        AsyncTaskD asyncTaskDownload = new AsyncTaskD("post", "first");
+        asyncTaskDownload.execute();
+
         activityWritePostsBinding = DataBindingUtil.setContentView(this, R.layout.activity_write_posts);
         FirebaseMessaging.getInstance().subscribeToTopic("all");
 
@@ -100,14 +109,15 @@ public class WritePostsActivity extends AppCompatActivity {
             public void onCallback(DocumentSnapshot documentSnapshot) {
                 if (!documentSnapshot.exists()) {
                     FirebaseAuth.getInstance().getCurrentUser().delete();
+                    mProgress.dismiss();
                 } else {
                     userAccount = documentSnapshot.toObject(UserAccount.class);
+                    mProgress.dismiss();
                     posts.setNameUser(userAccount.getName());
                     posts.setImageUser(userAccount.getImg_profile());
                     posts.setDate(getDateTime());
                     posts.setTokneId(userAccount.getTokenID());
                     Log.e("posts.UserMu ", posts.getImageUser());
-
                     activityWritePostsBinding.userAddress.setText(userAccount.getUserInformation().getCity());
                     activityWritePostsBinding.userName.setText(userAccount.getName());
                     try {
@@ -124,95 +134,34 @@ public class WritePostsActivity extends AppCompatActivity {
                         posts.setImageUser(userAccount.getImg_profile());
                         posts.setDate(getDateTime());
                         posts.setTokneId(userAccount.getTokenID());
-
                         activityWritePostsBinding.editPost.setText(posts.getWritePost());
                         activityWritePostsBinding.addImage.setVisibility(View.GONE);
                         //to upload post
                         activityWritePostsBinding.imgPost.setOnClickListener(v -> {
                             if (CheckNetwork.getConnectivityStatusString(WritePostsActivity.this) == 1) {
-                                mProgress.setMessage("Uploading..");
-                                mProgress.show();
-                                mProgress.setCancelable(false);
                                 String post = activityWritePostsBinding.editPost.getText().toString().trim();
-                                Log.e("posts.getnameuser ", posts.getImageUser());
-                                posts.setWritePost(post);
-                                posts.setDate(getDateTime());
-                                db.collection("posts")
-                                        .document(posts.getPostId()).set(posts).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()) {
-                                            FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender("/topics/all",
-                                                    mAuth.getCurrentUser().getUid(),
-                                                    "Post",
-                                                    posts.getNameUser() + " Upload a new post ",
-                                                    getApplicationContext(),
-                                                    WritePostsActivity.this,
-                                                    posts.getImageUser());
-                                            fcmNotificationsSender.SendNotifications();
-                                            mProgress.dismiss();
-                                            Intent intent = new Intent(WritePostsActivity.this, MainActivity.class);
-                                            intent.putExtra("postsView", "postsView");
-                                            startActivity(intent);
-                                            Log.d(TAG, "onComplete: save uri ");
-
-                                        } else {
-                                            //Toast.makeText(WritePostsActivity.this, "error ", Toast.LENGTH_SHORT).show();
-                                        }
-
-                                    }
-                                });
+                                AsyncTaskD asyncTaskDownload = new AsyncTaskD(post, "");
+                                asyncTaskDownload.execute();
                             } else {
                                 Toast.makeText(WritePostsActivity.this, "Please, Check Internet", Toast.LENGTH_SHORT).show();
                             }
                         });
-
                     } else {
                         //to upload post
                         activityWritePostsBinding.imgPost.setVisibility(View.VISIBLE);
                         activityWritePostsBinding.imgPost.setOnClickListener(v -> {
                             if (CheckNetwork.getConnectivityStatusString(WritePostsActivity.this) == 1) {
-                                mProgress.setMessage("Uploading..");
-                                mProgress.show();
-                                mProgress.setCancelable(false);
                                 String post = activityWritePostsBinding.editPost.getText().toString().trim();
-                                Log.e("posts.getnameuser ", posts.getImageUser());
-                                posts.setReactions(new HashMap<>());
-                                posts.setWritePost(post);
-                                posts.setUserId(mAuth.getUid());
-                                postsViewModel.uploadImages(db, storageReference, bytes, uriImage, posts);
-                                postsViewModel.isfinish.observe(WritePostsActivity.this, integer -> {
-                                    Log.d(TAG, "Image: " + integer + "  uriImage.size() : " + bytes.size());
-                                    if (integer == bytes.size()) {
-                                        Log.d(TAG, "uploadImage: " + integer);
-                                        Log.e("int image ", "fcm");
-                                        FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender("/topics/all",
-                                                mAuth.getCurrentUser().getUid(),
-                                                "Post",
-                                                posts.getNameUser() + " Upload a new post ",
-                                                getApplicationContext(),
-                                                WritePostsActivity.this,
-                                                posts.getImageUser());
-                                        fcmNotificationsSender.SendNotifications();
-                                        mProgress.dismiss();
-                                        Intent intent = new Intent(WritePostsActivity.this, MainActivity.class);
-                                        intent.putExtra("postsView", "postsView");
-                                        startActivity(intent);
-                                    }
-                                });
+                                AsyncTaskD asyncTaskDownload = new AsyncTaskD(post, "uploadImages");
+                                asyncTaskDownload.execute();
                             } else {
                                 Toast.makeText(WritePostsActivity.this, "Please, Check Internet", Toast.LENGTH_SHORT).show();
                             }
                         });
-
                     }
-
                 }
-                mProgress.dismiss();
             }
         });
-
-
 
         activityWritePostsBinding.imgBackPost.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -222,7 +171,6 @@ public class WritePostsActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
 
         activityWritePostsBinding.addImage.setOnClickListener(v -> {
             if (requestPermissions.permissionStorageRead()) {
@@ -289,7 +237,7 @@ public class WritePostsActivity extends AppCompatActivity {
                         //To save in FirebaseStorage
                         bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imgUri);
                         ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.PNG , 100, bytesStream);
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, bytesStream);
                         byte[] bytesOutImg = bytesStream.toByteArray();
                         bytes.add(bytesOutImg);
 
@@ -363,5 +311,112 @@ public class WritePostsActivity extends AppCompatActivity {
         StateOfUser stateOfUser = new StateOfUser();
         stateOfUser.changeState("Offline");
     }
+
+    public class AsyncTaskD extends AsyncTask<String, String, String> {
+
+        String text;
+        String action;
+        public AsyncTaskD(String text, String action) {
+            this.text = text;
+            this.action = action;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (!action.equals("first")) {
+                mProgress.setMessage("Uploading..");
+                mProgress.show();
+                mProgress.setCancelable(false);
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... f_url) {
+            if (action.equals("first")) {
+                if (!Python.isStarted()) {
+                    Python.start(new AndroidPlatform(WritePostsActivity.this));//error is here!
+                }
+                final Python py = Python.getInstance();
+                main_program = py.getModule("prolog");
+            } else {
+                String result = main_program.callAttr("modelCommentAndPost", text).toString();
+                prop = Float.parseFloat(result.replace("[", "").replace("]", ""));
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String file_url) {
+            if (action.equals("first")) {
+                Log.e("first "," first");
+            }
+            else if (action.equals("uploadImages")) {
+                if (prop >= 0.5) {
+                    Log.e("prop failed: ", prop + "");
+                    mProgress.dismiss();
+                } else {
+                    Log.e("prop good: ", prop+ "");
+                    Log.e("posts.getnameuser ", posts.getImageUser());
+                    posts.setReactions(new HashMap<>());
+                    posts.setWritePost(text);
+                    posts.setUserId(mAuth.getUid());
+                    postsViewModel.uploadImages(db, storageReference, bytes, uriImage, posts);
+                    postsViewModel.isfinish.observe(WritePostsActivity.this, integer -> {
+                        Log.d(TAG, "Image: " + integer + "  uriImage.size() : " + bytes.size());
+                        if (integer == bytes.size()) {
+                            Log.d(TAG, "uploadImage: " + integer);
+                            Log.e("int image ", "fcm");
+                            FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender("/topics/all",
+                                    mAuth.getCurrentUser().getUid(),
+                                    "Post",
+                                    posts.getNameUser() + " Upload a new post ",
+                                    getApplicationContext(),
+                                    WritePostsActivity.this,
+                                    posts.getImageUser());
+                            fcmNotificationsSender.SendNotifications();
+                            mProgress.dismiss();
+                            Intent intent = new Intent(WritePostsActivity.this, MainActivity.class);
+                            intent.putExtra("postsView", "postsView");
+                            startActivity(intent);
+                        }
+                    });
+                }
+            } else {
+                if (prop >= 0.5) {
+                    Log.e("prop failed: ", prop + "");
+                } else {
+                    posts.setWritePost(text);
+                    posts.setDate(getDateTime());
+                    db.collection("posts")
+                            .document(posts.getPostId()).set(posts).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender("/topics/all",
+                                        mAuth.getCurrentUser().getUid(),
+                                        "Post",
+                                        posts.getNameUser() + " Upload a new post ",
+                                        getApplicationContext(),
+                                        WritePostsActivity.this,
+                                        posts.getImageUser());
+                                fcmNotificationsSender.SendNotifications();
+                                mProgress.dismiss();
+                                Intent intent = new Intent(WritePostsActivity.this, MainActivity.class);
+                                intent.putExtra("postsView", "postsView");
+                                startActivity(intent);
+                                Log.d(TAG, "onComplete: save uri ");
+
+                            } else {
+                                //Toast.makeText(WritePostsActivity.this, "error ", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+                    });
+                }
+            }
+        }
+    }
+
 
 }

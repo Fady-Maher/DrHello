@@ -1,17 +1,13 @@
 import requests
-from urllib.parse import quote_plus
 from requests.structures import CaseInsensitiveDict
-# nltk.download('stopwords')
-# the stemmer requires a language parameter
-##snow_stemmer = SnowballStemmer(language='english')
-##stopword=set(stopwords.words('english'))
 from spellchecker import SpellChecker
 from deep_translator import GoogleTranslator
+from langdetect import detect
+
 
 
 def method_translate(sentence):
     return GoogleTranslator(source='en', target='ar').translate(sentence)
-
 
 def method_spellchecker(sentence):
     res = []
@@ -101,4 +97,19 @@ def model_classifer(new_sysmptom):
     print(js_disease)
     # res_knn +"@"+res_svm + "@" + res_log+"0"
     return js_disease['prediction']
+
+def modelCommentAndPost(text):
+    headers = {'accept': 'application/json','content-type': 'application/x-www-form-urlencoded',}
+    lang = detect(text)
+    print(lang)
+    params = {'text': text}
+    if lang == 'ar':
+        url = 'https://hate-detection-model.herokuapp.com/predict_text'
+    else:
+        url = 'https://hate-detection-model-en.herokuapp.com/predict_text'
+    response = requests.post(url, params=params, headers=headers)
+    #print(lang,  response.status_code, response.text)
+    response = response.json()
+    return response['prediction']
+
 
