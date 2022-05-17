@@ -316,6 +316,7 @@ public class WritePostsActivity extends AppCompatActivity {
 
         String text;
         String action;
+
         public AsyncTaskD(String text, String action) {
             this.text = text;
             this.action = action;
@@ -340,8 +341,11 @@ public class WritePostsActivity extends AppCompatActivity {
                 final Python py = Python.getInstance();
                 main_program = py.getModule("prolog");
             } else {
-                String result = main_program.callAttr("modelCommentAndPost", text).toString();
-                prop = Float.parseFloat(result.replace("[", "").replace("]", ""));
+                if (!text.isEmpty()) {
+                    Log.e("TEXT CORRECT: ",text);
+                    String result = main_program.callAttr("modelCommentAndPost", text).toString();
+                    prop = Float.parseFloat(result.replace("[", "").replace("]", ""));
+                }
             }
             return null;
         }
@@ -349,14 +353,13 @@ public class WritePostsActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String file_url) {
             if (action.equals("first")) {
-                Log.e("first "," first");
-            }
-            else if (action.equals("uploadImages")) {
+                Log.e("first ", " first");
+            } else if (action.equals("uploadImages")) {
                 if (prop >= 0.5) {
                     Log.e("prop failed: ", prop + "");
                     mProgress.dismiss();
                 } else {
-                    Log.e("prop good: ", prop+ "");
+                    Log.e("prop good: ", prop + "");
                     Log.e("posts.getnameuser ", posts.getImageUser());
                     posts.setReactions(new HashMap<>());
                     posts.setWritePost(text);

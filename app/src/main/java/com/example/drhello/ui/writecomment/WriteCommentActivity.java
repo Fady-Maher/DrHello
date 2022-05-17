@@ -14,6 +14,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -23,6 +24,9 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
@@ -37,6 +41,7 @@ import com.example.drhello.databinding.ActivityWriteCommentBinding;
 import com.example.drhello.model.CommentModel;
 import com.example.drhello.ui.main.MainActivity;
 import com.example.drhello.ui.writepost.NumReactionActivity;
+import com.example.drhello.ui.writepost.WritePostsActivity;
 import com.example.drhello.viewmodel.CommentViewModel;
 import com.example.drhello.model.Posts;
 import com.example.drhello.R;
@@ -82,6 +87,9 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
     public static ActivityWriteCommentBinding MainCommentBinding;
     private String postID;
     private RequestPermissions requestPermissions;
+    AsyncTaskD asyncTaskDownload;
+    PyObject main_program;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -217,7 +225,8 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                 commentModel.setPost_id(posts.getPostId());
             }
         });
-
+        asyncTaskDownload = new AsyncTaskD(null, "comment", "first");
+        asyncTaskDownload.execute();
         MainCommentBinding.fabImage.setOnClickListener(view -> {
 
             if (requestPermissions.permissionStorageRead()) {
@@ -255,10 +264,8 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         });
 
         MainCommentBinding.imageSend.setOnClickListener(view -> {
-            if(CheckNetwork.getConnectivityStatusString(WriteCommentActivity.this) == 1) {
-                mProgress.setMessage("Uploading..");
-                mProgress.setCancelable(false);
-                mProgress.show();
+            if (CheckNetwork.getConnectivityStatusString(WriteCommentActivity.this) == 1) {
+                /************************************************************/
                 if (bitmap != null) {
                     byte[] bytesOutImg;
                     commentModel.setComment(MainCommentBinding.editMessage.getText().toString());
@@ -266,48 +273,22 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                     ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytesStream);
                     bytesOutImg = bytesStream.toByteArray();
-                    commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null);
-                    MainCommentBinding.editMessage.setText("");
-                    bitmap = null;
+                    asyncTaskDownload = new AsyncTaskD(bytesOutImg, commentModel.getComment(), "uploadImages");
+                    asyncTaskDownload.execute();
                     Log.e("image : ", "EROR");
                 } else {
                     Log.e("bitmap : ", bitmap + "");
                     commentModel.setComment_image(null);
                     commentModel.setComment(MainCommentBinding.editMessage.getText().toString());
                     commentModel.setDate(getDateTime());
-                    commentViewModel.uploadComment(db, null, posts, commentModel, null);
-                    MainCommentBinding.editMessage.setText("");
+                    asyncTaskDownload = new AsyncTaskD(null, commentModel.getComment(), "");
+                    asyncTaskDownload.execute();
                 }
 
-                FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(posts.getTokneId(),
-                        mAuth.getCurrentUser().getUid(),
-                        "Comment",
-                        commentModel.getUser_name() + " commented on your post",
-                        getApplicationContext(),
-                        WriteCommentActivity.this,
-                        commentModel.getUser_image(),
-                        posts.getPostId());
-                fcmNotificationsSender.SendNotifications();
-
-                check_img = false;
                 InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(MainCommentBinding.editMessage.getWindowToken(), 0);
 
-                posts.setCommentNum(posts.getCommentNum() + 1);
-
-                db.collection("posts").document(posts.getPostId())
-                        .set(posts).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            mProgress.dismiss();
-                            //      Toast.makeText(getApplicationContext(), "ok  set", Toast.LENGTH_SHORT).show();
-                        } else {
-                            //     Toast.makeText(getApplicationContext(), "error  set", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-            }else{
+            } else {
                 Toast.makeText(WriteCommentActivity.this, "Please, Check Internet", Toast.LENGTH_SHORT).show();
             }
         });
@@ -489,10 +470,10 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         readDataReadction(new MyCallBackReaction() {
             @Override
             public void onCallBack(Task<Void> task) {
-                if(task.isSuccessful())
+                if (task.isSuccessful())
                     mProgress.dismiss();
             }
-        },commentModel);
+        }, commentModel);
     }
 
     @Override
@@ -502,7 +483,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         startActivity(intent);
     }
 
-    public void readDataReadction(MyCallBackReaction myCallback,CommentModel commentModel) {
+    public void readDataReadction(MyCallBackReaction myCallback, CommentModel commentModel) {
         mProgress.setMessage("Loading..");
         mProgress.setCancelable(false);
         mProgress.show();
@@ -511,8 +492,8 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                            Log.e("equals ", "isSuccessful");
-                            myCallback.onCallBack(task);
+                        Log.e("equals ", "isSuccessful");
+                        myCallback.onCallBack(task);
                     }
                 });
     }
@@ -530,6 +511,101 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         super.onPause();
         StateOfUser stateOfUser = new StateOfUser();
         stateOfUser.changeState("Offline");
+    }
+
+    public class AsyncTaskD extends AsyncTask<String, String, String> {
+
+        String text;
+        String action;
+        byte[] bytesOutImg;
+        float prop = -1;
+
+        public AsyncTaskD(byte[] bytesOutImg, String text, String action) {
+            this.text = text;
+            this.action = action;
+            this.bytesOutImg = bytesOutImg;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (!action.equals("first")) {
+                mProgress.setMessage("Uploading..");
+                mProgress.show();
+                mProgress.setCancelable(false);
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... f_url) {
+            if (action.equals("first")) {
+                if (!Python.isStarted()) {
+                    Python.start(new AndroidPlatform(WriteCommentActivity.this));//error is here!
+                }
+                final Python py = Python.getInstance();
+                main_program = py.getModule("prolog");
+            } else {
+                if (!text.isEmpty()) {
+                    Log.e("TEXT CORRECT: ",text);
+                    String result = main_program.callAttr("modelCommentAndPost", text).toString();
+                    prop = Float.parseFloat(result.replace("[", "").replace("]", ""));
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String file_url) {
+            if (action.equals("first")) {
+                Log.e("first ", " first");
+            } else if (prop >= 0 && prop < 0.5) {
+                if (action.equals("uploadImages")) {
+                    commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null);
+                    MainCommentBinding.editMessage.setText("");
+                    bitmap = null;
+                } else {
+                    commentViewModel.uploadComment(db, null, posts, commentModel, null);
+                    MainCommentBinding.editMessage.setText("");
+                }
+                uploadImages();
+            } else if (prop >= 0.5) {
+                Log.e("prop failed: ", prop + "");
+                mProgress.dismiss();
+            }else if(action.equals("uploadImages")){
+                commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null);
+                MainCommentBinding.editMessage.setText("");
+                bitmap = null;
+                uploadImages();
+            }
+        }
+    }
+
+    private void uploadImages(){
+        FcmNotificationsSender fcmNotificationsSender = new FcmNotificationsSender(posts.getTokneId(),
+                mAuth.getCurrentUser().getUid(),
+                "Comment",
+                commentModel.getUser_name() + " commented on your post",
+                getApplicationContext(),
+                WriteCommentActivity.this,
+                commentModel.getUser_image(),
+                posts.getPostId());
+        fcmNotificationsSender.SendNotifications();
+        check_img = false;
+        posts.setCommentNum(posts.getCommentNum() + 1);
+        db.collection("posts").document(posts.getPostId())
+                .set(posts).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Log.e("prop onComplete: ", "");
+                } else {
+                    Log.e("error onComplete: ", "");
+
+                }
+                mProgress.dismiss();
+
+            }
+        });
     }
 
 

@@ -65,8 +65,8 @@ public class BotActivity extends AppCompatActivity implements  OnTranslateClickL
         if (! Python.isStarted()) {
             Python.start(new AndroidPlatform(BotActivity.this));//error is here!
         }
-        json();
 
+        json();
 
         final Python py = Python.getInstance();
         main_program = py.getModule("prolog");
@@ -75,10 +75,27 @@ public class BotActivity extends AppCompatActivity implements  OnTranslateClickL
         edit_message = findViewById(R.id.edit_message);
 
         arrayList.add(new ChatBotModel(message,getDateTime(),1,message));
+        if(getIntent().getStringExtra("disease")!=null){
+            String disease = getIntent().getStringExtra("disease");
+            arrayList.add(0,new ChatBotModel("causes",getDateTime(),1,"causes"));
+            arrayList.add(0,new ChatBotModel(map_causes.get(disease).toString(),getDateTime(),1,map_causes.get(disease).toString()));
+            arrayList.add(0,new ChatBotModel("risk",getDateTime(),1,"risk"));
+            arrayList.add(0,new ChatBotModel(map_risk.get(disease).toString(),getDateTime(),1,map_risk.get(disease).toString()));
+            arrayList.add(0,new ChatBotModel("diagnosis",getDateTime(),1,"diagnosis"));
+            arrayList.add(0,new ChatBotModel(map_diagnosis.get(disease).toString(),getDateTime(),1,map_diagnosis.get(disease).toString()));
+            arrayList.add(0,new ChatBotModel("see doctor",getDateTime(),1,"see doctor"));
+            arrayList.add(0,new ChatBotModel(map_see.get(disease).toString(),getDateTime(),1,map_see.get(disease).toString()));
+            arrayList.add(0,new ChatBotModel("symptoms",getDateTime(),1,"symptoms"));
+            arrayList.add(0,new ChatBotModel(map_symptoms.get(disease).toString(),getDateTime(),1,map_symptoms.get(disease).toString()));
+            arrayList.add(0,new ChatBotModel("treatment",getDateTime(),1,"treatment"));
+            arrayList.add(0,new ChatBotModel(map_treatment.get(disease).toString(),getDateTime(),1,map_treatment.get(disease).toString()));
+        }
 
+/*
         imageview_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 if(edit_message.getText().toString().toLowerCase().equals("yes") && !correct_message.equals("")){
                     //send to api
                     ChatBotModel chatBotModel = new ChatBotModel(edit_message.getText().toString(),getDateTime(),0,edit_message.getText().toString());
@@ -89,7 +106,7 @@ public class BotActivity extends AppCompatActivity implements  OnTranslateClickL
                     message = "I can't understand you, please write sentence correctly!!";
                     arrayList.add(0,new ChatBotModel(message,getDateTime(),1,message));
                 }else if(edit_message.getText().toString().toLowerCase().equals("yes") && correct_message.equals("")){
-                    /*/*//*/*/
+
                     Log.e("YES: ", sysmptomsyes_string + "##");
                     if(sysmptomsyes_string.split("@").length >= 2){
                         sysmptomsyes_string +=  "@" + new_sysmptom ;
@@ -105,7 +122,7 @@ public class BotActivity extends AppCompatActivity implements  OnTranslateClickL
                         chatBotAdapter.notifyItemInserted(0);
                     }
                 }else if(edit_message.getText().toString().toLowerCase().equals("no") && correct_message.equals("")){
-                    /*/*//*/*/
+
                     method();
                 } else{ // correct message
                     ChatBotModel chatBotModel = new ChatBotModel(edit_message.getText().toString(),getDateTime(),0,edit_message.getText().toString());
@@ -117,6 +134,7 @@ public class BotActivity extends AppCompatActivity implements  OnTranslateClickL
                 chatBotAdapter.notifyItemInserted(0);
             }
         });
+*/
 
 
         chatBotAdapter = new ChatBotAdapter(BotActivity.this,arrayList,BotActivity.this);
@@ -165,7 +183,9 @@ public class BotActivity extends AppCompatActivity implements  OnTranslateClickL
                 }
                 arrayList.remove(position);
                 arrayList.add(position,chatBotModel);
-            }else if(action.equals("chatbot")){
+            }
+            /*
+            else if(action.equals("chatbot")){
                 String str = main_program.callAttr("modelText",chatBotModel.getText()).toString();
                 Log.e("strain_",str);
                 ChatBotModel chatBotModel = new ChatBotModel(str,getDateTime(),1,str);
@@ -256,6 +276,8 @@ public class BotActivity extends AppCompatActivity implements  OnTranslateClickL
                 sysmptomsyes_string = sysmptomsyes_string.substring(0,sysmptomsyes_string.length()-1);
                 method();
             }
+
+             */
             mProgress.dismiss();
             return null;
         }

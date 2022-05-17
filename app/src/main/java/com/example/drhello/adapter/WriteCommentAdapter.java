@@ -81,11 +81,11 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
             e.printStackTrace();
         }
 
+        holder.image_comment.setVisibility(View.GONE);
+        holder.comment.setVisibility(View.GONE);
+        holder.cardView.setVisibility(View.GONE);
         if(commentModel.getComment().isEmpty() && commentModel.getComment_image() != null){
-            holder.cardView.setVisibility(View.GONE);
-            holder.name_only.setVisibility(View.VISIBLE);
-//            Toast.makeText(context, "Image_only", Toast.LENGTH_SHORT).show();
-            holder.image_comment.setVisibility(View.VISIBLE);
+
             try{
 
                 Glide.with(context).load(commentModel.getComment_image()).placeholder(R.drawable.ic_chat).
@@ -94,11 +94,17 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
                 holder.image_comment.setImageResource(R.drawable.ic_chat);
             }
 
+            holder.cardView.setVisibility(View.GONE);
+            holder.name_only.setVisibility(View.VISIBLE);
+//            Toast.makeText(context, "Image_only", Toast.LENGTH_SHORT).show();
+            holder.image_comment.setVisibility(View.VISIBLE);
+
         }else if(commentModel.getComment() !=null && commentModel.getComment_image() ==null){
 //            Toast.makeText(context, "Comment_only", Toast.LENGTH_SHORT).show();
             holder.cardView.setVisibility(View.VISIBLE);
             holder.name_only.setVisibility(View.GONE);
             holder.image_comment.setVisibility(View.GONE);
+            holder.comment.setVisibility(View.VISIBLE);
             holder.comment.setText(commentModel.getComment());
             holder.comment.setShowingChar(100);
             holder.comment.setShowingLine(5);
@@ -109,9 +115,16 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
 
         }else{
 //            Toast.makeText(context, "both", Toast.LENGTH_SHORT).show();
+            try{
+                Glide.with(context).load(commentModel.getComment_image()).placeholder(R.drawable.ic_chat).
+                        error(R.drawable.ic_chat).into(holder.image_comment);
+            }catch (Exception e){
+                holder.image_comment.setImageResource(R.drawable.ic_chat);
+            }
             holder.name_only.setVisibility(View.GONE);
             holder.image_comment.setVisibility(View.VISIBLE);
             holder.cardView.setVisibility(View.VISIBLE);
+            holder.comment.setVisibility(View.VISIBLE);
             holder.comment.setText(commentModel.getComment());
             holder.comment.setShowingChar(100);
             holder.comment.setShowingLine(5);
@@ -119,12 +132,6 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
             holder.comment.setShowLessTextColor(context.getResources().getColor(R.color.red));
             holder.comment.addShowMoreText("More");
             holder.comment.addShowLessText("Less");
-            try{
-                Glide.with(context).load(commentModel.getComment_image()).placeholder(R.drawable.ic_chat).
-                        error(R.drawable.ic_chat).into(holder.image_comment);
-            }catch (Exception e){
-                holder.image_comment.setImageResource(R.drawable.ic_chat);
-            }
         }
 
 

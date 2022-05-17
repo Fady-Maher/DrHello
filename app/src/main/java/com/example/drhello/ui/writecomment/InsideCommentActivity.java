@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -23,6 +24,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
+import com.example.drhello.firebaseservice.FcmNotificationsSender;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
@@ -72,6 +77,9 @@ public class InsideCommentActivity extends AppCompatActivity {
     private Posts posts;
     private boolean check_img=false;
     private RequestPermissions requestPermissions;
+    AsyncTaskD asyncTaskDownload;
+    PyObject main_program;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,7 +141,8 @@ public class InsideCommentActivity extends AppCompatActivity {
         commentBinding.userName.setText(commentModel.getUser_name());
         commentBinding.userOnly.setText(commentModel.getUser_name());
         commentModel2.setPost_id(posts.getPostId());
-
+        asyncTaskDownload = new AsyncTaskD(null, "comment", "first");
+        asyncTaskDownload.execute();
         readDataUser(new MyCallbackUser() {
             @Override
             public void onCallback(DocumentSnapshot documentSnapshot) {
@@ -200,28 +209,24 @@ public class InsideCommentActivity extends AppCompatActivity {
 
         commentBinding.imageSend.setOnClickListener(view -> {
             if(CheckNetwork.getConnectivityStatusString(InsideCommentActivity.this) == 1) {
-                mProgress.setMessage("Uploading..");
-                mProgress.show();
                 if(bitmap != null){
                     byte[] bytesOutImg ;
-
                     commentModel2.setComment(commentBinding.editMessage.getText().toString());
                     commentModel2.setDate(getDateTime());
                     ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytesStream);
                     bytesOutImg = bytesStream.toByteArray();
-                    commentViewModel.uploadCommentInside(db, bytesOutImg, posts,commentModel, commentModel2);
-                    commentBinding.editMessage.setText("");
+                    asyncTaskDownload = new AsyncTaskD(bytesOutImg, commentModel2.getComment(), "uploadImages");
+                    asyncTaskDownload.execute();
                     bitmap = null;
                     Log.e("image : ","EROR");
                 }else{
                     Log.e("bitmap : ",bitmap+"");
-
                     commentModel2.setComment_image(null);
                     commentModel2.setComment(commentBinding.editMessage.getText().toString());
                     commentModel2.setDate(getDateTime());
-                    commentViewModel.uploadCommentInside(db, null, posts,commentModel, commentModel2);
-                    commentBinding.editMessage.setText("");
+                    asyncTaskDownload = new AsyncTaskD(null,  commentModel2.getComment(), "");
+                    asyncTaskDownload.execute();
                 }
                 check_img=false;
                 InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -398,6 +403,72 @@ public class InsideCommentActivity extends AppCompatActivity {
         super.onPause();
         StateOfUser stateOfUser = new StateOfUser();
         stateOfUser.changeState("Offline");
+    }
+
+    public class AsyncTaskD extends AsyncTask<String, String, String> {
+
+        String text;
+        String action;
+        byte[] bytesOutImg;
+        float prop = -1;
+        public AsyncTaskD(byte[] bytesOutImg, String text, String action) {
+            this.text = text;
+            this.action = action;
+            this.bytesOutImg = bytesOutImg;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            if (!action.equals("first")) {
+                mProgress.setMessage("Uploading..");
+                mProgress.show();
+                mProgress.setCancelable(false);
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... f_url) {
+            if (action.equals("first")) {
+                if (!Python.isStarted()) {
+                    Python.start(new AndroidPlatform(InsideCommentActivity.this));//error is here!
+                }
+                final Python py = Python.getInstance();
+                main_program = py.getModule("prolog");
+            } else {
+                if (!text.isEmpty()) {
+                    Log.e("TEXT CORRECT: ",text);
+                    String result = main_program.callAttr("modelCommentAndPost", text).toString();
+                    prop = Float.parseFloat(result.replace("[", "").replace("]", ""));
+                }}
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String file_url) {
+            if (action.equals("first")) {
+                Log.e("first ", " first");
+            } else if (prop >= 0 && prop < 0.5) {
+                if (action.equals("uploadImages")) {
+                    commentViewModel.uploadCommentInside(db, bytesOutImg, posts,commentModel, commentModel2);
+                    commentBinding.editMessage.setText("");
+                    bitmap = null;
+                    bytesOutImg = null;
+                } else {
+                    commentViewModel.uploadCommentInside(db, null, posts,commentModel, commentModel2);
+                    commentBinding.editMessage.setText("");
+                }
+            } else if (prop >= 0.5) {
+                Log.e("prop failed: ", prop + "");
+                mProgress.dismiss();
+            }else if(action.equals("uploadImages")){
+                commentViewModel.uploadCommentInside(db, bytesOutImg, posts,commentModel, commentModel2);
+                commentBinding.editMessage.setText("");
+                bitmap = null;
+                bytesOutImg = null;
+                mProgress.dismiss();
+            }
+        }
     }
 
 }

@@ -5,9 +5,9 @@ from deep_translator import GoogleTranslator
 from langdetect import detect
 
 
-
 def method_translate(sentence):
     return GoogleTranslator(source='en', target='ar').translate(sentence)
+
 
 def method_spellchecker(sentence):
     res = []
@@ -33,7 +33,7 @@ def model(path, model):
     response = requests.post(base_url, files=files)
     print(response.status_code, response.text)
     response = response.json()
-    return response['prediction'] +"@"+ response['probability']
+    return response['prediction'] + "@" + response['probability']
 
 
 # for text
@@ -98,18 +98,20 @@ def model_classifer(new_sysmptom):
     # res_knn +"@"+res_svm + "@" + res_log+"0"
     return js_disease['prediction']
 
+
 def modelCommentAndPost(text):
-    headers = {'accept': 'application/json','content-type': 'application/x-www-form-urlencoded',}
-    lang = detect(text)
-    print(lang)
-    params = {'text': text}
-    if lang == 'ar':
-        url = 'https://hate-detection-model.herokuapp.com/predict_text'
+    headers = {'accept': 'application/json', 'content-type': 'application/x-www-form-urlencoded', }
+    if text.isdigit():
+        return 0.1
     else:
-        url = 'https://hate-detection-model-en.herokuapp.com/predict_text'
-    response = requests.post(url, params=params, headers=headers)
-    #print(lang,  response.status_code, response.text)
-    response = response.json()
-    return response['prediction']
-
-
+        lang = detect(text)
+        print(lang)
+        params = {'text': text}
+        if lang == 'ar':
+            url = 'https://hate-detection-model.herokuapp.com/predict_text'
+        else:
+            url = 'https://hate-detection-model-en.herokuapp.com/predict_text'
+        response = requests.post(url, params=params, headers=headers)
+        # print(lang,  response.status_code, response.text)
+        response = response.json()
+        return response['prediction']
