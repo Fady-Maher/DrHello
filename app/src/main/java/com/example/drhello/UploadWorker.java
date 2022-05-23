@@ -51,7 +51,6 @@ public class UploadWorker extends Worker {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference();
-
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -59,7 +58,6 @@ public class UploadWorker extends Worker {
                 createNotification(hardware.getHeart_Rate().toString(),hardware.getHeart_Rate().toString());
                 Toast.makeText(context, hardware.getHeart_Rate().toString(), Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onCancelled(DatabaseError error) {
                 // Failed to read value
