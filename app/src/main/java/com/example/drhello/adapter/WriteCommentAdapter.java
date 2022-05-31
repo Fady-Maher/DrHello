@@ -1,6 +1,7 @@
 package com.example.drhello.adapter;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,6 +42,7 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
     private OnCommentClickListener onCommentClickListener;
     private String reactionType2 = "0";
     private FragmentManager fragmentManager;
+    public static ProgressDialog mProgress;
 
 
     public WriteCommentAdapter(Context context, ArrayList<CommentModel> commentModels
@@ -49,7 +51,7 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
         this.commentModels = commentModels;
         this.onCommentClickListener = onCommentClickListener;
         this.fragmentManager = fragmentManager;
-
+        mProgress = new ProgressDialog(context);
     }
 
     @NonNull
@@ -65,6 +67,8 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
     @Override
     public void onBindViewHolder(@NonNull CommentsHolder holder, int position) {
         CommentModel commentModel = commentModels.get(position);
+
+
         holder.user_name.setText(commentModel.getUser_name());
         holder.name_only.setText(commentModel.getUser_name());
         holder.numreaction.setText(commentModel.getReactions().size()+"");
@@ -74,36 +78,32 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
 
         try {
             Date date = dateFormat.parse(commentModel.getDate());
-            Log.e("getTime : ",date.getTime()+"");
+        //    Log.e("getTime : ",date.getTime()+"");
             holder.txt_date.setText(timeAgo.getTimeAgo(date.getTime(),false));
         } catch (ParseException e) {
-            Log.e("getTime : ",e.getMessage());
+         //   Log.e("getTime : ",e.getMessage());
             e.printStackTrace();
         }
 
-        holder.image_comment.setVisibility(View.GONE);
         holder.comment.setVisibility(View.GONE);
-        holder.cardView.setVisibility(View.GONE);
+        holder.card_comment.setVisibility(View.GONE);
+        holder.card_image.setVisibility(View.GONE);
+
         if(commentModel.getComment().isEmpty() && commentModel.getComment_image() != null){
-
             try{
-
                 Glide.with(context).load(commentModel.getComment_image()).placeholder(R.drawable.ic_chat).
                         error(R.drawable.ic_chat).into(holder.image_comment);
             }catch (Exception e){
                 holder.image_comment.setImageResource(R.drawable.ic_chat);
             }
 
-            holder.cardView.setVisibility(View.GONE);
+            holder.card_comment.setVisibility(View.GONE);
             holder.name_only.setVisibility(View.VISIBLE);
-//            Toast.makeText(context, "Image_only", Toast.LENGTH_SHORT).show();
-            holder.image_comment.setVisibility(View.VISIBLE);
-
+            holder.card_image.setVisibility(View.VISIBLE);
         }else if(commentModel.getComment() !=null && commentModel.getComment_image() ==null){
-//            Toast.makeText(context, "Comment_only", Toast.LENGTH_SHORT).show();
-            holder.cardView.setVisibility(View.VISIBLE);
+            holder.card_comment.setVisibility(View.VISIBLE);
             holder.name_only.setVisibility(View.GONE);
-            holder.image_comment.setVisibility(View.GONE);
+            holder.card_image.setVisibility(View.GONE);
             holder.comment.setVisibility(View.VISIBLE);
             holder.comment.setText(commentModel.getComment());
             holder.comment.setShowingChar(100);
@@ -114,16 +114,16 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
             holder.comment.addShowLessText("Less");
 
         }else{
-//            Toast.makeText(context, "both", Toast.LENGTH_SHORT).show();
             try{
                 Glide.with(context).load(commentModel.getComment_image()).placeholder(R.drawable.ic_chat).
                         error(R.drawable.ic_chat).into(holder.image_comment);
             }catch (Exception e){
                 holder.image_comment.setImageResource(R.drawable.ic_chat);
             }
+
             holder.name_only.setVisibility(View.GONE);
-            holder.image_comment.setVisibility(View.VISIBLE);
-            holder.cardView.setVisibility(View.VISIBLE);
+            holder.card_image.setVisibility(View.VISIBLE);
+            holder.card_comment.setVisibility(View.VISIBLE);
             holder.comment.setVisibility(View.VISIBLE);
             holder.comment.setText(commentModel.getComment());
             holder.comment.setShowingChar(100);
@@ -209,7 +209,7 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
     public class CommentsHolder extends RecyclerView.ViewHolder {
         TextView user_name,txt_comment,txt_like,name_only,numreaction,txt_date;
         ShowMoreTextView comment;
-        CardView cardView;
+        CardView card_comment,card_image;
         ImageView user_image,image_comment;
         CircleImageView img_reaction;
         LinearLayout lin_reaction;
@@ -222,7 +222,8 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
             image_comment = itemView.findViewById(R.id.image_comment);
             txt_comment = itemView.findViewById(R.id.txt_comment);
             txt_like = itemView.findViewById(R.id.txt_like);
-            cardView=itemView.findViewById(R.id.card_comment);
+            card_comment=itemView.findViewById(R.id.card_comment);
+            card_image=itemView.findViewById(R.id.card_image);
             name_only = itemView.findViewById(R.id.user_name_only);
             img_reaction = itemView.findViewById(R.id.img_reaction);
             numreaction=itemView.findViewById(R.id.numreaction);

@@ -344,7 +344,12 @@ public class WritePostsActivity extends AppCompatActivity {
                 if (!text.isEmpty()) {
                     Log.e("TEXT CORRECT: ",text);
                     String result = main_program.callAttr("modelCommentAndPost", text).toString();
-                    prop = Float.parseFloat(result.replace("[", "").replace("]", ""));
+                    result = result.replace("[", "").replace("]", "");
+                    if (result.equals("error")){
+                        prop = (float) 0.1;
+                    }else {
+                        prop = Float.parseFloat(result);
+                    }
                 }
             }
             return null;

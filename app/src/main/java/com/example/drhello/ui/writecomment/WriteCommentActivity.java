@@ -41,7 +41,6 @@ import com.example.drhello.databinding.ActivityWriteCommentBinding;
 import com.example.drhello.model.CommentModel;
 import com.example.drhello.ui.main.MainActivity;
 import com.example.drhello.ui.writepost.NumReactionActivity;
-import com.example.drhello.ui.writepost.WritePostsActivity;
 import com.example.drhello.viewmodel.CommentViewModel;
 import com.example.drhello.model.Posts;
 import com.example.drhello.R;
@@ -80,7 +79,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
     CommentModel commentModel = new CommentModel();
     private CommentViewModel commentViewModel;
     private WriteCommentAdapter writeCommentAdapter;
-    public static ProgressDialog mProgress;
+    public static ProgressDialog mProgress,mProgress1;
     private final ArrayList<CommentModel> commentModels = new ArrayList<>();
     private Bitmap bitmap;
     private boolean check_img = false;
@@ -102,6 +101,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
             getWindow().setStatusBarColor(Color.WHITE);
         }
         mProgress = new ProgressDialog(this);
+        mProgress1 = new ProgressDialog(this);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         commentViewModel = new CommentViewModel();
@@ -119,7 +119,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                         CommentModel commentModel = document.toObject(CommentModel.class);
                         commentModels.add(commentModel);
                     }
-                    mProgress.dismiss();
+
                     writeCommentAdapter = new WriteCommentAdapter(WriteCommentActivity.this, commentModels,
                             WriteCommentActivity.this, getSupportFragmentManager());
                     MainCommentBinding.recycleComments.setAdapter(writeCommentAdapter);
@@ -273,11 +273,12 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                     ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytesStream);
                     bytesOutImg = bytesStream.toByteArray();
+                    bitmap = null;
                     asyncTaskDownload = new AsyncTaskD(bytesOutImg, commentModel.getComment(), "uploadImages");
                     asyncTaskDownload.execute();
-                    Log.e("image : ", "EROR");
+                    Log.e("image123 : ", "EROR");
                 } else {
-                    Log.e("bitmap : ", bitmap + "");
+                    Log.e("bitmap1112 : ", bitmap + "");
                     commentModel.setComment_image(null);
                     commentModel.setComment(MainCommentBinding.editMessage.getText().toString());
                     commentModel.setDate(getDateTime());
@@ -302,14 +303,22 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                 @Override
                 public void onCallBack(QuerySnapshot value) {
                     commentModels.clear();
+                    int i = 0;
+                    /*
+                    if(value.size() == 0){
+                        mProgress1.dismiss();
+                    }*/
                     for (DocumentSnapshot document : value.getDocuments()) {
                         CommentModel commentModel = document.toObject(CommentModel.class);
                         commentModels.add(commentModel);
+                        i = i +1;
+                        if(i == value.size()){
+                            writeCommentAdapter = new WriteCommentAdapter(WriteCommentActivity.this,
+                                    commentModels, WriteCommentActivity.this, getSupportFragmentManager());
+                            MainCommentBinding.recycleComments.setAdapter(writeCommentAdapter);
+                        //    mProgress1.dismiss();
+                        }
                     }
-                    mProgress.dismiss();
-                    writeCommentAdapter = new WriteCommentAdapter(WriteCommentActivity.this,
-                            commentModels, WriteCommentActivity.this, getSupportFragmentManager());
-                    MainCommentBinding.recycleComments.setAdapter(writeCommentAdapter);
                 }
             });
         }
@@ -363,9 +372,12 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
     }
 
     public void readDataCommentsListener(MyCallBackListenerComments myCallback) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        /*
+        mProgress1.setMessage("Loading..");
+        mProgress1.setCancelable(false);
+        mProgress1.show();
+
+         */
         db.collection("posts").document(posts.getPostId())
                 .collection("comments").orderBy("date", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -548,7 +560,12 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                 if (!text.isEmpty()) {
                     Log.e("TEXT CORRECT: ",text);
                     String result = main_program.callAttr("modelCommentAndPost", text).toString();
-                    prop = Float.parseFloat(result.replace("[", "").replace("]", ""));
+                    result = result.replace("[", "").replace("]", "");
+                    if (result.equals("error")) {
+                        prop = (float) 0.1;
+                    } else {
+                        prop = Float.parseFloat(result);
+                    }
                 }
             }
             return null;
@@ -558,13 +575,17 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         protected void onPostExecute(String file_url) {
             if (action.equals("first")) {
                 Log.e("first ", " first");
+                mProgress.dismiss();
             } else if (prop >= 0 && prop < 0.5) {
                 if (action.equals("uploadImages")) {
-                    commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null);
+                    Log.e("action: ",  "uploadImages1");
+                    commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null,mProgress);
+                    bytesOutImg = null;
                     MainCommentBinding.editMessage.setText("");
                     bitmap = null;
                 } else {
-                    commentViewModel.uploadComment(db, null, posts, commentModel, null);
+                    Log.e("action: ",  "text");
+                    commentViewModel.uploadComment(db, null, posts, commentModel, null, mProgress);
                     MainCommentBinding.editMessage.setText("");
                 }
                 uploadImages();
@@ -572,7 +593,9 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                 Log.e("prop failed: ", prop + "");
                 mProgress.dismiss();
             }else if(action.equals("uploadImages")){
-                commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null);
+                Log.e("action: ",  "uploadImages2");
+                commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null, mProgress);
+                bytesOutImg = null;
                 MainCommentBinding.editMessage.setText("");
                 bitmap = null;
                 uploadImages();
@@ -600,10 +623,8 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                     Log.e("prop onComplete: ", "");
                 } else {
                     Log.e("error onComplete: ", "");
-
                 }
-                mProgress.dismiss();
-
+           //     mProgress.dismiss();
             }
         });
     }

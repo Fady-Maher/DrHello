@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProviders;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -71,11 +72,11 @@ public class InsideCommentActivity extends AppCompatActivity {
     private final ArrayList<CommentModel> commentModels = new ArrayList<>();
     private CommentViewModel commentViewModel;
     private WriteCommentAdapter writeCommentAdapter;
-    public static ProgressDialog mProgress;
+    public static ProgressDialog mProgress, mProgress1,mProgressfirst;
     private Bitmap bitmap;
-    private CommentModel commentModel , commentModel2;
+    private CommentModel commentModel, commentModel2;
     private Posts posts;
-    private boolean check_img=false;
+    private boolean check_img = false;
     private RequestPermissions requestPermissions;
     AsyncTaskD asyncTaskDownload;
     PyObject main_program;
@@ -90,7 +91,7 @@ public class InsideCommentActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
-        requestPermissions = new RequestPermissions(InsideCommentActivity.this,InsideCommentActivity.this);
+        requestPermissions = new RequestPermissions(InsideCommentActivity.this, InsideCommentActivity.this);
         commentBinding = DataBindingUtil.setContentView(this, R.layout.activity_inside_comment);
 
         commentBinding.recycleComments.setNestedScrollingEnabled(true);
@@ -102,26 +103,26 @@ public class InsideCommentActivity extends AppCompatActivity {
 
                 if (heightDiff > 400) { // Value should be less than keyboard's height
                     Log.e("MyActivity", "keyboard opened");
-                    if (check_img==false){
+                    if (check_img == false) {
                         commentBinding.constraintSendComment.setVisibility(View.VISIBLE);
                     }
                 } else {
                     Log.e("MyActivity", "keyboard closed");
-                    String text=commentBinding.editMessage.getText().toString().trim();
+                    String text = commentBinding.editMessage.getText().toString().trim();
 
-                    if (check_img==false){
-                        if (bitmap!=null){
+                    if (check_img == false) {
+                        if (bitmap != null) {
                             commentBinding.relImageComment.setVisibility(View.VISIBLE);
-                        }else {
+                        } else {
                             commentBinding.relImageComment.setVisibility(View.GONE);
                         }
                         commentBinding.linOptionComment.setVisibility(View.VISIBLE);
-                        if (!text.isEmpty() || bitmap!=null){
+                        if (!text.isEmpty() || bitmap != null) {
                             commentBinding.constraintSendComment.setVisibility(View.VISIBLE);
-                        }else {
+                        } else {
                             commentBinding.constraintSendComment.setVisibility(View.GONE);
                         }
-                    }else{
+                    } else {
                         commentBinding.relImageComment.setVisibility(View.VISIBLE);
                         commentBinding.linOptionComment.setVisibility(View.GONE);
                         commentBinding.constraintSendComment.setVisibility(View.VISIBLE);
@@ -134,7 +135,8 @@ public class InsideCommentActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         mProgress = new ProgressDialog(this);
-
+        mProgress1 = new ProgressDialog(this);
+        mProgressfirst = new ProgressDialog(this);
         commentModel = (CommentModel) getIntent().getSerializableExtra("commentModel");
         posts = (Posts) getIntent().getSerializableExtra("postsModel");
         commentModel2 = new CommentModel();
@@ -150,32 +152,33 @@ public class InsideCommentActivity extends AppCompatActivity {
                 commentModel2.setUser_image(userAccount.getImg_profile());
                 commentModel2.setUser_id(userAccount.getId());
                 commentModel2.setUser_name(userAccount.getName());
+                mProgress.dismiss();
             }
         });
 
-        try{
+        try {
             Glide.with(this).load(commentModel.getUser_image()).placeholder(R.drawable.ic_chat).
                     error(R.drawable.ic_chat).into(commentBinding.userImage);
-        }catch (Exception e){
+        } catch (Exception e) {
             commentBinding.userImage.setImageResource(R.drawable.ic_chat);
         }
 
-        if(commentModel.getComment_image() == null){
+        if (commentModel.getComment_image() == null) {
             commentBinding.imageComment.setVisibility(View.GONE);
             commentBinding.userOnly.setVisibility(View.GONE);
-        }else{
-            try{
+        } else {
+            try {
                 Glide.with(this).load(commentModel.getComment_image()).placeholder(R.drawable.ic_chat).
                         error(R.drawable.ic_chat).into(commentBinding.imageComment);
-            }catch (Exception e){
+            } catch (Exception e) {
                 commentBinding.imageComment.setImageResource(R.drawable.ic_chat);
             }
         }
 
-        if(commentModel.getComment().equals("")){
+        if (commentModel.getComment().equals("")) {
             commentBinding.cardCommentIn.setVisibility(View.GONE);
             commentBinding.userOnly.setVisibility(View.VISIBLE);
-        }else{
+        } else {
             commentBinding.comment.setText(commentModel.getComment());
         }
 
@@ -208,9 +211,9 @@ public class InsideCommentActivity extends AppCompatActivity {
         });
 
         commentBinding.imageSend.setOnClickListener(view -> {
-            if(CheckNetwork.getConnectivityStatusString(InsideCommentActivity.this) == 1) {
-                if(bitmap != null){
-                    byte[] bytesOutImg ;
+            if (CheckNetwork.getConnectivityStatusString(InsideCommentActivity.this) == 1) {
+                if (bitmap != null) {
+                    byte[] bytesOutImg;
                     commentModel2.setComment(commentBinding.editMessage.getText().toString());
                     commentModel2.setDate(getDateTime());
                     ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
@@ -219,36 +222,44 @@ public class InsideCommentActivity extends AppCompatActivity {
                     asyncTaskDownload = new AsyncTaskD(bytesOutImg, commentModel2.getComment(), "uploadImages");
                     asyncTaskDownload.execute();
                     bitmap = null;
-                    Log.e("image : ","EROR");
-                }else{
-                    Log.e("bitmap : ",bitmap+"");
+                    Log.e("image : ", "EROR");
+                } else {
+                    Log.e("bitmap : ", bitmap + "");
                     commentModel2.setComment_image(null);
                     commentModel2.setComment(commentBinding.editMessage.getText().toString());
                     commentModel2.setDate(getDateTime());
-                    asyncTaskDownload = new AsyncTaskD(null,  commentModel2.getComment(), "");
+                    asyncTaskDownload = new AsyncTaskD(null, commentModel2.getComment(), "");
                     asyncTaskDownload.execute();
                 }
-                check_img=false;
+                check_img = false;
                 InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(commentBinding.editMessage.getWindowToken(), 0);
 
-            }else{
+            } else {
                 Toast.makeText(InsideCommentActivity.this, "Please, Check Internet", Toast.LENGTH_SHORT).show();
             }
-            });
+        });
 
         readDataComments(new MyCallBackWriteComment() {
             @Override
             public void onCallback(Task<QuerySnapshot> task) {
                 commentModels.clear();
+                int i = 0;
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     CommentModel commentModel = document.toObject(CommentModel.class);
                     commentModels.add(commentModel);
+                    i += 1;
+                    if (task.getResult().size() == 0) {
+                        mProgress1.dismiss();
+                    }
+                    if (i == task.getResult().size()) {
+                        writeCommentAdapter = new WriteCommentAdapter(InsideCommentActivity.this, commentModels,
+                                null, getSupportFragmentManager());
+                        commentBinding.recycleComments.setAdapter(writeCommentAdapter);
+                        mProgress1.dismiss();
+                    }
                 }
-                writeCommentAdapter = new WriteCommentAdapter(InsideCommentActivity.this,commentModels,
-                        null,getSupportFragmentManager());
-                commentBinding.recycleComments.setAdapter(writeCommentAdapter);
-                mProgress.dismiss();
+
             }
         });
 
@@ -263,8 +274,8 @@ public class InsideCommentActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                check_img=false;
-                bitmap=null;
+                check_img = false;
+                bitmap = null;
                 commentBinding.constraintSendComment.setVisibility(View.GONE);
                 commentBinding.linOptionComment.setVisibility(View.VISIBLE);
                 commentBinding.relImageComment.setVisibility(View.GONE);
@@ -276,7 +287,7 @@ public class InsideCommentActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         if (commentModels != null) {
-            readDataCommentsListener(new MyCallBackListenerComments() {
+           readDataCommentsListener(new MyCallBackListenerComments() {
                 @Override
                 public void onCallBack(QuerySnapshot value) {
                     commentModels.clear();
@@ -284,59 +295,60 @@ public class InsideCommentActivity extends AppCompatActivity {
                         CommentModel commentModel = document.toObject(CommentModel.class);
                         commentModels.add(commentModel);
                     }
-                    writeCommentAdapter = new WriteCommentAdapter(InsideCommentActivity.this,commentModels,
-                            null,getSupportFragmentManager());
+                    writeCommentAdapter = new WriteCommentAdapter(InsideCommentActivity.this, commentModels,
+                            null, getSupportFragmentManager());
                     commentBinding.recycleComments.setAdapter(writeCommentAdapter);
-                    mProgress.dismiss();
                 }
             });
         }
     }
 
     public void readDataCommentsListener(MyCallBackListenerComments myCallback) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
         db.collection("posts").document(posts.getPostId()).
                 collection("comments").document(commentModel.getComment_id())
                 .collection("InsideComments")
                 .orderBy("date", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
                     commentModels.clear();
+                    Log.e("clear : ", "exception");
+
                     myCallback.onCallBack(value);
                 });
     }
 
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            check_img=true;
+            check_img = true;
             try {
                 bitmap = null;
                 bitmap = (Bitmap) data.getExtras().get("data");
-                if(bitmap != null){
+                if (bitmap != null) {
                     commentBinding.showImage.setImageBitmap(bitmap);
                     commentBinding.relImageComment.setVisibility(View.VISIBLE);
                     commentBinding.linOptionComment.setVisibility(View.GONE);
-                }else{
+                } else {
                     commentBinding.relImageComment.setVisibility(View.GONE);
-                    commentBinding.linOptionComment.setVisibility(View.VISIBLE);;
+                    commentBinding.linOptionComment.setVisibility(View.VISIBLE);
+                    ;
                 }
             } catch (Exception e) {
                 Log.e("camera exception: ", e.getMessage());
             }
         } else if (requestCode == Gallary_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            check_img=true;
+            check_img = true;
             try {
                 bitmap = null;
                 bitmap = MediaStore.Images.Media.getBitmap(getBaseContext().getContentResolver(), data.getData());
-                if(bitmap != null){
+                if (bitmap != null) {
                     commentBinding.showImage.setImageBitmap(bitmap);
                     commentBinding.relImageComment.setVisibility(View.VISIBLE);
                     commentBinding.linOptionComment.setVisibility(View.GONE);
-                }else{
+                } else {
                     commentBinding.relImageComment.setVisibility(View.GONE);
-                    commentBinding.linOptionComment.setVisibility(View.VISIBLE);;
+                    commentBinding.linOptionComment.setVisibility(View.VISIBLE);
+                    ;
                 }
             } catch (IOException e) {
                 Log.e("gallary exception: ", e.getMessage());
@@ -363,9 +375,9 @@ public class InsideCommentActivity extends AppCompatActivity {
     }
 
     public void readDataComments(MyCallBackWriteComment myCallback) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        mProgress1.setMessage("Loading..");
+        mProgress1.setCancelable(false);
+        mProgress1.show();
         db.collection("posts").document(posts.getPostId()).
                 collection("comments").document(commentModel.getComment_id())
                 .collection("InsideComments").orderBy("date", Query.Direction.DESCENDING)
@@ -411,6 +423,7 @@ public class InsideCommentActivity extends AppCompatActivity {
         String action;
         byte[] bytesOutImg;
         float prop = -1;
+
         public AsyncTaskD(byte[] bytesOutImg, String text, String action) {
             this.text = text;
             this.action = action;
@@ -437,10 +450,16 @@ public class InsideCommentActivity extends AppCompatActivity {
                 main_program = py.getModule("prolog");
             } else {
                 if (!text.isEmpty()) {
-                    Log.e("TEXT CORRECT: ",text);
+                    Log.e("TEXT CORRECT: ", text);
                     String result = main_program.callAttr("modelCommentAndPost", text).toString();
-                    prop = Float.parseFloat(result.replace("[", "").replace("]", ""));
-                }}
+                    result = result.replace("[", "").replace("]", "");
+                    if (result.equals("error")) {
+                        prop = (float) 0.1;
+                    } else {
+                        prop = Float.parseFloat(result);
+                    }
+                }
+            }
             return null;
         }
 
@@ -448,25 +467,25 @@ public class InsideCommentActivity extends AppCompatActivity {
         protected void onPostExecute(String file_url) {
             if (action.equals("first")) {
                 Log.e("first ", " first");
+                mProgressfirst.dismiss();
             } else if (prop >= 0 && prop < 0.5) {
                 if (action.equals("uploadImages")) {
-                    commentViewModel.uploadCommentInside(db, bytesOutImg, posts,commentModel, commentModel2);
+                    commentViewModel.uploadCommentInside(db, bytesOutImg, posts, commentModel, commentModel2, mProgress);
                     commentBinding.editMessage.setText("");
                     bitmap = null;
                     bytesOutImg = null;
                 } else {
-                    commentViewModel.uploadCommentInside(db, null, posts,commentModel, commentModel2);
+                    commentViewModel.uploadCommentInside(db, null, posts, commentModel, commentModel2, mProgress);
                     commentBinding.editMessage.setText("");
                 }
             } else if (prop >= 0.5) {
                 Log.e("prop failed: ", prop + "");
                 mProgress.dismiss();
-            }else if(action.equals("uploadImages")){
-                commentViewModel.uploadCommentInside(db, bytesOutImg, posts,commentModel, commentModel2);
+            } else if (action.equals("uploadImages")) {
+                commentViewModel.uploadCommentInside(db, bytesOutImg, posts, commentModel, commentModel2, mProgress);
                 commentBinding.editMessage.setText("");
                 bitmap = null;
                 bytesOutImg = null;
-                mProgress.dismiss();
             }
         }
     }
