@@ -1,4 +1,4 @@
-package com.example.drhello;
+package com.example.drhello.adapter;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,6 +7,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.drhello.R;
+import com.example.drhello.adapter.OnTranslateClickListener;
+import com.example.drhello.model.ChatBotModel;
+
 import java.util.ArrayList;
 
 import pl.droidsonroids.gif.GifImageButton;

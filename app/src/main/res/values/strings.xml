@@ -126,4 +126,16 @@
     <string name="people_who_reacted">ِPeople who reacted</string>
     <string name="friends">Friends</string>
     <string name="cancel">Cancel</string>
+
+    <string name="info_app">This application is specialized in the field of medicine, you can what you suffer from by communicating with a chat bot, as you can then with doctors so that he can guide you, whether by communicating with him through the application or in his private place, and you can also know if you suffer from chest problems , blood vessels Brain, skin cancer, heart problems, or corneal problems through X-rays displayed on the application ,Also, you can know the rate of oxygen, temperature and heart rate of a person close to you who is far from you through a dedicated part in the application, You can also publish your health problems, find out if someone else suffers from it or not, and have a conversation with the users of the application to discuss health matters.</string>
+    <string name="chatbot">Communicate with a chatbot to find out what you are complaining about</string>
+    <string name="doctors">Communicate with its doctors from the salvation of the application and know its own location</string>
+    <string name="rays">Knowing if you suffer from chest diseases, brain damage, skin cancer, irregular heartbeat, or corneal problems by viewing a ray to determine</string>
+    <string name="hardware">Knowing the temperature, oxygen rate and heart rate of a person close to you</string>
+    <string name="posts">Posting health problems with program users to find out if one of them suffers from it or not</string>
+    <string name="chats">Chatting with users to discuss their health issues</string>
+    <string name="alarms">Alarm for personal treatment appointment</string>
+    <string name="link">You have to Allow permission to background activity to enable work service in background , Please follow the instruction in the link bellow</string>
+
+
 </resources>

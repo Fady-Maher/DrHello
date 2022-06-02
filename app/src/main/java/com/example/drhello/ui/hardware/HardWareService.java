@@ -1,4 +1,4 @@
-package com.example.drhello;
+package com.example.drhello.ui.hardware;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -17,6 +17,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
+import com.example.drhello.R;
+import com.example.drhello.Restarter;
 import com.example.drhello.ui.hardware.Hardware;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

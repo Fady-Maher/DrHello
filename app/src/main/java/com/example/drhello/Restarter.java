@@ -7,6 +7,8 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.drhello.ui.hardware.HardWareService;
+
 public class Restarter extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {

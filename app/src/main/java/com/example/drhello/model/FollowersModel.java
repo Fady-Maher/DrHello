@@ -1,4 +1,4 @@
-package com.example.drhello;
+package com.example.drhello.model;
 
 import java.io.PipedReader;
 import java.io.Serializable;

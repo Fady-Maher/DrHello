@@ -17,17 +17,14 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
-import com.example.drhello.adapter.AddPersonAdapter;
-import com.example.drhello.fragment.fragmentfriends.AddFriendFragment;
-import com.example.drhello.model.ChatModel;
+import com.example.drhello.adapter.DoctorAdapter;
+import com.example.drhello.adapter.OnDoctorsClickLinstener;
 import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.chats.ChatActivity;
-import com.example.drhello.ui.profile.ProfileActivity;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
-public class DoctorsActivity extends AppCompatActivity implements OnDoctorsClickLinstener{
+public class DoctorsActivity extends AppCompatActivity implements OnDoctorsClickLinstener {
     private DoctorAdapter doctorAdapter;
     private RecyclerView rec_view;
     private ArrayList<UserAccount> doctorArrayList = new ArrayList<>();

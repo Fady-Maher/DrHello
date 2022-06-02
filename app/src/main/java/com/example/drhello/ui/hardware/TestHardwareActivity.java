@@ -1,7 +1,6 @@
 package com.example.drhello.ui.hardware;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
@@ -19,6 +18,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
@@ -26,14 +27,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.EditText;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.drhello.HardWareService;
 import com.example.drhello.R;
 import com.example.drhello.Restarter;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
@@ -43,19 +44,15 @@ import com.example.drhello.databinding.ActivityTestHardwareBinding;
 import com.example.drhello.ui.chats.GPSTracker;
 import com.example.drhello.ui.news.NewsViewModel;
 import com.example.drhello.ui.news.Source;
-import com.example.drhello.ui.profile.ProfileActivity;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ThrowOnExtraProperties;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.concurrent.TimeUnit;
 
 public class TestHardwareActivity extends AppCompatActivity {
 
@@ -68,6 +65,7 @@ public class TestHardwareActivity extends AppCompatActivity {
     private HardWareService hardWareService;
     public static ProgressDialog mProgress;
     private UserAccount userAccountme;
+    private boolean flag = true;
 
 
 
@@ -172,87 +170,26 @@ public class TestHardwareActivity extends AppCompatActivity {
                     startPulse();
                 }
 
-                hardWareService = new HardWareService();
-                mServiceIntent = new Intent(TestHardwareActivity.this, hardWareService.getClass());
-                if (!isMyServiceRunning(hardWareService.getClass())) {
-                    startService(mServiceIntent);
+                if(flag){
+                    hardWareService = new HardWareService();
+                    mServiceIntent = new Intent(TestHardwareActivity.this, hardWareService.getClass());
+                    if (!isMyServiceRunning(hardWareService.getClass())) {
+                        startService(mServiceIntent);
+                    }
+                    flag = false;
                 }
 
-
-               /* WorkRequest uploadWorkRequest =
-                        new OneTimeWorkRequest.Builder(UploadWorker.class)
-                                .build();
-
-                WorkManager.getInstance(TestHardwareActivity.this).enqueue(uploadWorkRequest);
-
-
-                */
-
-/*
-                Constraints constraints = new Constraints.Builder().setRequiresCharging(true)
-                        .setRequiredNetworkType(NetworkType.UNMETERED).build();
-
-                final PeriodicWorkRequest periodicWorkRequest1 = new PeriodicWorkRequest.Builder(UploadWorker.class,
-                        30, TimeUnit.MILLISECONDS)
-                        .setInitialDelay(1,TimeUnit.MILLISECONDS)
-                        .setConstraints(constraints).setBackoffCriteria(
-                                BackoffPolicy.LINEAR,
-                                OneTimeWorkRequest.MIN_BACKOFF_MILLIS,
-                                TimeUnit.MILLISECONDS)
-                        .build();
-
-
-                workManager =  WorkManager.getInstance(TestHardwareActivity.this);
-                workManager.enqueue(periodicWorkRequest1);
-                workManager.getWorkInfoByIdLiveData(periodicWorkRequest1.getId())
-                        .observe(TestHardwareActivity.this, new Observer<WorkInfo>() {
-                            @Override
-                            public void onChanged(@Nullable WorkInfo workInfo) {
-                                if (workInfo != null) {
-                                    Log.e("periodicWorkRequest", "Status changed to : " + workInfo.getState());
-                                }
-                            }
-                        });
-
- */
-
-
-            }
-        });
-
-
-        activityTestHardwareBinding.txtStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // If User Checked 'Don't Show Again' checkbox for runtime permission, then navigate user to Settings
-                AlertDialog.Builder dialog = new AlertDialog.Builder(TestHardwareActivity.this);
-                dialog.setTitle("Permission Required");
-                dialog.setCancelable(false);
-                dialog.setMessage("You have to Allow permission to background activity to enable work service in background , " +
-                        "can make this by click on button Allow then choose (Dr-Care) after this in ( power consumption activity )," +
-                        " please choose -- Allow background activity --  ");
-                dialog.setPositiveButton("Allow", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Intent powerUsageIntent = new Intent(Intent.ACTION_POWER_USAGE_SUMMARY);
-                        ResolveInfo resolveInfo = getPackageManager().resolveActivity(powerUsageIntent, 0);
-                        if(resolveInfo != null){
-                            startActivity(powerUsageIntent);
-                        }
-                    }
-                });
-                dialog.setNegativeButton("Deny", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(getApplicationContext(), "i am sorry hardware part not work ", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                AlertDialog alertDialog = dialog.create();
+                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(TestHardwareActivity.this);
+                LayoutInflater inflater = TestHardwareActivity.this.getLayoutInflater();
+                View dialogView = inflater.inflate(R.layout.dialog_hardware, null);
+                dialogBuilder.setView(dialogView);
+                AlertDialog alertDialog = dialogBuilder.create();
+                alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                 alertDialog.show();
 
-
             }
         });
+
 
         activityTestHardwareBinding.back.setOnClickListener(new View.OnClickListener() {
             @Override

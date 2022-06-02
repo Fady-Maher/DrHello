@@ -24,6 +24,7 @@ public class ChatBotActivity extends AppCompatActivity {
         } else {
             getWindow().setStatusBarColor(Color.WHITE);
         }
+
         activityChatBotBinding= DataBindingUtil.setContentView(ChatBotActivity.this, R.layout.activity_chat_bot);
 
         activityChatBotBinding.back.setOnClickListener(new View.OnClickListener() {

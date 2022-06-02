@@ -36,16 +36,20 @@ def model(path, model):
     return response['prediction'] + "@" + response['probability']
 
 def model_classifer(text):
-    url = "https://chat-model.herokuapp.com/predict_text"
-    headers = CaseInsensitiveDict()
-    headers["accept"] = "application/json"
-    headers["Content-Type"] = "application/json"
-    res_disease = requests.post(url, headers=headers, data=text)
-    print(res_disease.status_code)
-    js_disease = res_disease.json()
-    print(js_disease)
-    # res_knn +"@"+res_svm + "@" + res_log+"0"
-    return js_disease['prediction']
+    print(text)
+    url = "https://6fa5-102-43-167-69.eu.ngrok.io/predict_text"
+    headers = {'accept': 'application/json', 'content-type': 'application/x-www-form-urlencoded', }
+    params = {'qu': text}
+    response = requests.post(url, params=params, headers=headers)
+    print(response.status_code)
+
+    if response.status_code != 200:
+            return 'error'
+
+    response = response.json()
+    if "$" in response['prediction']:
+        response['prediction'] = response['prediction'].replace("$","&")
+    return response['prediction']
 
 
 def modelCommentAndPost(text):

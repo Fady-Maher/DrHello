@@ -7,7 +7,6 @@
          Google Maps Android API v2, but you must specify either coarse or fine
          location permissions for the "MyLocation" functionality.
     -->
-
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -35,19 +34,31 @@
         android:theme="@style/Theme.DrHello"
         tools:ignore="AllowBackup"
         tools:replace="android:supportsRtl">
+        <activity
+            android:name=".medical.OpticalActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DescriptionRayActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FeedBackActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AboutInfoActivity"
+            android:exported="false" />
+
         <receiver
-            android:name="Restarter"
+            android:name=".Restarter"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="restartservice" />
             </intent-filter>
         </receiver>
-        <service
-            android:name="HardWareService"
-            android:enabled="true" >
-        </service>
 
+        <service
+            android:name=".ui.hardware.HardWareService"
+            android:enabled="true" />
 
         <activity
             android:name=".medical.HeartActivity"
@@ -60,7 +71,9 @@
             android:exported="false" />
         <activity
             android:name=".BotActivity"
-            android:exported="true" />
+            android:exported="true" >
+
+        </activity>
         <activity
             android:name=".ChatBotActivity"
             android:exported="false" />
@@ -88,9 +101,7 @@
         <activity android:name=".ui.hardware.HardwareActivity" />
         <activity
             android:name=".ui.hardware.TestHardwareActivity"
-            android:exported="true" >
-
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.chats.AddPersonActivity"
             android:exported="true" />

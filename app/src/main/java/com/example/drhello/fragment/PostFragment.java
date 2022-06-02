@@ -15,9 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,13 +27,11 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.drhello.MyCallbackDeleteItem;
-import com.example.drhello.MyCallbackDeletePost;
-import com.example.drhello.adapter.AddPersonAdapter;
+import com.example.drhello.firebaseinterface.MyCallbackDeleteItem;
+import com.example.drhello.firebaseinterface.MyCallbackDeletePost;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
 import com.example.drhello.firebaseinterface.MyCallBackReaction;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
-import com.example.drhello.fragment.fragmentfriends.AddFriendFragment;
 import com.example.drhello.ui.profile.ProfileActivity;
 import com.example.drhello.ui.writepost.NumReactionActivity;
 import com.example.drhello.model.ReactionType;

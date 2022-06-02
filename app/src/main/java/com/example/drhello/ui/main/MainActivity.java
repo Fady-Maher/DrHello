@@ -10,22 +10,29 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
+import com.example.drhello.AboutInfoActivity;
 import com.example.drhello.ChatBotActivity;
+import com.example.drhello.FeedBackActivity;
 import com.example.drhello.SavedPostsActivity;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.connectionnewtwork.NetworkChangeListener;
@@ -280,8 +287,51 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             intent.putExtra("userAccount",userAccount);
             startActivity(intent);
             adapter.setSelected(HOME);
+        }else if (position==ABOUT){
+            Intent intent=new Intent(MainActivity.this, AboutInfoActivity.class);
+            startActivity(intent);
+            adapter.setSelected(HOME);
+        }else if (position==FEEDBACK){
+            Intent intent=new Intent(MainActivity.this, FeedBackActivity.class);
+            startActivity(intent);
+            adapter.setSelected(HOME);
+        }else if (position==CONTACT){
+            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+            LayoutInflater inflater = this.getLayoutInflater();
+            View dialogView = inflater.inflate(R.layout.contact_us, null);
+            dialogBuilder.setView(dialogView);
+
+            Button btn_google =  dialogView.findViewById(R.id.btn_google);
+            Button btn_face =  dialogView.findViewById(R.id.btn_face);
+            AlertDialog alertDialog = dialogBuilder.create();
+            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            slidingRootNav.closeMenu();
+
+            alertDialog.show();
+
+            btn_google.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent browse=new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("https://www.facebook.com/Daily-News-109948707528539/"));
+                    startActivity(browse);
+                    alertDialog.dismiss();
+
+                }
+            });
+
+            btn_face.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO ,
+                            Uri.parse("mailto:" + "careeasy6@gmail.com"));
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT,"Contact Owner");
+                    startActivity(emailIntent);
+                    alertDialog.dismiss();
+
+                }
+            });
         }
-        slidingRootNav.closeMenu();
     }
 
     private DrawerItem createFor(int position){

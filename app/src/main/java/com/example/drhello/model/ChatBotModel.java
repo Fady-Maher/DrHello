@@ -1,4 +1,4 @@
-package com.example.drhello;
+package com.example.drhello.model;
 
 public class ChatBotModel {
     String text,date,temp;

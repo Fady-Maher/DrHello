@@ -24,7 +24,7 @@ import android.widget.Toast;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
-import com.example.drhello.OnClickDoctorInterface;
+import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.databinding.ActivityHeartBinding;
@@ -65,7 +65,11 @@ public class HeartActivity extends AppCompatActivity implements OnClickDoctorInt
         asyncTaskDownload.execute();
 
         activityHeartBinding = DataBindingUtil.setContentView(HeartActivity.this, R.layout.activity_heart);
-
+        activityHeartBinding.txtResult0.setText(stringsHeart[0]);
+        activityHeartBinding.txtResult1.setText(stringsHeart[1]);
+        activityHeartBinding.txtResult2.setText(stringsHeart[2]);
+        activityHeartBinding.txtResult3.setText(stringsHeart[3]);
+        activityHeartBinding.txtResult4.setText(stringsHeart[4]);
         activityHeartBinding.back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,12 +77,11 @@ public class HeartActivity extends AppCompatActivity implements OnClickDoctorInt
             }
         });
 
-        sliderItems.add(new SliderItem(R.drawable.actinic_keratoses, "Actinic keratoses"));
-        sliderItems.add(new SliderItem(R.drawable.basal_cell_carcinoma, "Basal Cell Carcinoma"));
-        sliderItems.add(new SliderItem(R.drawable.benign_keratosis_like, "Benign Keratosis Like"));
-        sliderItems.add(new SliderItem(R.drawable.der, "Dermatofibroma"));
-        sliderItems.add(new SliderItem(R.drawable.melanocytic_nevi, "Melanocytic Nevi"));
-        sliderItems.add(new SliderItem(R.drawable.vascular_lesions, "Vascular Lesions"));
+        sliderItems.add(new SliderItem(R.drawable.supraventricular_ectopic_beats, "Supraventricular"));
+        sliderItems.add(new SliderItem(R.drawable.unknow, "Unknown"));
+        sliderItems.add(new SliderItem(R.drawable.ventricular_ectopic_beats, "Ventricular"));
+        sliderItems.add(new SliderItem(R.drawable.normal_beats, "Normal"));
+        sliderItems.add(new SliderItem(R.drawable.fusion_beats, "Fusion"));
 
 
         SliderAdapter sliderAdapter = new SliderAdapter(sliderItems, HeartActivity.this,HeartActivity.this);
@@ -173,6 +176,7 @@ public class HeartActivity extends AppCompatActivity implements OnClickDoctorInt
 
         String path;
         String action;
+        String[] prop;
         public AsyncTaskD(String path,String action){
             this.path = path;
             this.action = action;
@@ -200,18 +204,8 @@ public class HeartActivity extends AppCompatActivity implements OnClickDoctorInt
                 String probStr = listResult[1].replace("[","")
                         .replace("]","")
                         .replace("\"","");
-                String[] prop = probStr.split(" ");
-                if (prediction == 0) {
-                    activityHeartBinding.txtResult.setText(stringsHeart[0] + " :  " + String.format("%.2f", Float.parseFloat(prop[0]) * 100) );
-                } else if (prediction == 1) {
-                    activityHeartBinding.txtResult.setText(stringsHeart[1] + " :  " + String.format("%.2f", Float.parseFloat(prop[1]) * 100) );
-                } else if (prediction == 2) {
-                    activityHeartBinding.txtResult.setText(stringsHeart[2] + " :  " + String.format("%.2f", Float.parseFloat(prop[2]) * 100) );
-                } else if (prediction == 3) {
-                    activityHeartBinding.txtResult.setText(stringsHeart[3] + " :  " + String.format("%.2f", Float.parseFloat(prop[3]) * 100) );
-                }else if (prediction == 4) {
-                    activityHeartBinding.txtResult.setText(stringsHeart[4] + " :  " + String.format("%.2f", Float.parseFloat(prop[4]) * 100) );
-                }
+                prop = probStr.split(" ");
+
             }
             mProgress.dismiss();
             return null;
@@ -219,6 +213,13 @@ public class HeartActivity extends AppCompatActivity implements OnClickDoctorInt
 
         @Override
         protected void onPostExecute(String file_url) {
+            if(!action.equals("first")){
+                activityHeartBinding.progress0.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
+                activityHeartBinding.progress1.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
+                activityHeartBinding.progress2.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
+                activityHeartBinding.progress3.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
+                activityHeartBinding.progress3.setAdProgress((int) (Float.parseFloat(prop[4]) *100));
+            }
         }
     }
 }

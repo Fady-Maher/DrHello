@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
+import com.example.drhello.adapter.OnClickDoctorInterface;
+
 public class AutoScrollRecyclerView extends RecyclerView {
 
     private static final String TAG = AutoScrollRecyclerView.class.getSimpleName();

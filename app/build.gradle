@@ -189,7 +189,7 @@ dependencies {
 
 // optional - Test helpers
     androidTestImplementation "androidx.work:work-testing:$work_version"
-
-
+    implementation 'com.github.sujithkanna:smileyrating:2.0.0'
+    implementation 'com.github.Adilhusen:circle-progress-ad-android-:1.0'
 }
 apply plugin: 'com.google.gms.google-services'

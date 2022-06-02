@@ -1,4 +1,4 @@
-package com.example.drhello;
+package com.example.drhello.adapter;
 
 public interface OnClickSelectAlarm {
     void OnClick(int mReminderClickID);

@@ -22,27 +22,15 @@ import android.widget.Toast;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
-import com.example.drhello.OnClickDoctorInterface;
+import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.databinding.ActivityBrainBinding;
-import com.example.drhello.databinding.ActivityChestBinding;
-import com.example.drhello.fragment.HomeFragment;
 import com.example.drhello.model.SliderItem;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.ml.modeldownloader.CustomModel;
-import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
-import com.google.firebase.ml.modeldownloader.DownloadType;
-import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
-
-import org.tensorflow.lite.Interpreter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 public class BrainActivity extends AppCompatActivity implements OnClickDoctorInterface {
@@ -71,6 +59,10 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
         asyncTaskDownload.execute();
 
         activityBrainBinding = DataBindingUtil.setContentView(BrainActivity.this, R.layout.activity_brain);
+        activityBrainBinding.txtResult0.setText(stringsTumor[0]);
+        activityBrainBinding.txtResult1.setText(stringsTumor[1]);
+        activityBrainBinding.txtResult2.setText(stringsTumor[2]);
+        activityBrainBinding.txtResult3.setText(stringsTumor[3]);
 
         activityBrainBinding.back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,6 +165,7 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
 
         String path;
         String action;
+        String[] prop;
         public AsyncTaskD(String path,String action){
             this.path = path;
             this.action = action;
@@ -200,16 +193,8 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
                 String probStr = listResult[1].replace("[","")
                         .replace("]","")
                         .replace("\"","");
-                String[] prop = probStr.split(" ");
-                if (prediction == 0) {
-                    activityBrainBinding.txtResult.setText(stringsTumor[0] + " :  " + String.format("%.2f", Float.parseFloat(prop[0]) * 100) );
-                } else if (prediction == 1) {
-                    activityBrainBinding.txtResult.setText(stringsTumor[1] + " :  " + String.format("%.2f", Float.parseFloat(prop[1]) * 100) );
-                } else if (prediction == 2) {
-                    activityBrainBinding.txtResult.setText(stringsTumor[2] + " :  " + String.format("%.2f", Float.parseFloat(prop[2]) * 100) );
-                } else if (prediction == 3) {
-                    activityBrainBinding.txtResult.setText(stringsTumor[3] + " :  " + String.format("%.2f", Float.parseFloat(prop[3]) * 100) );
-                }
+                 prop = probStr.split(" ");
+
             }
             mProgress.dismiss();
             return null;
@@ -217,6 +202,12 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
 
         @Override
         protected void onPostExecute(String file_url) {
+            if(!action.equals("first")){
+                activityBrainBinding.progress0.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
+                activityBrainBinding.progress1.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
+                activityBrainBinding.progress2.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
+                activityBrainBinding.progress3.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
+            }
         }
     }
 

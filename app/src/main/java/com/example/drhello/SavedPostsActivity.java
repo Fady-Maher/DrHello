@@ -72,7 +72,12 @@ public class SavedPostsActivity extends AppCompatActivity implements OnPostClick
             getWindow().setStatusBarColor(Color.WHITE);
         }
         activityPostsUsersBinding = DataBindingUtil.setContentView(this, R.layout.activity_posts_users);
-
+        activityPostsUsersBinding.back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
         db = FirebaseFirestore.getInstance();
         mProgress = new ProgressDialog(SavedPostsActivity.this);
 

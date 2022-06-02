@@ -1,14 +1,11 @@
 package com.example.drhello.model;
 
-import com.example.drhello.FollowersModel;
 import com.example.drhello.ui.profile.UserInformation;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
-import retrofit2.http.POST;
 
 public class UserAccount implements Serializable {
     private String img_profile , name , email , pass ,date , id , tokenID , sign_up_method ,state,follows;

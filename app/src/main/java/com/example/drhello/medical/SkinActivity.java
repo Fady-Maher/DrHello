@@ -1,6 +1,5 @@
 package com.example.drhello.medical;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
@@ -25,36 +24,17 @@ import android.widget.Toast;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
-import com.example.drhello.OnClickDoctorInterface;
+import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
-import com.example.drhello.databinding.ActivityBrainBinding;
 import com.example.drhello.databinding.ActivitySkinBinding;
 import com.example.drhello.model.SliderItem;
 import com.example.drhello.textclean.RequestPermissions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.ml.modeldownloader.CustomModel;
-import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
-import com.google.firebase.ml.modeldownloader.DownloadType;
-import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-
-import org.tensorflow.lite.Interpreter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class SkinActivity extends AppCompatActivity implements OnClickDoctorInterface {
     private ActivitySkinBinding activitySkinBinding;
@@ -94,7 +74,13 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
         asyncTaskDownload.execute();
 
         activitySkinBinding = DataBindingUtil.setContentView(SkinActivity.this, R.layout.activity_skin);
-
+        activitySkinBinding.txtResult0.setText(stringsSkin[0]);
+        activitySkinBinding.txtResult1.setText(stringsSkin[1]);
+        activitySkinBinding.txtResult2.setText(stringsSkin[2]);
+        activitySkinBinding.txtResult3.setText(stringsSkin[3]);
+        activitySkinBinding.txtResult4.setText(stringsSkin[4]);
+        activitySkinBinding.txtResult3.setText(stringsSkin[5]);
+        activitySkinBinding.txtResult4.setText(stringsSkin[6]);
         activitySkinBinding.back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -199,6 +185,7 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
 
         String path;
         String action;
+        String[] prop;
         public AsyncTaskD(String path,String action){
             this.path = path;
             this.action = action;
@@ -223,25 +210,11 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
                 String result = main_program.callAttr("model",path,"Skin").toString();
                 String[] listResult = result.split("@");
                 int prediction = Integer.parseInt(listResult[0]);
+                Log.e("listResult[1]: ", listResult[1].replace("\n","") + "");
                 String probStr = listResult[1].replace("[","")
-                        .replace("]","")
-                        .replace("\"","");
-                String[] prop = probStr.split(" ");
-                if (prediction == 0) {
-                    activitySkinBinding.txtResult.setText(stringsSkin[0] + " :  " + String.format("%.2f", Float.parseFloat(prop[0]) * 100) );
-                } else if (prediction == 1) {
-                    activitySkinBinding.txtResult.setText(stringsSkin[1] + " :  " + String.format("%.2f", Float.parseFloat(prop[1]) * 100) );
-                } else if (prediction == 2) {
-                    activitySkinBinding.txtResult.setText(stringsSkin[2] + " :  " + String.format("%.2f", Float.parseFloat(prop[2]) * 100) );
-                } else if (prediction == 3) {
-                    activitySkinBinding.txtResult.setText(stringsSkin[3] + " :  " + String.format("%.2f", Float.parseFloat(prop[3]) * 100) );
-                }else if (prediction == 4) {
-                    activitySkinBinding.txtResult.setText(stringsSkin[4] + " :  " + String.format("%.2f", Float.parseFloat(prop[4]) * 100) );
-                }else if (prediction == 5) {
-                    activitySkinBinding.txtResult.setText(stringsSkin[5] + " :  " + String.format("%.2f", Float.parseFloat(prop[5]) * 100) );
-                }else if (prediction == 6) {
-                    activitySkinBinding.txtResult.setText(stringsSkin[6] + " :  " + String.format("%.2f", Float.parseFloat(prop[6]) * 100) );
-                }
+                        .replace("]","").replace("\n","");
+                Log.e("probStr: ", probStr.trim());
+                prop = probStr.trim().split(" ");
             }
             mProgress.dismiss();
             return null;
@@ -249,6 +222,15 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
 
         @Override
         protected void onPostExecute(String file_url) {
+            if(!action.equals("first")){
+                activitySkinBinding.progress0.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
+                activitySkinBinding.progress1.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
+                activitySkinBinding.progress2.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
+                activitySkinBinding.progress3.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
+                activitySkinBinding.progress4.setAdProgress((int) (Float.parseFloat(prop[4]) *100));
+                activitySkinBinding.progress5.setAdProgress((int) (Float.parseFloat(prop[5]) *100));
+                activitySkinBinding.progress6.setAdProgress((int) (Float.parseFloat(prop[7]) *100));
+            }
         }
     }
 }

@@ -1,51 +1,28 @@
 package com.example.drhello.ui.alarm;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.ActionMode;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.amulyakhare.textdrawable.TextDrawable;
-import com.amulyakhare.textdrawable.util.ColorGenerator;
-import com.bignerdranch.android.multiselector.ModalMultiSelectorCallback;
-import com.bignerdranch.android.multiselector.MultiSelector;
-import com.bignerdranch.android.multiselector.SwappingHolder;
-import com.example.drhello.OnClickSelectAlarm;
+import com.example.drhello.adapter.OnClickSelectAlarm;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SimpleAdapterAlarm;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.database.ReminderDatabase;
 import com.example.drhello.databinding.ActivityAlarmListBinding;
-import com.example.drhello.model.DateTimeSorter;
 import com.example.drhello.model.Reminder;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Objects;
+
 public class AlarmListActivity extends AppCompatActivity implements OnClickSelectAlarm {
     ActivityAlarmListBinding alarmListBinding;
     private ReminderDatabase rb;

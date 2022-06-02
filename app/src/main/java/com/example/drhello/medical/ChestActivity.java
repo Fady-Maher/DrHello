@@ -1,15 +1,8 @@
 package com.example.drhello.medical;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
-import androidx.loader.content.CursorLoader;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.CompositePageTransformer;
-import androidx.viewpager2.widget.MarginPageTransformer;
-import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
 import android.app.Activity;
@@ -23,8 +16,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -33,52 +24,18 @@ import android.widget.Toast;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
-import com.example.drhello.OnClickDoctorInterface;
+import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
-import com.example.drhello.databinding.ActivityChatBinding;
 import com.example.drhello.databinding.ActivityChestBinding;
-import com.example.drhello.databinding.ActivityNumReactionBinding;
-import com.example.drhello.fragment.HomeFragment;
-import com.example.drhello.model.CommentModel;
-import com.example.drhello.model.Posts;
 import com.example.drhello.model.SliderItem;
 import com.example.drhello.textclean.RequestPermissions;
-import com.example.drhello.ui.writecomment.InsideCommentActivity;
-import com.example.drhello.ui.writecomment.WriteCommentActivity;
-import com.example.drhello.ui.writepost.NumReactionActivity;
-import com.example.drhello.ui.writepost.WritePostsActivity;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.ml.modeldownloader.CustomModel;
-import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
-import com.google.firebase.ml.modeldownloader.DownloadType;
-import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import org.tensorflow.lite.Interpreter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 public class ChestActivity extends AppCompatActivity implements OnClickDoctorInterface {
     private ActivityChestBinding activityChestBinding;
@@ -100,11 +57,17 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
+
+
         requestPermissions = new RequestPermissions(ChestActivity.this,ChestActivity.this);
 
         mProgress = new ProgressDialog(ChestActivity.this);
 
         activityChestBinding = DataBindingUtil.setContentView(ChestActivity.this, R.layout.activity_chest);
+        activityChestBinding.txtResult0.setText(stringsChest[0]);
+        activityChestBinding.txtResult1.setText(stringsChest[1]);
+        activityChestBinding.txtResult2.setText(stringsChest[2]);
+        activityChestBinding.txtResult3.setText(stringsChest[3]);
 
         AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
         asyncTaskDownload.execute();
@@ -164,6 +127,7 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         });
     }
 
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == Gallary_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
@@ -177,7 +141,6 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
                 Log.e("gallary exception: ", e.getMessage());
             }
         } else if (resultCode == Activity.RESULT_CANCELED) {
-            // Toast.makeText(getBaseContext(), "Canceled", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -209,6 +172,7 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
 
         String path;
         String action;
+        String[] prop;
         public AsyncTaskD(String path,String action){
             this.path = path;
             this.action = action;
@@ -236,16 +200,8 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
                 String probStr = listResult[1].replace("[","")
                         .replace("]","")
                         .replace("\"","");
-                String[] prop = probStr.split(" ");
-                if (prediction == 0) {
-                    activityChestBinding.txtResult.setText(stringsChest[0] + " :  " + String.format("%.2f", Float.parseFloat(prop[0]) * 100) );
-                } else if (prediction == 1) {
-                    activityChestBinding.txtResult.setText(stringsChest[1] + " :  " + String.format("%.2f", Float.parseFloat(prop[1]) * 100) );
-                } else if (prediction == 2) {
-                    activityChestBinding.txtResult.setText(stringsChest[2] + " :  " + String.format("%.2f", Float.parseFloat(prop[2]) * 100) );
-                } else if (prediction == 3) {
-                    activityChestBinding.txtResult.setText(stringsChest[3] + " :  " + String.format("%.2f", Float.parseFloat(prop[3]) * 100) );
-                }
+                prop = probStr.split(" ");
+
             }
             mProgress.dismiss();
             return null;
@@ -253,6 +209,12 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
 
         @Override
         protected void onPostExecute(String file_url) {
+            if(!action.equals("first")){
+                activityChestBinding.progress0.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
+                activityChestBinding.progress1.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
+                activityChestBinding.progress2.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
+                activityChestBinding.progress3.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
+            }
         }
     }
 }
