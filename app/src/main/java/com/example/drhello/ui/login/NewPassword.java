@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import com.example.drhello.R;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.databinding.ActivityNewPasswordBinding;
 import com.example.drhello.signup.PasswordStrength;
 import com.example.drhello.model.UserAccount;
@@ -27,8 +28,9 @@ public class NewPassword extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     private String email;
-    private ProgressDialog mProgress;
     private UserAccount userAccount;
+    ShowDialogPython showDialogPython;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +42,7 @@ public class NewPassword extends AppCompatActivity {
         }
 
         newPasswordBinding = DataBindingUtil.setContentView(this, R.layout.activity_new_password);
-        mProgress = new ProgressDialog(this);
+
 
         if(getIntent().getStringExtra("email") != null){
             email  = getIntent().getStringExtra("email");
@@ -60,10 +62,8 @@ public class NewPassword extends AppCompatActivity {
 
 
         newPasswordBinding.btnUpdatePasswordSign.setOnClickListener(view -> {
-            mProgress.setTitle("Updateing Password");
-            mProgress.setMessage("Please wait...");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(NewPassword.this,NewPassword.this.getLayoutInflater(),"load");
+
             checkPasswordStrength();
         });
     }
@@ -77,14 +77,14 @@ public class NewPassword extends AppCompatActivity {
             newPasswordBinding.editPassNewpassword.getEditText().setError("password is needed");
             newPasswordBinding.editPassNewpassword.getEditText().requestFocus();
             newPasswordBinding.editPassNewpassword.setPasswordVisibilityToggleEnabled(false);
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
             return;
         }
         if (!pass.equals(confirmPass)) {
             newPasswordBinding.editConfirmpassNewpassword.getEditText().setError("password and confirm should match");
             newPasswordBinding.editConfirmpassNewpassword.getEditText().requestFocus();
             newPasswordBinding.editConfirmpassNewpassword.setPasswordVisibilityToggleEnabled(false);
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
             return;
         }
         if (!(PasswordStrength.calculateStrength(pass).getValue() > PasswordStrength.STRONG.getValue())) {
@@ -92,7 +92,7 @@ public class NewPassword extends AppCompatActivity {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
             newPasswordBinding.editPassNewpassword.getEditText().requestFocus();
             newPasswordBinding.editPassNewpassword.setPasswordVisibilityToggleEnabled(false);
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
             return;
         }
 
@@ -122,20 +122,20 @@ public class NewPassword extends AppCompatActivity {
                                           }else{
                                               Toast.makeText(getApplicationContext(), "failed to update password, Please try again later (5 Hour) And if this is repeated, Please contact our support team.", Toast.LENGTH_SHORT).show();
                                           }
-                                          mProgress.dismiss();
+                                          showDialogPython.dismissDialog();
                                           FirebaseAuth.getInstance().signOut();
                                           Intent intent=new Intent(NewPassword.this, SignIn.class);
                                           intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                           startActivity(intent);
                                       });
                             }else{
-                                mProgress.dismiss();
-                          //      Toast.makeText(getApplicationContext(), "failed to update password", Toast.LENGTH_SHORT).show();
+                                showDialogPython.dismissDialog();
+                                //      Toast.makeText(getApplicationContext(), "failed to update password", Toast.LENGTH_SHORT).show();
                             }
 
                         });
             } else {
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
                 Log.e("except : ", Objects.requireNonNull(task.getException()).toString());
            //     Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }

@@ -29,6 +29,7 @@ import com.bumptech.glide.Glide;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.medical.ChestActivity;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
@@ -50,12 +51,22 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.ml.modeldownloader.CustomModel;
+import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
+import com.google.firebase.ml.modeldownloader.DownloadType;
+import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import org.tensorflow.lite.Interpreter;
+
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -66,7 +77,6 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class WritePostsActivity extends AppCompatActivity {
-
     private final List<Bitmap> bitmaps = new ArrayList<>();
     private final List<String> uriImage = new ArrayList<>();
     private final List<Uri> uriImage2 = new ArrayList<>();
@@ -74,9 +84,7 @@ public class WritePostsActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private StorageReference storageReference;
-    private StorageReference ref;
     private Posts posts;
-    public static ProgressDialog mProgress;
     private PostsViewModel postsViewModel;
     private static final String TAG = "Posts Activity";
     private ActivityWritePostsBinding activityWritePostsBinding;
@@ -84,7 +92,7 @@ public class WritePostsActivity extends AppCompatActivity {
     private UserAccount userAccount;
     PyObject main_program;
     float prop;
-
+    private ShowDialogPython showDialogPython;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,7 +103,6 @@ public class WritePostsActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.WHITE);
         }
         requestPermissions = new RequestPermissions(WritePostsActivity.this, WritePostsActivity.this);
-
         inti();
 
         AsyncTaskD asyncTaskDownload = new AsyncTaskD("post", "first");
@@ -109,10 +116,10 @@ public class WritePostsActivity extends AppCompatActivity {
             public void onCallback(DocumentSnapshot documentSnapshot) {
                 if (!documentSnapshot.exists()) {
                     FirebaseAuth.getInstance().getCurrentUser().delete();
-                    mProgress.dismiss();
+                    showDialogPython.dismissDialog();
                 } else {
                     userAccount = documentSnapshot.toObject(UserAccount.class);
-                    mProgress.dismiss();
+                    showDialogPython.dismissDialog();
                     posts.setNameUser(userAccount.getName());
                     posts.setImageUser(userAccount.getImg_profile());
                     posts.setDate(getDateTime());
@@ -145,6 +152,7 @@ public class WritePostsActivity extends AppCompatActivity {
                             } else {
                                 Toast.makeText(WritePostsActivity.this, "Please, Check Internet", Toast.LENGTH_SHORT).show();
                             }
+
                         });
                     } else {
                         //to upload post
@@ -188,9 +196,7 @@ public class WritePostsActivity extends AppCompatActivity {
     public void readData(MyCallbackUser myCallback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            mProgress.setMessage("Loading..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(WritePostsActivity.this,WritePostsActivity.this.getLayoutInflater(),"upload");
             FirebaseFirestore.getInstance().collection("users")
                     .document(currentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -208,7 +214,6 @@ public class WritePostsActivity extends AppCompatActivity {
     }
 
     private void inti() {
-        mProgress = new ProgressDialog(this);
         Toolbar toolbar = findViewById(R.id.toolbar_posts);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setTitle("");
@@ -326,9 +331,7 @@ public class WritePostsActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             if (!action.equals("first")) {
-                mProgress.setMessage("Uploading..");
-                mProgress.show();
-                mProgress.setCancelable(false);
+                showDialogPython = new ShowDialogPython(WritePostsActivity.this,WritePostsActivity.this.getLayoutInflater(),"upload");
             }
         }
 
@@ -342,14 +345,7 @@ public class WritePostsActivity extends AppCompatActivity {
                 main_program = py.getModule("prolog");
             } else {
                 if (!text.isEmpty()) {
-                    Log.e("TEXT CORRECT: ",text);
-                    String result = main_program.callAttr("modelCommentAndPost", text).toString();
-                    result = result.replace("[", "").replace("]", "");
-                    if (result.equals("error")){
-                        prop = (float) 0.1;
-                    }else {
-                        prop = Float.parseFloat(result);
-                    }
+                    modelFire(text);
                 }
             }
             return null;
@@ -362,7 +358,7 @@ public class WritePostsActivity extends AppCompatActivity {
             } else if (action.equals("uploadImages")) {
                 if (prop >= 0.5) {
                     Log.e("prop failed: ", prop + "");
-                    mProgress.dismiss();
+                    showDialogPython.dismissDialog();
                 } else {
                     Log.e("prop good: ", prop + "");
                     Log.e("posts.getnameuser ", posts.getImageUser());
@@ -383,7 +379,7 @@ public class WritePostsActivity extends AppCompatActivity {
                                     WritePostsActivity.this,
                                     posts.getImageUser());
                             fcmNotificationsSender.SendNotifications();
-                            mProgress.dismiss();
+                            showDialogPython.dismissDialog();
                             Intent intent = new Intent(WritePostsActivity.this, MainActivity.class);
                             intent.putExtra("postsView", "postsView");
                             startActivity(intent);
@@ -409,7 +405,7 @@ public class WritePostsActivity extends AppCompatActivity {
                                         WritePostsActivity.this,
                                         posts.getImageUser());
                                 fcmNotificationsSender.SendNotifications();
-                                mProgress.dismiss();
+                                showDialogPython.dismissDialog();
                                 Intent intent = new Intent(WritePostsActivity.this, MainActivity.class);
                                 intent.putExtra("postsView", "postsView");
                                 startActivity(intent);
@@ -423,8 +419,62 @@ public class WritePostsActivity extends AppCompatActivity {
                     });
                 }
             }
+
         }
+
+
     }
 
+    private void modelFire(String text) {
+        String result = main_program.callAttr("predictComment", text,getKeyboardLanguage(text)).toString();
+        result = result.replace("[", "").replace("]", "");
+        String[] strings = result.split(", ");
+        Log.e("result: ", result);
+        float[][] input = new float[1][300];
+        for (int i = 0; i < strings.length; i++) {
+            input[0][i] = Float.parseFloat(strings[i]);
+        }
+        CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
+                .requireWifi()
+                .build();
+        Task<CustomModel> model;
+        if(getKeyboardLanguage(text).equals("EN")){
+            Log.e("lang : ",   "EN");
+            model = FirebaseModelDownloader.getInstance()
+                    .getModel("HateAbusiveModelEN", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions);
+        }else{
+            Log.e("lang : ",   "AR");
+            model = FirebaseModelDownloader.getInstance()
+                    .getModel("arabicHateOff", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions);
+        }
+
+        model.addOnSuccessListener(new OnSuccessListener<CustomModel>() {
+                    @Override
+                    public void onSuccess(CustomModel model) {
+                        File modelFile = model.getFile();
+                        Log.e("modelFile : ", modelFile + "");
+                        if (modelFile != null) {
+                            Interpreter interpreter = new Interpreter(modelFile);
+                            int bufferSize = 1 * java.lang.Float.SIZE / java.lang.Byte.SIZE;
+                            ByteBuffer modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
+                            interpreter.run(input, modelOutput);
+                            modelOutput.rewind();
+                            FloatBuffer probabilities = modelOutput.asFloatBuffer();
+                            prop = probabilities.get(0);
+                            Log.e("MAX : ", prop * 100 + "");
+                        }
+                    }
+                });
+    }
+
+    public static String getKeyboardLanguage(String s) {
+        for (int i = 0; i < s.length();) {
+            int c = s.codePointAt(i);
+            if (c >= 0x0600 && c <= 0x06E0)
+                return "AR";
+            i += Character.charCount(c);
+        }
+        return "EN";
+    }
 
 }

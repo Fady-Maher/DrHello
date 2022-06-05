@@ -44,9 +44,10 @@ public class PostsUsersActivity extends AppCompatActivity implements  OnPostClic
     ArrayList<Posts> postsArrayList = new ArrayList<>();
     private PostsAdapter postsAdapter;
     private FirebaseFirestore db;
-    public static ProgressDialog mProgress;
+
     private ActivityPostsUsersBinding activityPostsUsersBinding;
     private UserAccount userAccount;
+    ShowDialogPython showDialogPython;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +66,6 @@ public class PostsUsersActivity extends AppCompatActivity implements  OnPostClic
             }
         });
         db = FirebaseFirestore.getInstance();
-        mProgress = new ProgressDialog(PostsUsersActivity.this);
 
         if (getIntent().getSerializableExtra("userAccount") != null) {
             userAccount = (UserAccount) getIntent().getSerializableExtra("userAccount");
@@ -143,7 +143,7 @@ public class PostsUsersActivity extends AppCompatActivity implements  OnPostClic
             @Override
             public void onCallBack(Task<Void> task) {
                 if (task.isSuccessful())
-                    mProgress.dismiss();
+                showDialogPython.dismissDialog();
             }
         }, posts);
 
@@ -162,9 +162,7 @@ public class PostsUsersActivity extends AppCompatActivity implements  OnPostClic
     }
 
     public void readDataReadction(MyCallBackReaction myCallback, Posts posts) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(PostsUsersActivity.this,PostsUsersActivity.this.getLayoutInflater(),"load");
         db.collection("posts").document(posts.getPostId()).set(posts)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override

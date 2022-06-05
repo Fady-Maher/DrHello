@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
@@ -32,6 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class BrainActivity extends AppCompatActivity implements OnClickDoctorInterface {
     private ActivityBrainBinding activityBrainBinding;
@@ -39,7 +41,7 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
     private String[] stringsTumor = {"Glioma_Tumor", "Meningioma Tumor", "No Tumor", "Pituitary Tumor"};
     private static final int Gallary_REQUEST_CODE = 1;
     PyObject main_program;
-    public static ProgressDialog mProgress;
+    ShowDialogPython showDialogPython;
     private Bitmap bitmap;
     String path = "";
 
@@ -54,15 +56,11 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
-        mProgress = new ProgressDialog(BrainActivity.this);
         AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
         asyncTaskDownload.execute();
 
         activityBrainBinding = DataBindingUtil.setContentView(BrainActivity.this, R.layout.activity_brain);
-        activityBrainBinding.txtResult0.setText(stringsTumor[0]);
-        activityBrainBinding.txtResult1.setText(stringsTumor[1]);
-        activityBrainBinding.txtResult2.setText(stringsTumor[2]);
-        activityBrainBinding.txtResult3.setText(stringsTumor[3]);
+        activityBrainBinding.shimmer.startShimmerAnimation();
 
         activityBrainBinding.back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,11 +69,10 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
             }
         });
 
-
         sliderItems.add(new SliderItem(R.drawable.no_tumor, "No Tumor"));
         sliderItems.add(new SliderItem(R.drawable.pituitary, "Pituitary"));
         sliderItems.add(new SliderItem(R.drawable.meningioma, "Meningioma"));
-        sliderItems.add(new SliderItem(R.drawable.pneumonia, "Pneumonia"));
+        sliderItems.add(new SliderItem(R.drawable.glioma_tumor, "Glioma"));
 
         SliderAdapter sliderAdapter = new SliderAdapter(sliderItems, BrainActivity.this,BrainActivity.this);
 
@@ -107,15 +104,12 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
                         AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD(path,"");
                         asyncTaskDownloadAudio.execute();
                     }
-
                     bitmap = null;
                 } else {
                     Toast.makeText(BrainActivity.this, "Please, Choose Image First!!", Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
-
     }
 
 
@@ -134,7 +128,6 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
         } else if (resultCode == Activity.RESULT_CANCELED) {
             // Toast.makeText(getBaseContext(), "Canceled", Toast.LENGTH_SHORT).show();
         }
-
     }
 
     @Override
@@ -145,7 +138,7 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "IMG_" + Calendar.getInstance().getTime(), null);
         return Uri.parse(path);
     }
 
@@ -160,7 +153,6 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
         return result;
     }
 
-
     public class AsyncTaskD extends AsyncTask<String, String, String> {
 
         String path;
@@ -170,12 +162,11 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
             this.path = path;
             this.action = action;
         }
+
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mProgress.setMessage("Image Processing..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(BrainActivity.this,BrainActivity.this.getLayoutInflater(),"load");
         }
 
         @Override
@@ -194,20 +185,20 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
                         .replace("]","")
                         .replace("\"","");
                  prop = probStr.split(" ");
-
             }
-            mProgress.dismiss();
+
             return null;
         }
 
         @Override
         protected void onPostExecute(String file_url) {
             if(!action.equals("first")){
-                activityBrainBinding.progress0.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
-                activityBrainBinding.progress1.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
-                activityBrainBinding.progress2.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
-                activityBrainBinding.progress3.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
+                activityBrainBinding.progressglioma.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
+                activityBrainBinding.progressmen.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
+                activityBrainBinding.progressno.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
+                activityBrainBinding.progresspit.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
             }
+            showDialogPython.dismissDialog();
         }
     }
 

@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 import com.example.drhello.R;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.databinding.ActivityForgotPasswordBinding;
 import com.example.drhello.signup.GMailSender;
 import java.math.BigDecimal;
@@ -21,7 +22,8 @@ import java.util.Random;
 
 public class ForgotPassword extends AppCompatActivity {
     ActivityForgotPasswordBinding forgotPasswordBinding;
-    private ProgressDialog mProgress;
+    ShowDialogPython showDialogPython;
+
     //for validation email or phone
 
     @Override
@@ -34,7 +36,7 @@ public class ForgotPassword extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.BLUE);
         }
 
-        mProgress = new ProgressDialog(this);
+
         //to connect layout with java code
         forgotPasswordBinding = DataBindingUtil.setContentView(this, R.layout.activity_forgot_password);
 
@@ -42,8 +44,8 @@ public class ForgotPassword extends AppCompatActivity {
 
 
         forgotPasswordBinding.btnForgetPass.setOnClickListener(view -> {
-            mProgress.setMessage("Forget Password");
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(ForgotPassword.this,ForgotPassword.this.getLayoutInflater(),"load");
+            showDialogPython.dismissDialog();
             String email = Objects.requireNonNull(forgotPasswordBinding.editUsernameForgetpass.getEditText()).getText().toString().trim();
             if (email.isEmpty()) {
                 forgotPasswordBinding.editUsernameForgetpass.getEditText().setError("Email is needed");
@@ -84,7 +86,7 @@ public class ForgotPassword extends AppCompatActivity {
                 "\n" +
                 "Yours sincerely,\n" +
                 "The Easy Care Team.";
-        mProgress.dismiss();
+        showDialogPython.dismissDialog();
         //Creating SendMail object
         GMailSender sm = new GMailSender(this, email_or_phone, subject, message, englishNumerals, true);
         //Executing sendmail to send email

@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
@@ -35,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class SkinActivity extends AppCompatActivity implements OnClickDoctorInterface {
     private ActivitySkinBinding activitySkinBinding;
@@ -52,10 +54,11 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
             "Dermatofibroma", "Melanocytic_Nevi","Melanoma", "Vascular_Lesions"};
     private static final int Gallary_REQUEST_CODE = 1;
     PyObject main_program;
-    public static ProgressDialog mProgress;
     private Bitmap bitmap;
     private RequestPermissions requestPermissions;
     String path = "";
+    ShowDialogPython showDialogPython;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -69,18 +72,11 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
 
         requestPermissions = new RequestPermissions(SkinActivity.this,SkinActivity.this);
 
-        mProgress = new ProgressDialog(SkinActivity.this);
         AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
         asyncTaskDownload.execute();
 
         activitySkinBinding = DataBindingUtil.setContentView(SkinActivity.this, R.layout.activity_skin);
-        activitySkinBinding.txtResult0.setText(stringsSkin[0]);
-        activitySkinBinding.txtResult1.setText(stringsSkin[1]);
-        activitySkinBinding.txtResult2.setText(stringsSkin[2]);
-        activitySkinBinding.txtResult3.setText(stringsSkin[3]);
-        activitySkinBinding.txtResult4.setText(stringsSkin[4]);
-        activitySkinBinding.txtResult3.setText(stringsSkin[5]);
-        activitySkinBinding.txtResult4.setText(stringsSkin[6]);
+        activitySkinBinding.shimmer.startShimmerAnimation();
         activitySkinBinding.back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,9 +85,10 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
         });
 
         sliderItems.add(new SliderItem(R.drawable.actinic_keratoses, "Actinic keratoses"));
-        sliderItems.add(new SliderItem(R.drawable.basal_cell_carcinoma, "Basal Cell Carcinoma"));
-        sliderItems.add(new SliderItem(R.drawable.benign_keratosis_like, "Benign Keratosis Like"));
+        sliderItems.add(new SliderItem(R.drawable.basal_cell_carcinoma, "BCC"));
+        sliderItems.add(new SliderItem(R.drawable.benign_keratosis_like, "BKL"));
         sliderItems.add(new SliderItem(R.drawable.der, "Dermatofibroma"));
+        sliderItems.add(new SliderItem(R.drawable.melonskin, "Dermatofibroma"));
         sliderItems.add(new SliderItem(R.drawable.melanocytic_nevi, "Melanocytic Nevi"));
         sliderItems.add(new SliderItem(R.drawable.vascular_lesions, "Vascular Lesions"));
 
@@ -165,7 +162,7 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "IMG_" + Calendar.getInstance().getTime(), null);
         return Uri.parse(path);
     }
 
@@ -193,9 +190,8 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mProgress.setMessage("Image Processing..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(SkinActivity.this,SkinActivity.this.getLayoutInflater(),"load");
+
         }
 
         @Override
@@ -216,21 +212,22 @@ public class SkinActivity extends AppCompatActivity implements OnClickDoctorInte
                 Log.e("probStr: ", probStr.trim());
                 prop = probStr.trim().split(" ");
             }
-            mProgress.dismiss();
+
             return null;
         }
 
         @Override
         protected void onPostExecute(String file_url) {
             if(!action.equals("first")){
-                activitySkinBinding.progress0.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
-                activitySkinBinding.progress1.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
-                activitySkinBinding.progress2.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
-                activitySkinBinding.progress3.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
-                activitySkinBinding.progress4.setAdProgress((int) (Float.parseFloat(prop[4]) *100));
-                activitySkinBinding.progress5.setAdProgress((int) (Float.parseFloat(prop[5]) *100));
-                activitySkinBinding.progress6.setAdProgress((int) (Float.parseFloat(prop[7]) *100));
+                activitySkinBinding.progressactinic.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
+                activitySkinBinding.progressbasal.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
+                activitySkinBinding.progressbenign.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
+                activitySkinBinding.progressderma.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
+                activitySkinBinding.progressmelan.setAdProgress((int) (Float.parseFloat(prop[4]) *100));
+                activitySkinBinding.progressmelanoma.setAdProgress((int) (Float.parseFloat(prop[6]) *100));
+                activitySkinBinding.progressvascular.setAdProgress((int) (Float.parseFloat(prop[7]) *100));
             }
+            showDialogPython.dismissDialog();
         }
     }
 }

@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
 import com.example.drhello.databinding.ActivitySignInBinding;
 import com.example.drhello.firebaseinterface.MyCallbackSignIn;
@@ -49,7 +50,7 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
     private final static int RC_SIGN_IN = 123;
     private SignUpMethods signUpMethods;
     private CallbackManager callbackManager;
-    public static ProgressDialog mProgress;
+    ShowDialogPython showDialogPython;
 
     private FirebaseFirestore db;
 
@@ -67,7 +68,6 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
         } else {
             getWindow().setStatusBarColor(Color.WHITE);
         }
-        mProgress = new ProgressDialog(this);
 
         //to connect layout with java code
         signInBinding = DataBindingUtil.setContentView(this, R.layout.activity_sign_in);
@@ -261,7 +261,7 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
                     if(documentSnapshot.toObject(UserAccount.class).getUserInformation() != null)
                         signIn();
                 }
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
             }
         });
     }
@@ -269,8 +269,7 @@ public class SignIn extends AppCompatActivity implements View.OnClickListener {
     public void readData(MyCallbackSignIn myCallback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            mProgress.setMessage("Loading..");
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(SignIn.this,SignIn.this.getLayoutInflater(),"load");
             FirebaseFirestore.getInstance().collection("users")
                     .document(currentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override

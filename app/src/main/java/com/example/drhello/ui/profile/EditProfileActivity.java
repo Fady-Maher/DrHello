@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.drhello.R;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.databinding.ActivityEditProfileBinding;
@@ -55,7 +56,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
     ActivityEditProfileBinding activityEditProfileBinding;
     private FirebaseFirestore db;
-    private ProgressDialog mProgress;
     private final int REQUEST_CODE_OPEN_Gallary_USER = 1 , REQUEST_CODE_OPEN_Gallary_DR = 2;
     private StorageReference storageRef;
     private Bitmap bitmap;
@@ -64,6 +64,7 @@ public class EditProfileActivity extends AppCompatActivity {
     private Locale[] locales = Locale.getAvailableLocales();
     private ArrayList<String> countries = new ArrayList<String>();
     private ArrayList<String> arrayAdaptermapcity =  new ArrayList<String>();
+    ShowDialogPython showDialogPython;
 
 
 
@@ -79,8 +80,6 @@ public class EditProfileActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         storageRef = FirebaseStorage.getInstance().getReference().child("images/profiles/" + FirebaseAuth.getInstance().getCurrentUser().getUid());
-
-        mProgress = new ProgressDialog(EditProfileActivity.this);
 
         activityEditProfileBinding = DataBindingUtil.setContentView(this, R.layout.activity_edit_profile);
 
@@ -160,9 +159,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         if (getIntent().getSerializableExtra("userAccount") != null){
             Log.e("getIntent","userAccount");
-            mProgress.setMessage("Loading..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(EditProfileActivity.this,EditProfileActivity.this.getLayoutInflater(),"load");
              userAccount = (UserAccount) getIntent().getSerializableExtra("userAccount");
             if(userAccount.getUserInformation().getType().equals("normal user")){
                 activityEditProfileBinding.layDr.setVisibility(View.GONE);
@@ -280,7 +277,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 });
             }
 
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
         }
 
         activityEditProfileBinding.imgCameraUser.setOnClickListener(new View.OnClickListener() {
@@ -404,10 +401,7 @@ public class EditProfileActivity extends AppCompatActivity {
     }
 
     private void updateData(String type){
-        mProgress.setTitle("Updateing Information");
-        mProgress.setMessage("Please wait...");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(EditProfileActivity.this,EditProfileActivity.this.getLayoutInflater(),"load");
 
         if(type.equals("Doctor")){
             checkStateDr();
@@ -458,7 +452,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(getApplicationContext(), "failed to update user info.", Toast.LENGTH_SHORT).show();
                     }
-                    mProgress.dismiss();
+                    showDialogPython.dismissDialog();
                     Intent intent = new Intent(EditProfileActivity.this, ProfileActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);

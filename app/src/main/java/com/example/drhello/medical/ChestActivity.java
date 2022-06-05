@@ -6,24 +6,30 @@ import androidx.databinding.DataBindingUtil;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.example.drhello.BotActivity;
+import com.example.drhello.ChatBotlistener;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
@@ -36,6 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class ChestActivity extends AppCompatActivity implements OnClickDoctorInterface {
     private ActivityChestBinding activityChestBinding;
@@ -43,10 +50,10 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
     private String[] stringsChest = {"Covid19", "Lung Opacity","Normal", "Pneumonia"};
     private static final int Gallary_REQUEST_CODE = 1;
     PyObject main_program;
-    public static ProgressDialog mProgress;
     String path = "";
     private Bitmap bitmap;
     private RequestPermissions requestPermissions;
+    ShowDialogPython showDialogPython;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,18 +64,10 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
-
-
         requestPermissions = new RequestPermissions(ChestActivity.this,ChestActivity.this);
 
-        mProgress = new ProgressDialog(ChestActivity.this);
-
         activityChestBinding = DataBindingUtil.setContentView(ChestActivity.this, R.layout.activity_chest);
-        activityChestBinding.txtResult0.setText(stringsChest[0]);
-        activityChestBinding.txtResult1.setText(stringsChest[1]);
-        activityChestBinding.txtResult2.setText(stringsChest[2]);
-        activityChestBinding.txtResult3.setText(stringsChest[3]);
-
+        activityChestBinding.shimmer.startShimmerAnimation();
         AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
         asyncTaskDownload.execute();
 
@@ -152,7 +151,7 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "IMG_" + Calendar.getInstance().getTime(), null);
         return Uri.parse(path);
     }
 
@@ -180,9 +179,7 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mProgress.setMessage("Image Processing..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(ChestActivity.this,ChestActivity.this.getLayoutInflater(),"load");
         }
 
         @Override
@@ -201,20 +198,19 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
                         .replace("]","")
                         .replace("\"","");
                 prop = probStr.split(" ");
-
             }
-            mProgress.dismiss();
             return null;
         }
 
         @Override
         protected void onPostExecute(String file_url) {
             if(!action.equals("first")){
-                activityChestBinding.progress0.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
-                activityChestBinding.progress1.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
-                activityChestBinding.progress2.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
-                activityChestBinding.progress3.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
+                activityChestBinding.progresscovid.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
+                activityChestBinding.progresslung.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
+                activityChestBinding.progressnormal.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
+                activityChestBinding.progresspneu.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
             }
+            showDialogPython.dismissDialog();
         }
     }
 }

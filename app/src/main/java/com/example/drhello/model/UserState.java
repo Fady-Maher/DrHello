@@ -2,15 +2,16 @@ package com.example.drhello.model;
 
 public class UserState {
 
-    private String user_name,img_user,img_state;
+    private String user_name,img_user,img_state,idfriend;
 
     public UserState() {
     }
 
-    public UserState(String img_user, String img_state, String user_name) {
+    public UserState(String img_user, String img_state, String user_name,String idfriend) {
         this.user_name = user_name;
         this.img_user = img_user;
         this.img_state = img_state;
+        this.idfriend = idfriend;
     }
 
     public String getUser_name() {
@@ -35,5 +36,13 @@ public class UserState {
 
     public void setImg_state(String img_state) {
         this.img_state = img_state;
+    }
+
+    public String getIdfriend() {
+        return idfriend;
+    }
+
+    public void setIdfriend(String idfriend) {
+        this.idfriend = idfriend;
     }
 }

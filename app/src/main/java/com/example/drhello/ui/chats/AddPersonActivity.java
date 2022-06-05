@@ -23,13 +23,6 @@ import java.util.ArrayList;
 public class AddPersonActivity extends AppCompatActivity {
 
     private ActivityAddPersonBinding activityAddPersonBinding;
-    private AddPersonAdapter addPersonAdapter;
-    private ArrayList<UserAccount> addPersonModelArrayList = new ArrayList<>();
-    private ArrayList<UserAccount> addPersonModelArrayList2 = new ArrayList<>();
-    private FirebaseFirestore db;
-    private FirebaseAuth mAuth;
-    private SwipeRefreshLayout swipeRefreshLayout;
-    private  androidx.appcompat.widget.SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +34,7 @@ public class AddPersonActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+
         activityAddPersonBinding = DataBindingUtil.setContentView(AddPersonActivity.this, R.layout.activity_add_person);
 
         activityAddPersonBinding.backAddPerson.setOnClickListener(new View.OnClickListener() {

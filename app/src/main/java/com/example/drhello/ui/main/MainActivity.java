@@ -309,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
             alertDialog.show();
 
-            btn_google.setOnClickListener(new View.OnClickListener() {
+            btn_face.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent browse=new Intent(Intent.ACTION_VIEW,
@@ -320,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 }
             });
 
-            btn_face.setOnClickListener(new View.OnClickListener() {
+            btn_google.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Intent emailIntent = new Intent(Intent.ACTION_SENDTO ,

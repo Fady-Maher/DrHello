@@ -28,6 +28,8 @@ import com.bumptech.glide.Glide;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.example.drhello.ShowDialogPython;
+import com.example.drhello.adapter.OnCommentClickListener;
 import com.example.drhello.firebaseservice.FcmNotificationsSender;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
@@ -37,6 +39,7 @@ import com.example.drhello.firebaseinterface.MyCallbackUser;
 import com.example.drhello.model.UserAccount;
 import com.example.drhello.textclean.RequestPermissions;
 import com.example.drhello.model.CommentModel;
+import com.example.drhello.ui.writepost.ShowImageActivity;
 import com.example.drhello.viewmodel.CommentViewModel;
 import com.example.drhello.model.Posts;
 import com.example.drhello.R;
@@ -52,16 +55,26 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.ml.modeldownloader.CustomModel;
+import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
+import com.google.firebase.ml.modeldownloader.DownloadType;
+import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
+
+import org.tensorflow.lite.Interpreter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-public class InsideCommentActivity extends AppCompatActivity {
+public class InsideCommentActivity extends AppCompatActivity implements OnCommentClickListener {
     @SuppressLint("StaticFieldLeak")
     public static ActivityInsideCommentBinding commentBinding;
 
@@ -72,7 +85,6 @@ public class InsideCommentActivity extends AppCompatActivity {
     private final ArrayList<CommentModel> commentModels = new ArrayList<>();
     private CommentViewModel commentViewModel;
     private WriteCommentAdapter writeCommentAdapter;
-    public static ProgressDialog mProgress, mProgress1,mProgressfirst;
     private Bitmap bitmap;
     private CommentModel commentModel, commentModel2;
     private Posts posts;
@@ -80,6 +92,9 @@ public class InsideCommentActivity extends AppCompatActivity {
     private RequestPermissions requestPermissions;
     AsyncTaskD asyncTaskDownload;
     PyObject main_program;
+    float prop;
+    public static ShowDialogPython showDialogPython;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,27 +149,13 @@ public class InsideCommentActivity extends AppCompatActivity {
         });
 
         db = FirebaseFirestore.getInstance();
-        mProgress = new ProgressDialog(this);
-        mProgress1 = new ProgressDialog(this);
-        mProgressfirst = new ProgressDialog(this);
         commentModel = (CommentModel) getIntent().getSerializableExtra("commentModel");
         posts = (Posts) getIntent().getSerializableExtra("postsModel");
         commentModel2 = new CommentModel();
         commentBinding.userName.setText(commentModel.getUser_name());
         commentBinding.userOnly.setText(commentModel.getUser_name());
         commentModel2.setPost_id(posts.getPostId());
-        asyncTaskDownload = new AsyncTaskD(null, "comment", "first");
-        asyncTaskDownload.execute();
-        readDataUser(new MyCallbackUser() {
-            @Override
-            public void onCallback(DocumentSnapshot documentSnapshot) {
-                UserAccount userAccount = documentSnapshot.toObject(UserAccount.class);
-                commentModel2.setUser_image(userAccount.getImg_profile());
-                commentModel2.setUser_id(userAccount.getId());
-                commentModel2.setUser_name(userAccount.getName());
-                mProgress.dismiss();
-            }
-        });
+
 
         try {
             Glide.with(this).load(commentModel.getUser_image()).placeholder(R.drawable.ic_chat).
@@ -173,6 +174,14 @@ public class InsideCommentActivity extends AppCompatActivity {
             } catch (Exception e) {
                 commentBinding.imageComment.setImageResource(R.drawable.ic_chat);
             }
+            commentBinding.imageComment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(InsideCommentActivity.this, ShowImageActivity.class);
+                    intent.putExtra("uri_image", commentModel.getComment_image());
+                    startActivity(intent);
+                }
+            });
         }
 
         if (commentModel.getComment().equals("")) {
@@ -221,7 +230,6 @@ public class InsideCommentActivity extends AppCompatActivity {
                     bytesOutImg = bytesStream.toByteArray();
                     asyncTaskDownload = new AsyncTaskD(bytesOutImg, commentModel2.getComment(), "uploadImages");
                     asyncTaskDownload.execute();
-                    bitmap = null;
                     Log.e("image : ", "EROR");
                 } else {
                     Log.e("bitmap : ", bitmap + "");
@@ -244,21 +252,28 @@ public class InsideCommentActivity extends AppCompatActivity {
             @Override
             public void onCallback(Task<QuerySnapshot> task) {
                 commentModels.clear();
-                int i = 0;
+
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     CommentModel commentModel = document.toObject(CommentModel.class);
                     commentModels.add(commentModel);
-                    i += 1;
-                    if (task.getResult().size() == 0) {
-                        mProgress1.dismiss();
-                    }
-                    if (i == task.getResult().size()) {
-                        writeCommentAdapter = new WriteCommentAdapter(InsideCommentActivity.this, commentModels,
-                                null, getSupportFragmentManager());
-                        commentBinding.recycleComments.setAdapter(writeCommentAdapter);
-                        mProgress1.dismiss();
-                    }
+
+                    writeCommentAdapter = new WriteCommentAdapter(InsideCommentActivity.this, commentModels,
+                            InsideCommentActivity.this, getSupportFragmentManager(),"inside");
+                    commentBinding.recycleComments.setAdapter(writeCommentAdapter);
+
                 }
+
+                readDataUser(new MyCallbackUser() {
+                    @Override
+                    public void onCallback(DocumentSnapshot documentSnapshot) {
+                        UserAccount userAccount = documentSnapshot.toObject(UserAccount.class);
+                        commentModel2.setUser_image(userAccount.getImg_profile());
+                        commentModel2.setUser_id(userAccount.getId());
+                        commentModel2.setUser_name(userAccount.getName());
+                        asyncTaskDownload = new AsyncTaskD(null, "comment", "first");
+                        asyncTaskDownload.execute();
+                    }
+                });
 
             }
         });
@@ -287,7 +302,7 @@ public class InsideCommentActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         if (commentModels != null) {
-           readDataCommentsListener(new MyCallBackListenerComments() {
+            readDataCommentsListener(new MyCallBackListenerComments() {
                 @Override
                 public void onCallBack(QuerySnapshot value) {
                     commentModels.clear();
@@ -296,7 +311,7 @@ public class InsideCommentActivity extends AppCompatActivity {
                         commentModels.add(commentModel);
                     }
                     writeCommentAdapter = new WriteCommentAdapter(InsideCommentActivity.this, commentModels,
-                            null, getSupportFragmentManager());
+                            InsideCommentActivity.this, getSupportFragmentManager(),"inside");
                     commentBinding.recycleComments.setAdapter(writeCommentAdapter);
                 }
             });
@@ -361,9 +376,8 @@ public class InsideCommentActivity extends AppCompatActivity {
     public void readDataUser(MyCallbackUser myCallback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            mProgress.setMessage("Loading..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            //   showDialogPython = new ShowDialogPython(InsideCommentActivity.this,InsideCommentActivity.this.getLayoutInflater(),"upload");
+
             FirebaseFirestore.getInstance().collection("users")
                     .document(currentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -375,9 +389,8 @@ public class InsideCommentActivity extends AppCompatActivity {
     }
 
     public void readDataComments(MyCallBackWriteComment myCallback) {
-        mProgress1.setMessage("Loading..");
-        mProgress1.setCancelable(false);
-        mProgress1.show();
+        showDialogPython = new ShowDialogPython(InsideCommentActivity.this, InsideCommentActivity.this.getLayoutInflater(), "upload");
+
         db.collection("posts").document(posts.getPostId()).
                 collection("comments").document(commentModel.getComment_id())
                 .collection("InsideComments").orderBy("date", Query.Direction.DESCENDING)
@@ -417,12 +430,34 @@ public class InsideCommentActivity extends AppCompatActivity {
         stateOfUser.changeState("Offline");
     }
 
+    @Override
+    public void onClickComment(CommentModel commentModel) {
+
+    }
+
+    @Override
+    public void selectedReaction(String reaction, CommentModel commentModel) {
+
+    }
+
+    @Override
+    public void onClickReaction(CommentModel commentModel) {
+
+    }
+
+    @Override
+    public void onClickIamge(String url) {
+        Intent intent = new Intent(InsideCommentActivity.this, ShowImageActivity.class);
+        intent.putExtra("uri_image", url);
+        startActivity(intent);
+    }
+
     public class AsyncTaskD extends AsyncTask<String, String, String> {
 
         String text;
         String action;
         byte[] bytesOutImg;
-        float prop = -1;
+
 
         public AsyncTaskD(byte[] bytesOutImg, String text, String action) {
             this.text = text;
@@ -434,9 +469,7 @@ public class InsideCommentActivity extends AppCompatActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             if (!action.equals("first")) {
-                mProgress.setMessage("Uploading..");
-                mProgress.show();
-                mProgress.setCancelable(false);
+                showDialogPython = new ShowDialogPython(InsideCommentActivity.this, InsideCommentActivity.this.getLayoutInflater(), "upload");
             }
         }
 
@@ -450,14 +483,7 @@ public class InsideCommentActivity extends AppCompatActivity {
                 main_program = py.getModule("prolog");
             } else {
                 if (!text.isEmpty()) {
-                    Log.e("TEXT CORRECT: ", text);
-                    String result = main_program.callAttr("modelCommentAndPost", text).toString();
-                    result = result.replace("[", "").replace("]", "");
-                    if (result.equals("error")) {
-                        prop = (float) 0.1;
-                    } else {
-                        prop = Float.parseFloat(result);
-                    }
+                    modelFire(text);
                 }
             }
             return null;
@@ -467,27 +493,80 @@ public class InsideCommentActivity extends AppCompatActivity {
         protected void onPostExecute(String file_url) {
             if (action.equals("first")) {
                 Log.e("first ", " first");
-                mProgressfirst.dismiss();
+                showDialogPython.dismissDialog();
             } else if (prop >= 0 && prop < 0.5) {
                 if (action.equals("uploadImages")) {
-                    commentViewModel.uploadCommentInside(db, bytesOutImg, posts, commentModel, commentModel2, mProgress);
+                    commentViewModel.uploadCommentInside(db, bytesOutImg, posts, commentModel, commentModel2);
                     commentBinding.editMessage.setText("");
                     bitmap = null;
                     bytesOutImg = null;
                 } else {
-                    commentViewModel.uploadCommentInside(db, null, posts, commentModel, commentModel2, mProgress);
+                    commentViewModel.uploadCommentInside(db, null, posts, commentModel, commentModel2);
                     commentBinding.editMessage.setText("");
                 }
             } else if (prop >= 0.5) {
                 Log.e("prop failed: ", prop + "");
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
             } else if (action.equals("uploadImages")) {
-                commentViewModel.uploadCommentInside(db, bytesOutImg, posts, commentModel, commentModel2, mProgress);
+                commentViewModel.uploadCommentInside(db, bytesOutImg, posts, commentModel, commentModel2);
                 commentBinding.editMessage.setText("");
                 bitmap = null;
                 bytesOutImg = null;
             }
         }
     }
+
+    private void modelFire(String text) {
+        String result = main_program.callAttr("predictComment", text, getKeyboardLanguage(text)).toString();
+        result = result.replace("[", "").replace("]", "");
+        String[] strings = result.split(", ");
+        Log.e("result: ", result);
+        float[][] input = new float[1][300];
+        for (int i = 0; i < strings.length; i++) {
+            input[0][i] = Float.parseFloat(strings[i]);
+        }
+        CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
+                .requireWifi()
+                .build();
+        Task<CustomModel> model;
+        if (getKeyboardLanguage(text).equals("EN")) {
+            Log.e("lang : ", "EN");
+            model = FirebaseModelDownloader.getInstance()
+                    .getModel("HateAbusiveModelEN", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions);
+        } else {
+            Log.e("lang : ", "AR");
+            model = FirebaseModelDownloader.getInstance()
+                    .getModel("arabicHateOff", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions);
+        }
+
+        model.addOnSuccessListener(new OnSuccessListener<CustomModel>() {
+            @Override
+            public void onSuccess(CustomModel model) {
+                File modelFile = model.getFile();
+                Log.e("modelFile : ", modelFile + "");
+                if (modelFile != null) {
+                    Interpreter interpreter = new Interpreter(modelFile);
+                    int bufferSize = 1 * java.lang.Float.SIZE / java.lang.Byte.SIZE;
+                    ByteBuffer modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
+                    interpreter.run(input, modelOutput);
+                    modelOutput.rewind();
+                    FloatBuffer probabilities = modelOutput.asFloatBuffer();
+                    prop = probabilities.get(0);
+                    Log.e("MAX : ", prop * 100 + "");
+                }
+            }
+        });
+    }
+
+    public static String getKeyboardLanguage(String s) {
+        for (int i = 0; i < s.length(); ) {
+            int c = s.codePointAt(i);
+            if (c >= 0x0600 && c <= 0x06E0)
+                return "AR";
+            i += Character.charCount(c);
+        }
+        return "EN";
+    }
+
 
 }

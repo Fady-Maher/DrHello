@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.example.drhello.R;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.adapter.TabAdapter;
 import com.example.drhello.databinding.ActivityNumReactionBinding;
@@ -37,11 +38,11 @@ public class NumReactionActivity extends AppCompatActivity {
     private Posts posts;
     private ArrayList<UserAccount> userAccountArrayList = new ArrayList<>();
     private int likeItem=0,loveItem=0,hahaItem=0,sadItem=0,wowItem=0,angryItem=0;
-    public static ProgressDialog mProgress;
     private CommentModel commentModel;
     private Collection<String> values;
     private TabAdapter adapter;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    ShowDialogPython showDialogPython;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +53,6 @@ public class NumReactionActivity extends AppCompatActivity {
         } else {
             getWindow().setStatusBarColor(Color.WHITE);
         }
-
-        mProgress = new ProgressDialog(this);
 
         activityNumReactionBinding = DataBindingUtil.setContentView(NumReactionActivity.this, R.layout.activity_num_reaction);
         setSupportActionBar(activityNumReactionBinding.toolbarReaction);
@@ -164,7 +163,7 @@ public class NumReactionActivity extends AppCompatActivity {
                    UserAccount userAccount = document.toObject(UserAccount.class);
                    userAccountArrayList.add(userAccount);
                }
-               mProgress.dismiss();
+               showDialogPython.dismissDialog();
                Log.e("onEvent: ",userAccountArrayList.size()+"");
 
                if(posts != null){
@@ -208,9 +207,7 @@ public class NumReactionActivity extends AppCompatActivity {
     }
 
     public void readData(MyCallbackAllUser myCallback) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(NumReactionActivity.this,NumReactionActivity.this.getLayoutInflater(),"load");
         db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {

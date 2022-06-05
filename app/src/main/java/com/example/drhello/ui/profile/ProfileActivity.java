@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.model.FollowersModel;
 import com.example.drhello.PostsUsersActivity;
 import com.example.drhello.R;
@@ -39,12 +40,12 @@ import java.util.Map;
 public class ProfileActivity extends AppCompatActivity {
 
     ActivityProfileBinding activityProfileBinding;
-    public static ProgressDialog mProgress;
     private UserAccount userAccount, userAccountme;
     private boolean flag_follow = false;
     private FirebaseFirestore db;
     private static final int REQUEST_CODE = 1;
     private String userId;
+    ShowDialogPython showDialogPython;
 
     @SuppressLint("ObsoleteSdkInt")
     @Override
@@ -57,7 +58,6 @@ public class ProfileActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
-        mProgress = new ProgressDialog(ProfileActivity.this);
         db = FirebaseFirestore.getInstance();
 
         activityProfileBinding = DataBindingUtil.setContentView(this, R.layout.activity_profile);
@@ -67,7 +67,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onCallback(DocumentSnapshot documentSnapshot) {
                 userAccountme = documentSnapshot.toObject(UserAccount.class);
                 Log.e("userAc: ", userAccountme.getId());
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
             }
         });
 
@@ -191,9 +191,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void actionFriends() {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(ProfileActivity.this,ProfileActivity.this.getLayoutInflater(),"load");
         if (userAccount.getFriendsmap().containsKey(userAccountme.getId())) { // friends
             Map<String, AddPersonModel> friendsmapme = userAccountme.getFriendsmap();
             friendsmapme.remove(userAccount.getId());
@@ -233,7 +231,7 @@ public class ProfileActivity extends AppCompatActivity {
             activityProfileBinding.floatbtnuser.setVisibility(View.GONE);
             activityProfileBinding.floatbtndr.setVisibility(View.GONE);
         }
-        mProgress.dismiss();
+        showDialogPython.dismissDialog();
     }
 
     @Override
@@ -289,9 +287,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void updataInformation(UserAccount userAccount) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(ProfileActivity.this,ProfileActivity.this.getLayoutInflater(),"load");
 
         db.collection("users")
                 .document(userAccount.getId())
@@ -303,7 +299,7 @@ public class ProfileActivity extends AppCompatActivity {
                     } else {
                         Toast.makeText(getApplicationContext(), "Failed Follow Doctor.", Toast.LENGTH_SHORT).show();
                     }
-                    mProgress.dismiss();
+                    showDialogPython.dismissDialog();
                 });
     }
 
@@ -414,7 +410,7 @@ public class ProfileActivity extends AppCompatActivity {
                 }
 
 
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
             }
         });
     }
@@ -422,9 +418,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     public void readData(MyCallbackUser myCallback) {
         if (userId != null) {
-            mProgress.setMessage("Loading..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(ProfileActivity.this,ProfileActivity.this.getLayoutInflater(),"load");
             FirebaseFirestore.getInstance().collection("users")
                     .document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -436,9 +430,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     public void readDataMe(MyCallbackUser myCallback) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(ProfileActivity.this,ProfileActivity.this.getLayoutInflater(),"load");
         FirebaseFirestore.getInstance().collection("users")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -464,9 +456,7 @@ public class ProfileActivity extends AppCompatActivity {
 
 
     public void onClickFollowers(UserAccount userAccountfriend) {
-        mProgress.setMessage("Uploading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(ProfileActivity.this,ProfileActivity.this.getLayoutInflater(),"load");
         String userIdMe = FirebaseAuth.getInstance().getCurrentUser().getUid();
         Map<String, FollowersModel> followersModelMap = userAccountfriend.getFollowersModelMap();
 

@@ -7,4 +7,5 @@ public interface OnCommentClickListener {
     void onClickComment(CommentModel commentModel);
     void selectedReaction(String reaction, CommentModel commentModel);
     void onClickReaction(CommentModel commentModel);
+    void onClickIamge(String url);
 }

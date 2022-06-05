@@ -54,6 +54,7 @@ import com.devlomi.record_view.OnBasketAnimationEnd;
 import com.devlomi.record_view.OnRecordClickListener;
 import com.devlomi.record_view.OnRecordListener;
 import com.devlomi.record_view.RecordPermissionHandler;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.firebaseinterface.MyCallbackDeleteItem;
 import com.example.drhello.adapter.OnClickMessageListener;
 import com.example.drhello.model.LastChat;
@@ -124,7 +125,6 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
     private FirebaseAuth mAuth;
     private Location mLocation;
     private FirebaseFirestore db;
-    public static ProgressDialog mProgress;
     private ActivityChatBinding activityChatBinding;
     private String geoUri = "", iDChannel = "";
     private ArrayList<ChatModel> chatsArrayList = new ArrayList<>();
@@ -143,6 +143,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
     private double Lat = 0.0, Lon = 0.0;
     NetworkChangeListener networkChangeListener = new NetworkChangeListener();
     StorageReference storageReferenceAudio, storageReferenceImages;
+    ShowDialogPython showDialogPython;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,7 +154,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
         } else {
             getWindow().setStatusBarColor(Color.WHITE);
         }
-        mProgress = new ProgressDialog(this);
+
         requestPermissions = new RequestPermissions(ChatActivity.this, ChatActivity.this);
         checkRunTimePermission();
         init();
@@ -830,9 +831,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
     }
 
     private void uploadImage(Bitmap bitmap) {
-        mProgress.setMessage("Uploading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(ChatActivity.this,ChatActivity.this.getLayoutInflater(),"upload");
         ByteArrayOutputStream output_image = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.PNG , 100, output_image);
         byte[] data_image = output_image.toByteArray();
@@ -852,7 +851,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
                                 userAccountme.getName(), "");
                         storeMessageOnFirebase(chatModel);
                         sendNotification("Send an Image");
-                        mProgress.dismiss();
+                        showDialogPython.dismissDialog();
                     }
                 });
                 Log.e("uri ", "Successful Upload");
@@ -914,9 +913,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
     }
 
     public void uploadAudio(Uri uri) {
-        mProgress.setMessage("Uploading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(ChatActivity.this,ChatActivity.this.getLayoutInflater(),"upload");
         String data = getDateTime();
         StorageReference storageReference = FirebaseStorage.getInstance().
                 getReference().child("audios/audiosChat/" + userAccountme.getId() + "/"
@@ -938,7 +935,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
                         if (recordFile != null) {
                             recordFile.delete();
                         }
-                        mProgress.dismiss();
+                        showDialogPython.dismissDialog();
 
                     }
                 });
@@ -1262,9 +1259,8 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
         activityChatBinding.imgDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mProgress.setMessage("Loading..");
-                mProgress.setCancelable(false);
-                mProgress.show();
+                showDialogPython = new ShowDialogPython(ChatActivity.this,ChatActivity.this.getLayoutInflater(),"load");
+
                 Log.e("img onClick : ", "success --> " + chatModel.getId());
                 myCallBackDeleteChat(new MyCallbackDeleteItem() {
                     @Override
@@ -1279,7 +1275,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
                                         chatsArrayList.remove(chatModel);
                                         recycle_message_adapter.notifyItemRemoved(position);
                                         activityChatBinding.imgDelete.setVisibility(View.GONE);
-                                        mProgress.dismiss();
+                                        showDialogPython.dismissDialog();
                                     } else {
                                         Log.e("img delete : ", "failed");
                                     }
@@ -1328,9 +1324,8 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
         activityChatBinding.imgDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mProgress.setMessage("Loading..");
-                mProgress.setCancelable(false);
-                mProgress.show();
+                showDialogPython = new ShowDialogPython(ChatActivity.this,ChatActivity.this.getLayoutInflater(),"load");
+
                 Log.e("audio onClick : ", "success --> " + chatModel.getId());
                 myCallBackDeleteChat(new MyCallbackDeleteItem() {
                     @Override
@@ -1345,7 +1340,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
                                         chatsArrayList.remove(chatModel);
                                         recycle_message_adapter.notifyItemRemoved(position);
                                         activityChatBinding.imgDelete.setVisibility(View.GONE);
-                                        mProgress.dismiss();
+                                        showDialogPython.dismissDialog();
                                     } else {
                                         Log.e("img delete : ", "failed");
                                     }
@@ -1377,9 +1372,8 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
         activityChatBinding.imgDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mProgress.setMessage("Loading..");
-                mProgress.setCancelable(false);
-                mProgress.show();
+                showDialogPython = new ShowDialogPython(ChatActivity.this,ChatActivity.this.getLayoutInflater(),"load");
+
                 Log.e("text onClick : ", "success --> " + chatModel.getId());
                 myCallBackDeleteChat(new MyCallbackDeleteItem() {
                     @Override
@@ -1389,7 +1383,7 @@ public class ChatActivity extends AppCompatActivity implements com.google.androi
                             chatsArrayList.remove(chatModel);
                             recycle_message_adapter.notifyItemRemoved(position);
                             activityChatBinding.imgDelete.setVisibility(View.GONE);
-                            mProgress.dismiss();
+                            showDialogPython.dismissDialog();
                         } else {
                             Log.e("messages delete : ", "failed");
                         }

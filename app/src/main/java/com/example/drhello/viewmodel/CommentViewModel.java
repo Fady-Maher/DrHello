@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.model.CommentModel;
 import com.example.drhello.model.Posts;
 import com.example.drhello.ui.writecomment.InsideCommentActivity;
@@ -38,7 +39,7 @@ public class CommentViewModel extends ViewModel {
     public StorageReference storageReference;
 
     public void uploadComment(FirebaseFirestore db,
-                              byte[] bytes, Posts posts, CommentModel commentModel, CommentModel commentModel2, ProgressDialog mProgress) {
+                              byte[] bytes, Posts posts, CommentModel commentModel, CommentModel commentModel2) {
         storageReference = FirebaseStorage.getInstance().getReference(posts.getUserId());
         Completable completable1 = Completable.fromAction(new Action() {
             @Override
@@ -59,9 +60,9 @@ public class CommentViewModel extends ViewModel {
                                                 if(task.isSuccessful()){
                                                     if (bytes != null) {
                                                         Log.e("POP : ", "");
-                                                        uploadImage(bytes, posts, commentModel, storageReference, db, commentModel2,mProgress);
+                                                        uploadImage(bytes, posts, commentModel, storageReference, db, commentModel2);
                                                     } else {
-                                                        WriteCommentActivity.mProgress.dismiss();
+                                                        WriteCommentActivity.showDialogPython.dismissDialog();
                                                     }
                                                 }
                                             }
@@ -90,7 +91,7 @@ public class CommentViewModel extends ViewModel {
     }
 
     public void uploadCommentInside(FirebaseFirestore db,
-                              byte[] bytes, Posts posts, CommentModel commentModel, CommentModel commentModel2,ProgressDialog mProgress) {
+                              byte[] bytes, Posts posts, CommentModel commentModel, CommentModel commentModel2) {
         storageReference = FirebaseStorage.getInstance().getReference(posts.getUserId());
         Completable completable1 = Completable.fromAction(new Action() {
             @Override
@@ -114,10 +115,10 @@ public class CommentViewModel extends ViewModel {
                                                 if(task.isSuccessful()){
                                                     if (bytes != null) {
                                                         Log.e("POP : ", "");
-                                                        uploadImage(bytes, posts, commentModel, storageReference, db, commentModel2, mProgress);
+                                                        uploadImage(bytes, posts, commentModel, storageReference, db, commentModel2);
                                                     } else {
                                                         Log.e("mProgress : ", "mProgress");
-                                                        InsideCommentActivity.mProgress.dismiss();
+                                                        InsideCommentActivity.showDialogPython.dismissDialog();
                                                     }
 
                                                 }
@@ -150,7 +151,7 @@ public class CommentViewModel extends ViewModel {
 
     private void uploadImage(byte[] bytes, Posts posts, CommentModel commentModel
             , StorageReference storageReference, FirebaseFirestore db,
-                             CommentModel commentModel2,  ProgressDialog mProgress) {
+                             CommentModel commentModel2) {
         if (commentModel2 == null) {
             Log.e("getComment_id : ", commentModel.getComment_id());
             StorageReference ref = storageReference.child(posts.getPostId() + "/images/comment/"
@@ -160,7 +161,7 @@ public class CommentViewModel extends ViewModel {
                         @Override
                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                             if (task.isSuccessful()) {
-                                saveUri(posts, ref, db, commentModel, commentModel2,mProgress);
+                                saveUri(posts, ref, db, commentModel, commentModel2);
                             } else {
                                 //Toast.makeText(WritePostsActivity.this, "Loading not done", Toast.LENGTH_SHORT).show();
                             }
@@ -181,7 +182,7 @@ public class CommentViewModel extends ViewModel {
                         @Override
                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                             if (task.isSuccessful()) {
-                                saveUri(posts, ref, db, commentModel, commentModel2, mProgress);
+                                saveUri(posts, ref, db, commentModel, commentModel2);
                             } else {
                                 //Toast.makeText(WritePostsActivity.this, "Loading not done", Toast.LENGTH_SHORT).show();
                             }
@@ -195,7 +196,7 @@ public class CommentViewModel extends ViewModel {
         }
     }
 
-    private void saveUri(Posts posts, StorageReference ref, FirebaseFirestore db, CommentModel commentModel, CommentModel commentModel2, ProgressDialog mProgress) {
+    private void saveUri(Posts posts, StorageReference ref, FirebaseFirestore db, CommentModel commentModel, CommentModel commentModel2) {
 
         if (commentModel2 == null) {
             ref.getDownloadUrl()
@@ -208,7 +209,7 @@ public class CommentViewModel extends ViewModel {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if(task.isSuccessful())
-                                        mProgress.dismiss();
+                                        WriteCommentActivity.showDialogPython.dismissDialog();
                                 }
                             });
                            // WriteCommentActivity.mProgress.dismiss();
@@ -233,7 +234,7 @@ public class CommentViewModel extends ViewModel {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     Log.e("task onComp: ", task.isSuccessful()+"");
-                                    InsideCommentActivity.mProgress.dismiss();
+                                    InsideCommentActivity.showDialogPython.dismissDialog();
                                 }
                             });
                             Log.e("saveUri : ", commentModel.getComment_id());

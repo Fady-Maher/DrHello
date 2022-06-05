@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
@@ -41,6 +42,8 @@ import com.example.drhello.databinding.ActivityWriteCommentBinding;
 import com.example.drhello.model.CommentModel;
 import com.example.drhello.ui.main.MainActivity;
 import com.example.drhello.ui.writepost.NumReactionActivity;
+import com.example.drhello.ui.writepost.ShowImageActivity;
+import com.example.drhello.ui.writepost.WritePostsActivity;
 import com.example.drhello.viewmodel.CommentViewModel;
 import com.example.drhello.model.Posts;
 import com.example.drhello.R;
@@ -58,9 +61,19 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.ml.modeldownloader.CustomModel;
+import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
+import com.google.firebase.ml.modeldownloader.DownloadType;
+import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
+
+import org.tensorflow.lite.Interpreter;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -79,7 +92,6 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
     CommentModel commentModel = new CommentModel();
     private CommentViewModel commentViewModel;
     private WriteCommentAdapter writeCommentAdapter;
-    public static ProgressDialog mProgress,mProgress1;
     private final ArrayList<CommentModel> commentModels = new ArrayList<>();
     private Bitmap bitmap;
     private boolean check_img = false;
@@ -88,6 +100,8 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
     private RequestPermissions requestPermissions;
     AsyncTaskD asyncTaskDownload;
     PyObject main_program;
+    float prop ;
+    public static ShowDialogPython showDialogPython;
 
 
     @Override
@@ -100,8 +114,8 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         } else {
             getWindow().setStatusBarColor(Color.WHITE);
         }
-        mProgress = new ProgressDialog(this);
-        mProgress1 = new ProgressDialog(this);
+       // showDialogPython = new ShowDialogPython(WriteCommentActivity.this,WriteCommentActivity.this.getLayoutInflater(),"upload");
+
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         commentViewModel = new CommentViewModel();
@@ -121,33 +135,11 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                     }
 
                     writeCommentAdapter = new WriteCommentAdapter(WriteCommentActivity.this, commentModels,
-                            WriteCommentActivity.this, getSupportFragmentManager());
+                            WriteCommentActivity.this, getSupportFragmentManager(),"comment");
                     MainCommentBinding.recycleComments.setAdapter(writeCommentAdapter);
-                    mProgress.dismiss();
+
                 }
             });
-            /*
-            db.collection("posts").document(postID)
-                    .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        posts = task.getResult().toObject(Posts.class);
-
-                        commentViewModel.getComments(db, posts, null);
-                        commentViewModel.commentsMutableLiveData.observe(WriteCommentActivity.this, commentModels -> {
-                            writeCommentAdapter = new WriteCommentAdapter(WriteCommentActivity.this, commentModels,
-                                    WriteCommentActivity.this, getSupportFragmentManager());
-                            MainCommentBinding.recycleComments.setAdapter(writeCommentAdapter);
-                            mProgress.dismiss();
-                        });
-
-                    } else {
-                        Log.e("noti error", task.getException().getMessage());
-                    }
-                }
-            });
-            */
             Log.e("notification", postID);
         } else {
             posts = (Posts) getIntent().getSerializableExtra("post");
@@ -159,10 +151,23 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                         CommentModel commentModel = document.toObject(CommentModel.class);
                         commentModels.add(commentModel);
                     }
-                    mProgress.dismiss();
+
                     writeCommentAdapter = new WriteCommentAdapter(WriteCommentActivity.this, commentModels,
-                            WriteCommentActivity.this, getSupportFragmentManager());
+                            WriteCommentActivity.this, getSupportFragmentManager(),"comment");
                     MainCommentBinding.recycleComments.setAdapter(writeCommentAdapter);
+
+                    readDataUser(new MyCallbackUser() {
+                        @Override
+                        public void onCallback(DocumentSnapshot documentSnapshot) {
+                            UserAccount userAccount = documentSnapshot.toObject(UserAccount.class);
+                            commentModel.setUser_image(userAccount.getImg_profile());
+                            commentModel.setUser_id(userAccount.getId());
+                            commentModel.setUser_name(userAccount.getName());
+                            commentModel.setPost_id(posts.getPostId());
+                            asyncTaskDownload = new AsyncTaskD(null, "comment", "first");
+                            asyncTaskDownload.execute();
+                        }
+                    });
                 }
             });
         }
@@ -215,18 +220,6 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
             MainCommentBinding.constraintSend.setVisibility(View.GONE);
         });
 
-        readDataUser(new MyCallbackUser() {
-            @Override
-            public void onCallback(DocumentSnapshot documentSnapshot) {
-                UserAccount userAccount = documentSnapshot.toObject(UserAccount.class);
-                commentModel.setUser_image(userAccount.getImg_profile());
-                commentModel.setUser_id(userAccount.getId());
-                commentModel.setUser_name(userAccount.getName());
-                commentModel.setPost_id(posts.getPostId());
-            }
-        });
-        asyncTaskDownload = new AsyncTaskD(null, "comment", "first");
-        asyncTaskDownload.execute();
         MainCommentBinding.fabImage.setOnClickListener(view -> {
 
             if (requestPermissions.permissionStorageRead()) {
@@ -273,7 +266,6 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                     ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytesStream);
                     bytesOutImg = bytesStream.toByteArray();
-                    bitmap = null;
                     asyncTaskDownload = new AsyncTaskD(bytesOutImg, commentModel.getComment(), "uploadImages");
                     asyncTaskDownload.execute();
                     Log.e("image123 : ", "EROR");
@@ -304,19 +296,14 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                 public void onCallBack(QuerySnapshot value) {
                     commentModels.clear();
                     int i = 0;
-                    /*
-                    if(value.size() == 0){
-                        mProgress1.dismiss();
-                    }*/
                     for (DocumentSnapshot document : value.getDocuments()) {
                         CommentModel commentModel = document.toObject(CommentModel.class);
                         commentModels.add(commentModel);
                         i = i +1;
                         if(i == value.size()){
                             writeCommentAdapter = new WriteCommentAdapter(WriteCommentActivity.this,
-                                    commentModels, WriteCommentActivity.this, getSupportFragmentManager());
+                                    commentModels, WriteCommentActivity.this, getSupportFragmentManager(),"comment");
                             MainCommentBinding.recycleComments.setAdapter(writeCommentAdapter);
-                        //    mProgress1.dismiss();
                         }
                     }
                 }
@@ -325,9 +312,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
     }
 
     public void readData(MyCallBackWriteComment myCallback) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        //showDialogPython = new ShowDialogPython(WriteCommentActivity.this,WriteCommentActivity.this.getLayoutInflater(),"upload");
         db.collection("posts").document(postID)
                 .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -339,6 +324,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                             .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        //    showDialogPython.dismissDialog();
                             if (task.isSuccessful()) {
                                 myCallback.onCallback(task);
                                 Log.e("task : ", " tast");
@@ -353,9 +339,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
     }
 
     public void readDataComments(MyCallBackWriteComment myCallback) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(WriteCommentActivity.this,WriteCommentActivity.this.getLayoutInflater(),"upload");
         db.collection("posts").document(posts.getPostId())
                 .collection("comments").orderBy("date", Query.Direction.DESCENDING)
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -363,7 +347,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     myCallback.onCallback(task);
-                    Log.e("task : ", " tast");
+                    Log.e("taskhgjgjhg : ", " tasthgfhhj");
                 } else {
                     Log.e("noti error", task.getException().getMessage());
                 }
@@ -372,12 +356,6 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
     }
 
     public void readDataCommentsListener(MyCallBackListenerComments myCallback) {
-        /*
-        mProgress1.setMessage("Loading..");
-        mProgress1.setCancelable(false);
-        mProgress1.show();
-
-         */
         db.collection("posts").document(posts.getPostId())
                 .collection("comments").orderBy("date", Query.Direction.DESCENDING)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -390,10 +368,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
 
     public void readDataUser(MyCallbackUser myCallback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            mProgress.setMessage("Loading..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+        if (currentUser != null) {////j
             FirebaseFirestore.getInstance().collection("users")
                     .document(currentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -451,12 +426,10 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
         Intent intent = new Intent(WriteCommentActivity.this, MainActivity.class);
         intent.putExtra("openPost", "openPost");
         startActivity(intent);
         finish();
-
     }
 
     @Override
@@ -483,7 +456,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
             @Override
             public void onCallBack(Task<Void> task) {
                 if (task.isSuccessful())
-                    mProgress.dismiss();
+                    showDialogPython.dismissDialog();
             }
         }, commentModel);
     }
@@ -495,10 +468,15 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         startActivity(intent);
     }
 
+    @Override
+    public void onClickIamge(String url) {
+        Intent intent = new Intent(WriteCommentActivity.this, ShowImageActivity.class);
+        intent.putExtra("uri_image", url);
+        startActivity(intent);
+    }
+
     public void readDataReadction(MyCallBackReaction myCallback, CommentModel commentModel) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(WriteCommentActivity.this,WriteCommentActivity.this.getLayoutInflater(),"upload");
         db.collection("posts").document(posts.getPostId()).
                 collection("comments").document(commentModel.getComment_id()).set(commentModel)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -530,7 +508,6 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         String text;
         String action;
         byte[] bytesOutImg;
-        float prop = -1;
 
         public AsyncTaskD(byte[] bytesOutImg, String text, String action) {
             this.text = text;
@@ -542,9 +519,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         protected void onPreExecute() {
             super.onPreExecute();
             if (!action.equals("first")) {
-                mProgress.setMessage("Uploading..");
-                mProgress.show();
-                mProgress.setCancelable(false);
+                showDialogPython = new ShowDialogPython(WriteCommentActivity.this,WriteCommentActivity.this.getLayoutInflater(),"upload");
             }
         }
 
@@ -558,14 +533,7 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                 main_program = py.getModule("prolog");
             } else {
                 if (!text.isEmpty()) {
-                    Log.e("TEXT CORRECT: ",text);
-                    String result = main_program.callAttr("modelCommentAndPost", text).toString();
-                    result = result.replace("[", "").replace("]", "");
-                    if (result.equals("error")) {
-                        prop = (float) 0.1;
-                    } else {
-                        prop = Float.parseFloat(result);
-                    }
+                        modelFire(text);
                 }
             }
             return null;
@@ -575,26 +543,26 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         protected void onPostExecute(String file_url) {
             if (action.equals("first")) {
                 Log.e("first ", " first");
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
             } else if (prop >= 0 && prop < 0.5) {
                 if (action.equals("uploadImages")) {
                     Log.e("action: ",  "uploadImages1");
-                    commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null,mProgress);
+                    commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null);
                     bytesOutImg = null;
                     MainCommentBinding.editMessage.setText("");
                     bitmap = null;
                 } else {
                     Log.e("action: ",  "text");
-                    commentViewModel.uploadComment(db, null, posts, commentModel, null, mProgress);
+                    commentViewModel.uploadComment(db, null, posts, commentModel, null);
                     MainCommentBinding.editMessage.setText("");
                 }
                 uploadImages();
             } else if (prop >= 0.5) {
                 Log.e("prop failed: ", prop + "");
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
             }else if(action.equals("uploadImages")){
                 Log.e("action: ",  "uploadImages2");
-                commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null, mProgress);
+                commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null);
                 bytesOutImg = null;
                 MainCommentBinding.editMessage.setText("");
                 bitmap = null;
@@ -629,5 +597,54 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         });
     }
 
+    private void modelFire(String text) {
+        String result = main_program.callAttr("predictComment", text,getKeyboardLanguage(text)).toString();
+        result = result.replace("[", "").replace("]", "");
+        String[] strings = result.split(", ");
+        Log.e("result: ", result);
+        float[][] input = new float[1][300];
+        for (int i = 0; i < strings.length; i++) {
+            input[0][i] = Float.parseFloat(strings[i]);
+        }
+        CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
+                .requireWifi()
+                .build();
+        Task<CustomModel> model;
+        if(getKeyboardLanguage(text).equals("EN")){
+            Log.e("lang : ",   "EN");
+            model = FirebaseModelDownloader.getInstance()
+                    .getModel("HateAbusiveModelEN", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions);
+        }else{
+            Log.e("lang : ",   "AR");
+            model = FirebaseModelDownloader.getInstance()
+                    .getModel("arabicHateOff", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions);
+        }
 
+        model.addOnSuccessListener(new OnSuccessListener<CustomModel>() {
+            @Override
+            public void onSuccess(CustomModel model) {
+                File modelFile = model.getFile();
+                Log.e("modelFile : ", modelFile + "");
+                if (modelFile != null) {
+                    Interpreter interpreter = new Interpreter(modelFile);
+                    int bufferSize = 1 * java.lang.Float.SIZE / java.lang.Byte.SIZE;
+                    ByteBuffer modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
+                    interpreter.run(input, modelOutput);
+                    modelOutput.rewind();
+                    FloatBuffer probabilities = modelOutput.asFloatBuffer();
+                    prop = probabilities.get(0);
+                    Log.e("MAX : ", prop * 100 + "");
+                }
+            }
+        });
+    }
+    public static String getKeyboardLanguage(String s) {
+        for (int i = 0; i < s.length();) {
+            int c = s.codePointAt(i);
+            if (c >= 0x0600 && c <= 0x06E0)
+                return "AR";
+            i += Character.charCount(c);
+        }
+        return "EN";
+    }
 }

@@ -37,6 +37,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.drhello.R;
 import com.example.drhello.Restarter;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
 import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.chats.StateOfUser;
@@ -63,9 +64,9 @@ public class TestHardwareActivity extends AppCompatActivity {
     private final int REQUESTPERMISSIONSFINE_LOCATION = 1001;
     Intent mServiceIntent;
     private HardWareService hardWareService;
-    public static ProgressDialog mProgress;
     private UserAccount userAccountme;
     private boolean flag = true;
+    ShowDialogPython showDialogPython;
 
 
 
@@ -108,7 +109,6 @@ public class TestHardwareActivity extends AppCompatActivity {
         }
 
         activityTestHardwareBinding= DataBindingUtil.setContentView(TestHardwareActivity.this,R.layout.activity_test_hardware);
-        mProgress = new ProgressDialog(TestHardwareActivity.this);
 
         readDataMe(new MyCallbackUser() {
             @Override
@@ -122,7 +122,7 @@ public class TestHardwareActivity extends AppCompatActivity {
                     activityTestHardwareBinding.imgCurUser.setImageResource(R.drawable.user);
                 }
                 Log.e("userAc: ", userAccountme.getId());
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
             }
         });
 
@@ -164,9 +164,11 @@ public class TestHardwareActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (statusAnimation) {
+                    statusAnimation = false;
                     stopPulse();
                 }
                 else {
+                    statusAnimation = true;
                     startPulse();
                 }
 
@@ -177,20 +179,17 @@ public class TestHardwareActivity extends AppCompatActivity {
                         startService(mServiceIntent);
                     }
                     flag = false;
+                    showDialog();
                 }
-
-                AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(TestHardwareActivity.this);
-                LayoutInflater inflater = TestHardwareActivity.this.getLayoutInflater();
-                View dialogView = inflater.inflate(R.layout.dialog_hardware, null);
-                dialogBuilder.setView(dialogView);
-                AlertDialog alertDialog = dialogBuilder.create();
-                alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-                alertDialog.show();
-
             }
         });
 
-
+        activityTestHardwareBinding.help.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDialog();
+            }
+        });
         activityTestHardwareBinding.back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -219,6 +218,17 @@ public class TestHardwareActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void showDialog() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(TestHardwareActivity.this);
+        LayoutInflater inflater = TestHardwareActivity.this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_hardware, null);
+        dialogBuilder.setView(dialogView);
+        AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        alertDialog.show();
+    }
+
     private boolean isMyServiceRunning(Class<?> serviceClass) {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
@@ -359,9 +369,7 @@ public class TestHardwareActivity extends AppCompatActivity {
     }
 
     public void readDataMe(MyCallbackUser myCallback) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(TestHardwareActivity.this,TestHardwareActivity.this.getLayoutInflater(),"load");
         FirebaseFirestore.getInstance().collection("users")
                 .document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override

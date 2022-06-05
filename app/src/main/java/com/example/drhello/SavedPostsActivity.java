@@ -56,11 +56,11 @@ public class SavedPostsActivity extends AppCompatActivity implements OnPostClick
     ArrayList<Posts> postsArrayList = new ArrayList<>();
     private PostsAdapter postsAdapter;
     private FirebaseFirestore db;
-    public static ProgressDialog mProgress;
     private ActivityPostsUsersBinding activityPostsUsersBinding;
     private UserAccount userAccount;
     private ArrayList<String>  stringArrayList = new ArrayList<>();
     private DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a", Locale.US);
+    ShowDialogPython showDialogPython;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,7 +79,6 @@ public class SavedPostsActivity extends AppCompatActivity implements OnPostClick
             }
         });
         db = FirebaseFirestore.getInstance();
-        mProgress = new ProgressDialog(SavedPostsActivity.this);
 
         readData(new MyCallbackUser() {
             @Override
@@ -116,7 +115,7 @@ public class SavedPostsActivity extends AppCompatActivity implements OnPostClick
                             postsAdapter.FunPostsAdapter(postsArrayList);
                             postsAdapter.notifyDataSetChanged();
 
-                            mProgress.dismiss();
+                            showDialogPython.dismissDialog();
                         }
                     });
                 }
@@ -135,9 +134,8 @@ public class SavedPostsActivity extends AppCompatActivity implements OnPostClick
     public void readData(MyCallbackUser myCallback) {
         String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (userId != null) {
-            mProgress.setMessage("Loading..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(SavedPostsActivity.this,SavedPostsActivity.this.getLayoutInflater(),"load");
+
             FirebaseFirestore.getInstance().collection("users")
                     .document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -199,7 +197,7 @@ public class SavedPostsActivity extends AppCompatActivity implements OnPostClick
             @Override
             public void onCallBack(Task<Void> task) {
                 if (task.isSuccessful())
-                    mProgress.dismiss();
+                showDialogPython.dismissDialog();
             }
         }, posts);
 
@@ -234,15 +232,13 @@ public class SavedPostsActivity extends AppCompatActivity implements OnPostClick
                 }else{
                     Log.e("Failed", " posts deleted!");
                 }
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
             }
         });
     }
 
     public void readDataReadction(MyCallBackReaction myCallback, Posts posts) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(SavedPostsActivity.this,SavedPostsActivity.this.getLayoutInflater(),"load");
 
         db.collection("posts").document(posts.getPostId()).set(posts)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {

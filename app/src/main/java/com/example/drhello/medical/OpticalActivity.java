@@ -25,6 +25,7 @@ import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
 import com.example.drhello.R;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.databinding.ActivityOpticalBinding;
@@ -35,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class OpticalActivity extends AppCompatActivity implements OnClickDoctorInterface {
     private ActivityOpticalBinding activityOpticalBinding;
@@ -43,11 +45,10 @@ public class OpticalActivity extends AppCompatActivity implements OnClickDoctorI
 
     private static final int Gallary_REQUEST_CODE = 1;
     PyObject main_program;
-    public static ProgressDialog mProgress;
     String path = "";
     private Bitmap bitmap;
     private RequestPermissions requestPermissions;
-
+    ShowDialogPython showDialogPython;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,16 +61,10 @@ public class OpticalActivity extends AppCompatActivity implements OnClickDoctorI
         }
 
 
-
         requestPermissions = new RequestPermissions(OpticalActivity.this,OpticalActivity.this);
 
-        mProgress = new ProgressDialog(OpticalActivity.this);
-
         activityOpticalBinding = DataBindingUtil.setContentView(OpticalActivity.this, R.layout.activity_optical);
-        activityOpticalBinding.txtResult0.setText(stringsOptical[0]);
-        activityOpticalBinding.txtResult1.setText(stringsOptical[1]);
-        activityOpticalBinding.txtResult2.setText(stringsOptical[2]);
-        activityOpticalBinding.txtResult3.setText(stringsOptical[3]);
+        activityOpticalBinding.shimmer.startShimmerAnimation();
 
         AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
         asyncTaskDownload.execute();
@@ -154,9 +149,10 @@ public class OpticalActivity extends AppCompatActivity implements OnClickDoctorI
     public Uri getImageUri(Context inContext, Bitmap inImage) {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "IMG_" + Calendar.getInstance().getTime(), null);
         return Uri.parse(path);
     }
+
 
     public String getRealPathFromURI(Uri uri) {
         Cursor cursor = getContentResolver().query(uri,
@@ -182,9 +178,8 @@ public class OpticalActivity extends AppCompatActivity implements OnClickDoctorI
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mProgress.setMessage("Image Processing..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(OpticalActivity.this,OpticalActivity.this.getLayoutInflater(),"load");
+
         }
 
         @Override
@@ -205,18 +200,19 @@ public class OpticalActivity extends AppCompatActivity implements OnClickDoctorI
                 prop = probStr.split(" ");
 
             }
-            mProgress.dismiss();
+
             return null;
         }
 
         @Override
         protected void onPostExecute(String file_url) {
             if(!action.equals("first")){
-                activityOpticalBinding.progress0.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
-                activityOpticalBinding.progress1.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
-                activityOpticalBinding.progress2.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
-                activityOpticalBinding.progress3.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
+                activityOpticalBinding.progresscnv.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
+                activityOpticalBinding.progressdru.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
+                activityOpticalBinding.progresssdmi.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
+                activityOpticalBinding.progressnormal.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
             }
+            showDialogPython.dismissDialog();
         }
     }
 }

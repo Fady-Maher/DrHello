@@ -16,6 +16,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 import com.example.drhello.R;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
 import com.example.drhello.databinding.ActivitySignUpBinding;
 import com.example.drhello.signup.GMailSender;
@@ -49,12 +50,12 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener, T
 
     @SuppressLint("StaticFieldLeak")
     public static ActivitySignUpBinding signUpBinding;
-    private ProgressDialog mProgress;
     private CallbackManager callbackManager;
     private SignUpMethods signUpMethods;
     private final static int RC_SIGN_IN = 123;
     private GoogleSignInClient mGoogleSignInClient;
     private String token;
+    ShowDialogPython showDialogPython;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,7 +67,6 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener, T
         }
         //createRequest for google sign in
         createRequestGoogle();
-        mProgress = new ProgressDialog(this);
 
         //to connect layout with java code
         signUpBinding = DataBindingUtil.setContentView(this, R.layout.activity_sign_up);
@@ -91,8 +91,7 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener, T
         switch (view.getId()) {
             case R.id.btn_signup:
                 if(CheckNetwork.getConnectivityStatusString(SignUp.this) == 1) {
-                    mProgress.setMessage("Signing Up");
-                    mProgress.show();
+                    showDialogPython = new ShowDialogPython(SignUp.this,SignUp.this.getLayoutInflater(),"load");
                     createUser();
                 }else{
                     Toast.makeText(SignUp.this, "Please, Check Internet", Toast.LENGTH_SHORT).show();
@@ -142,19 +141,20 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener, T
         if (name.isEmpty()) {
             signUpBinding.editUsernameSignup.getEditText().setError("Name is needed");
             signUpBinding.editUsernameSignup.getEditText().requestFocus();
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
+
             return;
         }
         if (email.isEmpty()) {
             signUpBinding.editEmailSignup.getEditText().setError("Email is needed");
             signUpBinding.editEmailSignup.getEditText().requestFocus();
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
             return;
         }
         if (!Patterns.EMAIL_ADDRESS.matcher(email).matches() && !email.matches("[0-9]+")) {
             signUpBinding.editEmailSignup.getEditText().setError("Please enter a valid email.");
             signUpBinding.editEmailSignup.getEditText().requestFocus();
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
             return;
         }
 
@@ -162,14 +162,14 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener, T
             signUpBinding.editPassSignup.getEditText().setError("password is needed");
             signUpBinding.editPassSignup.getEditText().requestFocus();
             signUpBinding.editPassSignup.setPasswordVisibilityToggleEnabled(false);
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
             return;
         }
         if (!pass.equals(confirmPass)) {
             signUpBinding.editPassSignup.getEditText().setError("password and confirm should match");
             signUpBinding.editPassSignup.getEditText().requestFocus();
             signUpBinding.editPassSignup.setPasswordVisibilityToggleEnabled(false);
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
             return;
         }
         if (!(PasswordStrength.calculateStrength(pass).getValue() > PasswordStrength.STRONG.getValue())) {
@@ -177,7 +177,7 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener, T
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
             signUpBinding.editPassSignup.getEditText().requestFocus();
             signUpBinding.editPassSignup.setPasswordVisibilityToggleEnabled(false);
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
             return;
         }
 
@@ -202,7 +202,7 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener, T
 
         } else {
             Toast.makeText(getApplicationContext(), "invalid email , please try again!!", Toast.LENGTH_SHORT).show();
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
         }
 
     }
@@ -226,7 +226,7 @@ public class SignUp extends AppCompatActivity implements View.OnClickListener, T
                 "\n" +
                 "Yours sincerely,\n" +
                 "The Easy Care Team.";
-        mProgress.dismiss();
+        showDialogPython.dismissDialog();
         //Creating SendMail object
         GMailSender sm = new GMailSender(this, email, subject, message, userAccount, englishNumerals, true);
         //Executing sendmail to send email

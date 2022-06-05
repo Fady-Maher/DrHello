@@ -8,11 +8,10 @@
     <data>
 
     </data>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".medical.OpticalActivity"
+        tools:context=".medical.ChestActivity"
         android:background="@color/white">
 
         <androidx.appcompat.widget.Toolbar
@@ -37,9 +36,11 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textStyle="bold"
-                android:text="Optical Disease"
+                android:text="Optical Diseases"
                 android:textSize="19sp"
                 android:textColor="@color/appColor" />
+
+
 
 
 
@@ -62,196 +63,342 @@
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/viewPagerImageSlider"
-            app:layout_constraintBottom_toBottomOf="parent">
+            app:layout_constraintVertical_bias="0.0"
+            tools:layout_editor_absoluteX="1dp">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
                 android:orientation="vertical"
-                app:layout_constraintTop_toBottomOf="@id/viewPagerImageSlider"
-                app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
-                android:layout_marginTop="50dp">
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/viewPagerImageSlider">
 
-                <Button
-                    android:id="@+id/sel_img"
-                    android:layout_width="150dp"
-                    android:layout_height="45dp"
-                    android:background="@drawable/btn_model"
-                    android:text="Select Image"
-                    android:textColor="@color/appColor"
-                    android:textAllCaps="false"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="20dp"
-                    />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/sel_img"
+                        android:layout_width="0dp"
+                        android:layout_height="45dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_model"
+                        android:text="Select Image"
+                        android:textAllCaps="false"
+                        android:layout_margin="10dp"
+                        android:textColor="@color/appColor" />
+
+                    <Button
+                        android:id="@+id/result"
+                        android:layout_width="0dp"
+                        android:layout_height="45dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_model"
+                        android:text="Get Result"
+                        android:textAllCaps="false"
+                        android:layout_margin="10dp"
+
+                        android:textColor="@color/appColor" />
+                </LinearLayout>
+
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="250dp"
                     android:layout_height="250dp"
+                    android:layout_gravity="center"
                     android:layout_margin="10dp"
                     android:layout_marginLeft="10dp"
                     android:layout_marginRight="10dp"
+                    android:background="@color/white"
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="15dp"
                     app:cardElevation="8dp"
-                    android:layout_gravity="center"
-                    app:cardPreventCornerOverlap="true"
-                    android:background="@color/white">
+                    app:cardPreventCornerOverlap="true">
 
                     <ImageView
                         android:id="@+id/img_corona"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:scaleType="fitXY"/>
+                        android:scaleType="fitXY" />
 
                 </androidx.cardview.widget.CardView>
 
-
-
-                <Button
-                    android:id="@+id/result"
-                    android:layout_width="150dp"
-                    android:layout_height="45dp"
-                    android:background="@drawable/btn_model"
-                    android:text="Get Result"
-                    android:textColor="@color/appColor"
-                    android:textAllCaps="false"
+                <io.supercharge.shimmerlayout.ShimmerLayout
+                    android:id="@+id/shimmer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="20dp"
-                    />
+                    android:layout_marginTop="5dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/lay"
+                    app:shimmer_animation_duration="1500"
+                    app:shimmer_color="#ffffff"
+                    tools:ignore="RtlHardcoded">
+
+                    <LinearLayout
+                        android:id="@+id/tap_action_layout"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:orientation="horizontal"
+
+                        tools:ignore="UseCompoundDrawables">
+
+                        <TextView
+                            android:id="@+id/txt_go"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="View Results"
+                            android:textColor="@color/appColor"
+                            android:textSize="22sp" />
+
+                    </LinearLayout>
+
+                </io.supercharge.shimmerlayout.ShimmerLayout>
 
 
-
-                <LinearLayout
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
-                    <LinearLayout
+                    android:layout_margin="15dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="10dp">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_margin="10dp">
+                        android:orientation="horizontal">
 
                         <com.app.adprogressbarlib.AdCircleProgress
-                            android:id="@+id/progress0"
-                            android:layout_width="75dp"
-                            android:layout_height="75dp"
-                            app:adpgb_background_color="@color/white"
+                            android:id="@+id/progresscnv"
+                            android:layout_width="70dp"
+                            android:layout_height="70dp"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="5dp"
                             android:backgroundTintMode="add"
+                            app:adpgb_background_color="@color/white"
                             app:adpgb_finished_color="@color/appColor"
+                            app:adpgb_text_color="@color/appColor"
+                            app:adpgb_text_size="18sp"
                             app:adpgb_unfinished_color="@color/white"
                             custom:adpgb_finished_stroke_width="5dp"
-                            app:adpgb_text_size="18sp"
                             custom:adpgb_show_text="true"
-                            app:adpgb_text_color="@color/appColor"
                             custom:adpgb_unfinished_stroke_width="4dp"
-                            android:layout_gravity="center"/>
-
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"/>
                         <TextView
-                            android:id="@+id/txt_result0"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:id="@+id/txt0"
+                            android:layout_width="150dp"
+                            android:layout_height="75dp"
                             android:gravity="center"
-                            android:layout_gravity="center"
-                            android:textSize="22sp"
+                            android:layout_gravity="left"
+                            android:text="CNV"
+                            android:textStyle="italic|bold"
+                            android:textSize="20sp"
+                            android:fontFamily="@font/font"
+                            android:textColor="@color/appColor"
+                            app:layout_constraintRight_toLeftOf="@+id/gif0"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toRightOf="@+id/progresscnv"
+                            />
 
-                            android:textColor="@color/appColor"/>
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/gif0"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:layout_gravity="top|right"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            android:layout_marginRight="3dp"
+                            android:layout_marginTop="3dp"
+                            android:src="@drawable/medical_hospital" />
 
-                    </LinearLayout>
-                    <LinearLayout
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="10dp">
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_margin="10dp">
+                        android:orientation="horizontal">
 
                         <com.app.adprogressbarlib.AdCircleProgress
-                            android:id="@+id/progress1"
-                            android:layout_width="75dp"
-                            android:layout_height="75dp"
-                            app:adpgb_background_color="@color/white"
+                            android:id="@+id/progressdru"
+                            android:layout_width="70dp"
+                            android:layout_height="70dp"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="5dp"
                             android:backgroundTintMode="add"
+                            app:adpgb_background_color="@color/white"
                             app:adpgb_finished_color="@color/appColor"
+                            app:adpgb_text_color="@color/appColor"
+                            app:adpgb_text_size="18sp"
                             app:adpgb_unfinished_color="@color/white"
                             custom:adpgb_finished_stroke_width="5dp"
-                            app:adpgb_text_size="18sp"
                             custom:adpgb_show_text="true"
-                            app:adpgb_text_color="@color/appColor"
                             custom:adpgb_unfinished_stroke_width="4dp"
-                            android:layout_gravity="center"/>
-
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"/>
                         <TextView
-                            android:id="@+id/txt_result1"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:id="@+id/txt1"
+                            android:layout_width="170dp"
+                            android:layout_height="75dp"
                             android:gravity="center"
-                            android:layout_gravity="center"
-                            android:textSize="22sp"
-                            android:textColor="@color/appColor"/>
+                            android:layout_gravity="left"
+                            android:text="DRUSEN"
+                            android:textStyle="italic|bold"
+                            android:textSize="20sp"
+                            android:fontFamily="@font/font"
+                            android:textColor="@color/appColor"
+                            app:layout_constraintRight_toLeftOf="@+id/gif1"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toRightOf="@+id/progressdru"
+                            />
 
-                    </LinearLayout>
-                    <LinearLayout
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/gif1"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:layout_gravity="top|right"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            android:layout_marginRight="3dp"
+                            android:layout_marginTop="3dp"
+                            android:src="@drawable/medical_hospital" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="10dp"
+                    >
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_margin="10dp">
-
+                        android:orientation="horizontal">
                         <com.app.adprogressbarlib.AdCircleProgress
-                            android:id="@+id/progress2"
-                            android:layout_width="75dp"
-                            android:layout_height="75dp"
-                            app:adpgb_background_color="@color/white"
+                            android:id="@+id/progresssdmi"
+                            android:layout_width="70dp"
+                            android:layout_height="70dp"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="5dp"
                             android:backgroundTintMode="add"
+                            app:adpgb_background_color="@color/white"
                             app:adpgb_finished_color="@color/appColor"
+                            app:adpgb_text_color="@color/appColor"
+                            app:adpgb_text_size="18sp"
                             app:adpgb_unfinished_color="@color/white"
                             custom:adpgb_finished_stroke_width="5dp"
-                            app:adpgb_text_size="18sp"
                             custom:adpgb_show_text="true"
-                            app:adpgb_text_color="@color/appColor"
                             custom:adpgb_unfinished_stroke_width="4dp"
-                            android:layout_gravity="center"/>
-
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"/>
                         <TextView
-                            android:id="@+id/txt_result2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:layout_gravity="center"
-                            android:textSize="22sp"
-                            android:textColor="@color/appColor"/>
 
-                    </LinearLayout>
-                    <LinearLayout
+                            android:id="@+id/txt2"
+                            android:layout_width="150dp"
+                            android:layout_height="75dp"
+                            android:gravity="center"
+                            android:layout_gravity="left"
+                            android:text="DME"
+                            android:textStyle="italic|bold"
+                            android:textSize="20sp"
+                            android:fontFamily="@font/font"
+                            android:textColor="@color/appColor"
+                            app:layout_constraintRight_toLeftOf="@+id/gif2"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toRightOf="@+id/progresssdmi"
+                            />
+
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/gif2"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:layout_gravity="top|right"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            android:layout_marginRight="3dp"
+                            android:layout_marginTop="3dp"
+                            android:src="@drawable/medical_hospital" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="10dp">
+                    <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_margin="10dp">
+                        android:orientation="horizontal">
 
                         <com.app.adprogressbarlib.AdCircleProgress
-                            android:id="@+id/progress3"
-                            android:layout_width="75dp"
-                            android:layout_height="75dp"
-                            app:adpgb_background_color="@color/white"
+                            android:id="@+id/progressnormal"
+                            android:layout_width="70dp"
+                            android:layout_height="70dp"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="5dp"
                             android:backgroundTintMode="add"
+                            app:adpgb_background_color="@color/white"
                             app:adpgb_finished_color="@color/appColor"
+                            app:adpgb_text_color="@color/appColor"
+                            app:adpgb_text_size="18sp"
                             app:adpgb_unfinished_color="@color/white"
                             custom:adpgb_finished_stroke_width="5dp"
-                            app:adpgb_text_size="18sp"
                             custom:adpgb_show_text="true"
-                            app:adpgb_text_color="@color/appColor"
                             custom:adpgb_unfinished_stroke_width="4dp"
-                            android:layout_gravity="center"/>
-
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"/>
                         <TextView
-                            android:id="@+id/txt_result3"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:id="@+id/txt3"
+                            android:layout_width="150dp"
+                            android:layout_height="75dp"
                             android:gravity="center"
-                            android:layout_gravity="center"
-                            android:textSize="22sp"
-                            android:textColor="@color/appColor"/>
+                            android:layout_gravity="left"
+                            android:text="NORMAL"
+                            android:textStyle="italic|bold"
+                            android:textSize="20sp"
+                            android:fontFamily="@font/font"
+                            android:textColor="@color/appColor"
+                            app:layout_constraintRight_toLeftOf="@+id/gif3"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toRightOf="@+id/progressnormal"
+                            />
 
-                    </LinearLayout>
-                </LinearLayout>
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/gif3"
+                            android:layout_width="45dp"
+                            android:layout_height="45dp"
+                            android:layout_gravity="top|right"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            android:layout_marginRight="3dp"
+                            android:layout_marginTop="3dp"
+                            android:src="@drawable/medical_hospital" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                </androidx.cardview.widget.CardView>
 
 
             </LinearLayout>
@@ -260,7 +407,10 @@
         </androidx.core.widget.NestedScrollView>
 
 
-
-
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
 </layout>

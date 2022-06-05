@@ -63,8 +63,6 @@
                 android:background="@color/black"
                 android:textColor="@color/white"
                 android:textSize="18sp"
-                android:autoLink="web"
-                android:linksClickable="true"
                 />
 
         </LinearLayout>

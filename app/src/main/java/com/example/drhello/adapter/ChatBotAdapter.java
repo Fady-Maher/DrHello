@@ -1,6 +1,12 @@
 package com.example.drhello.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,9 +14,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.drhello.ChatBotlistener;
 import com.example.drhello.R;
 import com.example.drhello.adapter.OnTranslateClickListener;
 import com.example.drhello.model.ChatBotModel;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
@@ -22,11 +30,12 @@ public class ChatBotAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private ArrayList<ChatBotModel> arrayList = new ArrayList<>();
     final private int viewholdermeID = 0, viewholderotherID = 1;
     private OnTranslateClickListener onTranslateClickListener;
-
-    public ChatBotAdapter(Context context, ArrayList<ChatBotModel> arrayList,OnTranslateClickListener onTranslateClickListener) {
+    private ChatBotlistener chatBotlistener;
+    public ChatBotAdapter(Context context, ArrayList<ChatBotModel> arrayList,OnTranslateClickListener onTranslateClickListener,ChatBotlistener chatBotlistener) {
         this.context = context;
         this.arrayList = arrayList;
         this.onTranslateClickListener = onTranslateClickListener;
+        this.chatBotlistener = chatBotlistener;
     }
 
     @NonNull
@@ -59,6 +68,14 @@ public class ChatBotAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 chatBotViewHolderBot.txt_date.setText(splitDateTime(chatBotModel.getDate())[0]);
                 chatBotViewHolderBot.txt_message.setText(chatBotModel.getText());
                 chatBotViewHolderBot.txt_timestamp.setText(timestamp);
+                if(chatBotModel.getText().contains("http")){
+                    Log.e("RED: ","http");
+                    chatBotViewHolderBot.txt_message.setTextColor(context.getResources().getColor(R.color.appColorUnSelected));
+                    String link = "http"+chatBotModel.getText().split("http")[1];
+                    SpannableString content = new SpannableString(link);
+                    content.setSpan(new UnderlineSpan(), 0, link.length(), 0);
+                    chatBotViewHolderBot.txt_message.setText(content);
+                }
                 break;
             default:
         }
@@ -98,6 +115,14 @@ public class ChatBotAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     onTranslateClickListener.onClick(arrayList.get(getAdapterPosition()),getAdapterPosition());
                 }
             });
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (arrayList.get(getAdapterPosition()).getText().contains("http"))
+                        chatBotlistener.onClick("http"+arrayList.get(getAdapterPosition()).getText().split("http")[1]);
+                }
+            });
         }
     }
 
@@ -108,6 +133,7 @@ public class ChatBotAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             txt_date = itemView.findViewById(R.id.txt_date_me);
             txt_message = itemView.findViewById(R.id.txt_message_me);
             txt_timestamp = itemView.findViewById(R.id.txt_timestamp_me);
+
         }
     }
 }

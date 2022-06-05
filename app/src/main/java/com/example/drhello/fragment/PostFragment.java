@@ -27,6 +27,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.firebaseinterface.MyCallbackDeleteItem;
 import com.example.drhello.firebaseinterface.MyCallbackDeletePost;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
@@ -78,7 +79,6 @@ public class PostFragment extends Fragment implements OnPostClickListener {
     private ArrayList<String> strings = new ArrayList<>();
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    public static ProgressDialog mProgress;
     ImageView image_user;
     private UserAccount userAccount;
     private FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
@@ -87,6 +87,7 @@ public class PostFragment extends Fragment implements OnPostClickListener {
 
     private int numImages = 0;
 
+    ShowDialogPython showDialogPython;
 
     public PostFragment() {
         // Required empty public constructor
@@ -110,7 +111,7 @@ public class PostFragment extends Fragment implements OnPostClickListener {
         image_user = view.findViewById(R.id.user_image);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        mProgress = new ProgressDialog(getActivity());
+
 
 
         readData(new MyCallbackUser() {
@@ -127,7 +128,8 @@ public class PostFragment extends Fragment implements OnPostClickListener {
                         image_user.setImageResource(R.drawable.user);
                     }
                 }
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
+
             }
         });
 
@@ -247,9 +249,8 @@ public class PostFragment extends Fragment implements OnPostClickListener {
     public void readData(MyCallbackUser myCallback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            mProgress.setMessage("Loading..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
+
             FirebaseFirestore.getInstance().collection("users")
                     .document(currentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -300,7 +301,8 @@ public class PostFragment extends Fragment implements OnPostClickListener {
             @Override
             public void onCallBack(Task<Void> task) {
                 if (task.isSuccessful())
-                    mProgress.dismiss();
+                    showDialogPython.dismissDialog();
+
             }
         }, posts);
 
@@ -331,9 +333,8 @@ public class PostFragment extends Fragment implements OnPostClickListener {
     }
 
     public void readDataReadction(MyCallBackReaction myCallback, Posts posts) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
+
         db.collection("posts").document(posts.getPostId()).set(posts)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -345,9 +346,8 @@ public class PostFragment extends Fragment implements OnPostClickListener {
 
 
     private void deletePost(Posts posts){
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
+
         if(posts.getImgUri().size() > 0){
             numImages = posts.getImgUri().size();
             Log.e("numImages : ", numImages + "");
@@ -375,7 +375,7 @@ public class PostFragment extends Fragment implements OnPostClickListener {
                                        } else{
                                            Log.e("Failed", " posts deleted!");
                                        }
-                                        mProgress.dismiss();
+                                        showDialogPython.dismissDialog();
                                     }
                                 },posts);
                             }
@@ -392,21 +392,20 @@ public class PostFragment extends Fragment implements OnPostClickListener {
                     } else{
                         Log.e("Failed", " posts deleted!");
                     }
-                    mProgress.dismiss();
+                    showDialogPython.dismissDialog();
                 }
             },posts);
         }
     }
 
     private void savePost(Posts posts){
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
+
         ArrayList<String> postArray = userAccount.getPostArray();
         if(postArray.contains(posts.getPostId())){
             Toast.makeText(getActivity(),"this post already in saved posts!",Toast.LENGTH_SHORT).show();
             Log.e("Failed", "this post already in saved posts!!");
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
         }else{
             postArray.add(posts.getPostId());
             userAccount.setPostArray(postArray);
@@ -419,7 +418,7 @@ public class PostFragment extends Fragment implements OnPostClickListener {
                     }else{
                         Log.e("Failed", " posts saved!");
                     }
-                    mProgress.dismiss();
+                    showDialogPython.dismissDialog();
                 }
             });
         }

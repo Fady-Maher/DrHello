@@ -47,8 +47,17 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
     public void onBindViewHolder(@NonNull NewsViewHolder holder, int position) {
         NewsModel newsList = newsModelList.get(position);
         holder.title.setText(newsList.getTitle());
-        holder.description.setText(newsList.getDescription());
-        holder.publishDate.setText(newsList.getDate());
+
+        if(newsList.getDescription() != null){
+            holder.description.setText(newsList.getDescription().split("\\.")[0]+" .....");
+        }else{
+            holder.description.setText(newsList.getDescription());
+        }
+
+        String[] strings = newsList.getDate().split(" ");
+
+        holder.time.setText(strings[1]+" "+strings[2]);
+        holder.publishDate.setText(strings[0]);
         if(newsList.getImage() == null) {
             Glide.with(context).load(newsList.getImageUrl()).placeholder(R.drawable.no_image).error(R.drawable.erorr).into(holder.articleImage);
         }else{
@@ -74,6 +83,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
         private final TextView title;
         private final TextView description;
         private final TextView publishDate;
+        private final TextView time;
         private final ImageButton share;
         public NewsViewHolder(@NonNull View itemView , OnNewsClickListener listener) {
             super(itemView);
@@ -81,6 +91,7 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder
             title = itemView.findViewById(R.id.tvTitle);
             description = itemView.findViewById(R.id.tvDescription);
             publishDate = itemView.findViewById(R.id.publish_date);
+            time = itemView.findViewById(R.id.time);
             share = itemView.findViewById(R.id.share_news_btn);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

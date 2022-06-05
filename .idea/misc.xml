@@ -19,15 +19,16 @@
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/drawable/ic_search.xml" value="0.1115" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/drawable/ic_specialist.xml" value="0.1755" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/drawable/medical_logo.xml" value="0.1625" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/font/customfont.xml" value="0.146875" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_about_info.xml" value="0.33" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_add_person.xml" value="0.18" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_alarm_cancel.xml" value="0.16259057971014493" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_alarm_list.xml" value="0.10960144927536232" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_bot.xml" value="0.1" />
-        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_brain.xml" value="0.16" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_brain.xml" value="0.25" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_chat.xml" value="0.22" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_chat_bot.xml" value="0.15" />
-        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_chest.xml" value="0.3202247191011236" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_chest.xml" value="0.25" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_complete_info.xml" value="0.22" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_contact_us.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_description_ray.xml" value="0.25" />
@@ -36,6 +37,7 @@
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_feed_back.xml" value="0.20416666666666666" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_hardware.xml" value="0.13451086956521738" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_heart.xml" value="0.13697916666666668" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_inside_comment.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_main.xml" value="0.1" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_maps.xml" value="0.15896739130434784" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_optical.xml" value="0.14895833333333333" />
@@ -43,7 +45,7 @@
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_profile.xml" value="0.22" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_saved_posts.xml" value="0.18" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_skin.xml" value="0.20416666666666666" />
-        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_test_hardware.xml" value="0.20416666666666666" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/activity_test_hardware.xml" value="0.25" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/alarm_item_layout.xml" value="0.25" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/alertdialogposts.xml" value="0.15" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/bottomsheet_layout.xml" value="0.18854166666666666" />
@@ -52,25 +54,34 @@
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/comment_design.xml" value="0.2" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/contact_us.xml" value="0.25" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/custom.xml" value="0.18" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/dialog_bot.xml" value="0.67" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/dialog_fb_reactions.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/dialog_hardware.xml" value="0.33" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/dialog_loading.xml" value="0.5" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/dialog_uploading.xml" value="0.25" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/doctor_item.xml" value="0.33" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/doctor_items.xml" value="0.25" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/fragment_add_friend.xml" value="0.1" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/fragment_chat.xml" value="0.22" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/fragment_doctors.xml" value="0.17447916666666666" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/fragment_home.xml" value="0.25" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/fragment_main_news.xml" value="0.17346014492753623" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/fragment_post.xml" value="0.1" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/fragment_requests_friend.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/fragment_users.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/item_add_person.xml" value="0.1" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/item_option.xml" value="0.1" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/item_request_person.xml" value="0.1" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/item_specialist.xml" value="0.25" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/itemnumreaction.xml" value="0.1" />
-        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/medical_types.xml" value="0.18854166666666666" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/medical_types.xml" value="0.33" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/news_item.xml" value="0.33" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/post_image.xml" value="0.18854166666666666" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/posts_layout.xml" value="0.1" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/recycler_view_item_chat_me.xml" value="0.15" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/layout/search_map_item.xml" value="0.19791666666666666" />
         <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/menu/menu_post.xml" value="0.25" />
+        <entry key="..\:/Users/Fady/Desktop/DrHello-master/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1865" />
       </map>
     </option>
   </component>

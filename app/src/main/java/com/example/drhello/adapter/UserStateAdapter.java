@@ -22,13 +22,15 @@ public class UserStateAdapter extends RecyclerView.Adapter<UserStateAdapter.Stat
 
     private Context context;
     private ArrayList<UserState>userStates=new ArrayList<>();
+    private OnClickFriendStateLinstener onFriendsClickListener;
 
     public UserStateAdapter() {
     }
 
-    public UserStateAdapter(Context context, ArrayList<UserState> userStates) {
+    public UserStateAdapter(Context context, ArrayList<UserState> userStates,OnClickFriendStateLinstener onFriendsClickListener) {
         this.context = context;
         this.userStates = userStates;
+        this.onFriendsClickListener = onFriendsClickListener;
     }
 
     @NonNull
@@ -71,6 +73,12 @@ public class UserStateAdapter extends RecyclerView.Adapter<UserStateAdapter.Stat
             img_cur_user=itemView.findViewById(R.id.img_cur_user);
             ic_state=itemView.findViewById(R.id.ic_state);
             txt_name_user=itemView.findViewById(R.id.txt_name_user);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onFriendsClickListener.onClickState(userStates.get(getAdapterPosition()).getIdfriend());
+                }
+            });
         }
     }
 }

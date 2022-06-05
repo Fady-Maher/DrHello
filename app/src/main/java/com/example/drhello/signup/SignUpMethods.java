@@ -18,7 +18,7 @@ import androidx.annotation.NonNull;
 import com.example.drhello.ui.login.CompleteInfoActivity;
 import com.example.drhello.R;
 import com.example.drhello.model.UserAccount;
-import com.example.drhello.ui.profile.UserInformation;
+import com.example.drhello.model.UserInformation;
 import com.example.drhello.ui.login.SignIn;
 import com.example.drhello.ui.login.SignUp;
 import com.example.drhello.ui.login.VerifyActivity;

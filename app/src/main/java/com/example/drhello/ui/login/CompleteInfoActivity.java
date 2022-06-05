@@ -7,7 +7,6 @@ import androidx.databinding.DataBindingUtil;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -20,17 +19,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.drhello.R;
-import com.example.drhello.medical.ChestActivity;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.databinding.ActivityCompleteInfoBinding;
 import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.main.MainActivity;
 import com.example.drhello.ui.mapping.MapsActivity;
-import com.example.drhello.ui.profile.UserInformation;
+import com.example.drhello.model.UserInformation;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -51,10 +49,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 public class CompleteInfoActivity extends AppCompatActivity {
@@ -80,7 +76,8 @@ public class CompleteInfoActivity extends AppCompatActivity {
     private ArrayList<String> arrayAdaptermapspec =  new ArrayList<String>();
 
     public static LatLng location;
-    public static ProgressDialog mProgress;
+    ShowDialogPython showDialogPython;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,8 +88,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
         } else {
             getWindow().setStatusBarColor(Color.WHITE);
         }
-        mProgress = new ProgressDialog(CompleteInfoActivity.this);
-        mProgress.setCancelable(false);
+
         activityCompleteInfoBinding = DataBindingUtil.setContentView(CompleteInfoActivity.this, R.layout.activity_complete_info);
         activityCompleteInfoBinding.shimmer.startShimmerAnimation();
 
@@ -366,7 +362,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         Log.e("updata pass : ", "finish");
                         Intent intent = new Intent(CompleteInfoActivity.this, MainActivity.class);
-                        mProgress.dismiss();
+                        showDialogPython.dismissDialog();
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         intent.putExtra("userInformation", getIntent().getSerializableExtra("userInformation"));
                         intent.putExtra("method", "PHONE");
@@ -481,8 +477,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
             return;
         }
 
-        mProgress.setMessage("Loading..");
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(CompleteInfoActivity.this,CompleteInfoActivity.this.getLayoutInflater(),"load");
         String fullNumber = activityCompleteInfoBinding.ccp.getFullNumber();
         UserInformation userInformation = new UserInformation(
                 countries.get(activityCompleteInfoBinding.spinnerCountryUser.getSelectedItemPosition()),
@@ -501,8 +496,8 @@ public class CompleteInfoActivity extends AppCompatActivity {
 
 
     private void uploadImage(Bitmap bitmap) {
-        mProgress.setMessage("Loading..");
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(CompleteInfoActivity.this,CompleteInfoActivity.this.getLayoutInflater(),"load");
+
         ByteArrayOutputStream output_image = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output_image);
         byte[] data_image = output_image.toByteArray();

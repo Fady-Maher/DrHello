@@ -1,7 +1,5 @@
 package com.example.drhello.model;
 
-import com.example.drhello.ui.profile.UserInformation;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;

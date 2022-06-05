@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
@@ -16,8 +17,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
+import com.example.drhello.ShowDialogPython;
+import com.example.drhello.adapter.OnClickFriendStateLinstener;
 import com.example.drhello.adapter.TapChatAdapter;
 import com.example.drhello.adapter.TapFriendAdapter;
+import com.example.drhello.fragment.fragmentchat.DoctorsFragment;
 import com.example.drhello.ui.chats.AddPersonActivity;
 import com.example.drhello.model.LastChat;
 import com.example.drhello.firebaseinterface.MyCallBackChats;
@@ -47,7 +51,7 @@ import java.util.ArrayList;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 
-public class ChatFragment extends Fragment {
+public class ChatFragment extends Fragment implements OnClickFriendStateLinstener {
 
     private RecyclerView  recyclerView_state;
     private ArrayList<UserState> userStates = new ArrayList<>();
@@ -57,27 +61,30 @@ public class ChatFragment extends Fragment {
     private FloatingActionButton add_user;
     private CircleImageView img_cur_user;
     private UserAccount userAccount;
-    public static ProgressDialog mProgress;
+    ShowDialogPython showDialogPython;
+
+    ViewPager view_pager;
+    View view;
     public ChatFragment() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e("onCreate: " ,"ChatFragment");
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_chat, container, false);
-
+         view = inflater.inflate(R.layout.fragment_chat, container, false);
+        Log.e("onCreateView: " ,"FIRST");
         recyclerView_state = view.findViewById(R.id.recycle_users);
         add_user = view.findViewById(R.id.add_user);
         img_cur_user = view.findViewById(R.id.img_cur_user);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        mProgress = new ProgressDialog(getActivity());
-
 
         readData(new MyCallbackUser() {
             @Override
@@ -86,39 +93,34 @@ public class ChatFragment extends Fragment {
                     FirebaseAuth.getInstance().getCurrentUser().delete();
                 }else{
                     userAccount = documentSnapshot.toObject(UserAccount.class);
-
                     try{
                         Glide.with(getActivity()).load(userAccount.getImg_profile()).placeholder(R.drawable.user).
                                 error(R.drawable.user).into(img_cur_user);
                     }catch (Exception e){
                         img_cur_user.setImageResource(R.drawable.user);
                     }
-
                     readDataUsersListener(new MyCallBackListenerComments() {
                         @Override
                         public void onCallBack(QuerySnapshot value) {
                             for (DocumentSnapshot document : value.getDocuments()) {
                                 UserAccount friendAccount = document.toObject(UserAccount.class);
-                                Log.e("online:","statues");
+                //                Log.e("online:","statues");
                                 if(userAccount.getFriendsmap().containsKey(friendAccount.getId())){
-                                    Log.e("online:","mapFriend");
+                   //                 Log.e("online:","mapFriend");
                                     UserState userState = new UserState(friendAccount.getImg_profile(),
-                                            friendAccount.getState(),friendAccount.getName());
+                                            friendAccount.getState(),friendAccount.getName(),friendAccount.getId());
                                     userStates.add(userState);
                                 }
                             }
-                            UserStateAdapter userStateAdapter = new UserStateAdapter(getActivity(), userStates);
+                            UserStateAdapter userStateAdapter = new UserStateAdapter(getActivity(), userStates,
+                                    ChatFragment.this);
                             recyclerView_state.setAdapter(userStateAdapter);
                         }
                     });
                 }
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
             }
         });
-
-
-
-
 
         add_user.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -129,47 +131,44 @@ public class ChatFragment extends Fragment {
         });
         /*************************************************/
 
-
-
-
-
+         view_pager = view.findViewById(R.id.view_pager);
         TabLayout tabLayout = view.findViewById(R.id.Tab);
         tabLayout.addTab(tabLayout.newTab().setText("Doctors").setIcon(R.drawable.doctor_tab2),0);
         tabLayout.addTab(tabLayout.newTab().setText("Users").setIcon(R.drawable.ic_user),1);
         TapChatAdapter adapter = new TapChatAdapter( getFragmentManager(),
                 tabLayout.getTabCount()
         );
-        ViewPager view_pager = view.findViewById(R.id.view_pager);
         view_pager.setAdapter(adapter);
         view_pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                Log.e("online:",tab.getPosition()+"");
+                Log.e("onlTAP:",tab.getPosition()+"");
+
                 view_pager.setCurrentItem(tab.getPosition());
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
             }
         });
-
 
 
         return view;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+    }
 
     public void readDataUsersListener(MyCallBackListenerComments myCallback) {
-        mProgress.setMessage("Loading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
 
         db.collection("users").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -185,9 +184,7 @@ public class ChatFragment extends Fragment {
     public void readData(MyCallbackUser myCallback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            mProgress.setMessage("Loading..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
             FirebaseFirestore.getInstance().collection("users")
                     .document(currentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -198,4 +195,16 @@ public class ChatFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onClickState(String id) {
+        Intent intent = new Intent(getActivity(), ChatActivity.class);
+        intent.putExtra("friendAccount", id);
+        intent.putExtra("userAccount", userAccount);
+        ChatModel chatModel = (ChatModel) getActivity().getIntent().getSerializableExtra("message");
+        if (chatModel != null) {
+            Log.e("getActivity:", chatModel.getMessage());
+            intent.putExtra("message", chatModel);
+        }
+        getActivity().startActivity(intent);
+    }
 }

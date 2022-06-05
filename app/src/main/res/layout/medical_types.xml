@@ -32,7 +32,7 @@
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:text="Covid19"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:gravity="center"
             android:textColor="@color/appColor"/>
 

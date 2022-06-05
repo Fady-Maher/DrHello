@@ -23,6 +23,8 @@ android {
                         install "pyspellchecker"
                         install "deep_translator"
                         install "langdetect"
+                        install "joblib"
+                        install "sklearn"
                     }
                 }
         ndk {

@@ -157,4 +157,5 @@ public class DoctorsFragment extends Fragment implements OnFriendsClickListener 
         }
         getActivity().startActivity(intent);
     }
+
 }

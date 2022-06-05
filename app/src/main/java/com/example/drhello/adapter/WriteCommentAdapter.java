@@ -43,14 +43,16 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
     private String reactionType2 = "0";
     private FragmentManager fragmentManager;
     public static ProgressDialog mProgress;
+    private String type ;
 
 
     public WriteCommentAdapter(Context context, ArrayList<CommentModel> commentModels
-    ,OnCommentClickListener onCommentClickListener,FragmentManager fragmentManager) {
+            ,OnCommentClickListener onCommentClickListener,FragmentManager fragmentManager,String type) {
         this.context = context;
         this.commentModels = commentModels;
         this.onCommentClickListener = onCommentClickListener;
         this.fragmentManager = fragmentManager;
+        this.type =type;
         mProgress = new ProgressDialog(context);
     }
 
@@ -230,7 +232,7 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
             txt_date=itemView.findViewById(R.id.txt_date);
             lin_reaction=itemView.findViewById(R.id.lin_reaction);
 
-            if(onCommentClickListener != null){
+            if(type.equals("comment")){
                 txt_comment.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -269,6 +271,14 @@ public class WriteCommentAdapter  extends RecyclerView.Adapter<WriteCommentAdapt
                 txt_comment.setVisibility(View.GONE);
                 txt_like.setVisibility(View.GONE);
             }
+
+            image_comment.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.e("getComment_image: ",commentModels.get(getAdapterPosition()).getComment_image());
+                    onCommentClickListener.onClickIamge(commentModels.get(getAdapterPosition()).getComment_image());
+                }
+            });
 
 
         }

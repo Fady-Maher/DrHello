@@ -26,6 +26,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.example.drhello.DoctorsActivity;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.SpecialistAdapter;
@@ -57,7 +58,7 @@ public class HomeFragment extends Fragment implements OnClickDoctorInterface {
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     ArrayList<UserAccount> userAccountArrayList = new ArrayList<>();
     SliderItem sliderItem;
-    public static ProgressDialog mProgress;
+    ShowDialogPython showDialogPython;
 
     private Bitmap bitmap;
     private static final int Gallary_REQUEST_CODE = 1;
@@ -77,7 +78,6 @@ public class HomeFragment extends Fragment implements OnClickDoctorInterface {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
-        mProgress = new ProgressDialog(getActivity());
         recyclerView = view.findViewById(R.id.viewPagerImageSlider);
         rec_diseases = view.findViewById(R.id.rec_diseases);
         Items.add(new SliderItem(R.drawable.xray, "Chest X-Rays"));
@@ -161,7 +161,8 @@ public class HomeFragment extends Fragment implements OnClickDoctorInterface {
                     }
                 }
 
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
+
             }
         });
 
@@ -172,8 +173,7 @@ public class HomeFragment extends Fragment implements OnClickDoctorInterface {
     public void readData(MyCallbackAllUser myCallback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            mProgress.setMessage("Loading..");
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
             db.collection("users").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<QuerySnapshot> task) {

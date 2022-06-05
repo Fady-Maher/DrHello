@@ -684,9 +684,11 @@
                         android:id="@+id/img_cur_user"
                         android:layout_width="150dp"
                         android:layout_height="100dp"
-                        android:src="@drawable/me"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/user"
                         app:civ_border_color="@color/appColor"
-                        app:civ_border_width="0.7dp" />
+                        app:civ_border_width="0.7dp"
+                        />
 
 
                     <androidx.cardview.widget.CardView

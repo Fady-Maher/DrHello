@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">Dr-Care</string>
+    <string name="app_name">Dr Care</string>
     <string name="btn_google">Google</string>
     <string name="btn_facebook">Facebook</string>
     <string name="et_email_or_phone_number">Email or Phone number</string>
@@ -135,7 +135,6 @@
     <string name="posts">Posting health problems with program users to find out if one of them suffers from it or not</string>
     <string name="chats">Chatting with users to discuss their health issues</string>
     <string name="alarms">Alarm for personal treatment appointment</string>
-    <string name="link">You have to Allow permission to background activity to enable work service in background , Please follow the instruction in the link bellow</string>
 
 
 </resources>

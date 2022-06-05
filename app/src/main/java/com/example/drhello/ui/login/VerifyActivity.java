@@ -5,26 +5,22 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.ui.main.MainActivity;
 import com.example.drhello.R;
-import com.example.drhello.ui.profile.UserInformation;
+import com.example.drhello.model.UserInformation;
 import com.example.drhello.databinding.ActivityVerifyBinding;
 import com.example.drhello.signup.GMailSender;
 import com.example.drhello.signup.SignUpMethods;
 import com.example.drhello.model.UserAccount;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,11 +28,7 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Random;
@@ -51,7 +43,7 @@ public class VerifyActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private final String PHONE = "PHONE";
-    private ProgressDialog mProgress;
+    ShowDialogPython showDialogPython;
 
 
     @Override
@@ -64,7 +56,6 @@ public class VerifyActivity extends AppCompatActivity {
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
-        mProgress = new ProgressDialog(VerifyActivity.this);
         verifyBinding = DataBindingUtil.setContentView(this, R.layout.activity_verify);
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -143,9 +134,7 @@ public class VerifyActivity extends AppCompatActivity {
 
     //sign up with phone and password
     public void sendVerificationCode(String phone) {
-        mProgress.setTitle("Sending Verification Code");
-        mProgress.setMessage("Please wait...");
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(VerifyActivity.this,VerifyActivity.this.getLayoutInflater(),"load");
         mAuth = FirebaseAuth.getInstance();
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(mAuth)
@@ -166,7 +155,7 @@ public class VerifyActivity extends AppCompatActivity {
             //in this case the code will be null
             //so user has to manually enter the code
             Log.e("VerCompleted:", phoneAuthCredential + "");
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
         }
 
         @Override
@@ -183,14 +172,14 @@ public class VerifyActivity extends AppCompatActivity {
             */
 
             Toast.makeText(getApplicationContext(), "An error occurred during authentication, Try again later (5 Hour) And if this is repeated, Please contact our support team.", Toast.LENGTH_SHORT).show();
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
         }
 
         @Override
         public void onCodeSent(@NonNull String verificationId, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
             super.onCodeSent(verificationId, forceResendingToken);
             Log.e("onCodeSent:", verificationId + "");
-            mProgress.dismiss();
+            showDialogPython.dismissDialog();
             verify_num = verificationId;
         }
     };

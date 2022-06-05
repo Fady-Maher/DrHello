@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.drhello.R;
+import com.example.drhello.ShowDialogPython;
 import com.example.drhello.adapter.NewsAdapter;
 import com.example.drhello.adapter.OnNewsClickListener;
 import com.example.drhello.model.Posts;
@@ -42,7 +43,7 @@ public class MainNewsFragment extends Fragment {
     private RecyclerView recyclerView ;
     private NewsViewModel newsViewModel;
     private NewsAdapter newsAdapter;
-    private ProgressBar progressBar;
+    ShowDialogPython showDialogPython;
     private static final String TAG = "Main";
     private List<NewsModel> newsModelList = new ArrayList<>() , searchList = new ArrayList<>();
     private  androidx.appcompat.widget.SearchView searchView;
@@ -68,7 +69,8 @@ public class MainNewsFragment extends Fragment {
         View view=inflater.inflate(R.layout.fragment_main_news, container, false);
         recyclerView = view.findViewById(R.id.rv_news);
 
-        progressBar = view.findViewById(R.id.news_progressBar);
+        showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
+
         newsViewModel = ViewModelProviders.of(this).get(NewsViewModel.class);
         if(isNetworkAvailable())
         {
@@ -78,7 +80,7 @@ public class MainNewsFragment extends Fragment {
             newsViewModel.newsMutableLiveData.observe(Objects.requireNonNull(getActivity()), newsModels -> {
                 newsModelList = newsModels;
                 newsAdapter.setNews((ArrayList<NewsModel>) newsModels,getContext());
-                progressBar.setVisibility(View.GONE);
+                showDialogPython.dismissDialog();
                 Log.d(TAG, "onChanged: " + newsModels.get(0).getImage());
                 newsViewModel.insertNewsModelOffline(getContext(),newsModels);
                 setWebPage(newsModels,view);
@@ -93,7 +95,7 @@ public class MainNewsFragment extends Fragment {
                     newsModels -> {
                 newsModelList = newsModels;
                 newsAdapter.setNews((ArrayList<NewsModel>) newsModels,getContext());
-                progressBar.setVisibility(View.GONE);
+                showDialogPython.dismissDialog();
             });
         }
 
