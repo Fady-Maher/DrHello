@@ -2,13 +2,11 @@ package com.example.drhello.ui.hardware;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-
 import com.example.drhello.R;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.databinding.ActivityHardwareBinding;

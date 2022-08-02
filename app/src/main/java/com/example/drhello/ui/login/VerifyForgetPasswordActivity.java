@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
-
 import com.example.drhello.R;
 import com.example.drhello.databinding.ActivityVerifyForgetPasswordBinding;
 import com.example.drhello.signup.GMailSender;

@@ -5,14 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
-
 import com.example.drhello.databinding.ActivitySplashScreenBinding;
-
 import java.util.List;
 
 public class IntroViewPager extends PagerAdapter {

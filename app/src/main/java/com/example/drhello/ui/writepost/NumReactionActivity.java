@@ -3,13 +3,11 @@ package com.example.drhello.ui.writepost;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-
 import com.example.drhello.R;
 import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.ui.chats.StateOfUser;
@@ -25,7 +23,6 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;

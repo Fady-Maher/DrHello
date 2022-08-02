@@ -3,9 +3,7 @@ package com.example.drhello.ui.login;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -15,7 +13,6 @@ import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
 import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.ui.main.MainActivity;
 import com.example.drhello.R;
@@ -31,7 +28,6 @@ import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Random;

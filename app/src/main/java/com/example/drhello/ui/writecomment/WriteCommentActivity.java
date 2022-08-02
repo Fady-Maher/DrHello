@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProviders;
-
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,7 +25,6 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Toast;
-
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
@@ -47,7 +45,6 @@ import com.example.drhello.model.CommentModel;
 import com.example.drhello.ui.main.MainActivity;
 import com.example.drhello.ui.writepost.NumReactionActivity;
 import com.example.drhello.ui.writepost.ShowImageActivity;
-import com.example.drhello.ui.writepost.WritePostsActivity;
 import com.example.drhello.viewmodel.CommentViewModel;
 import com.example.drhello.model.Posts;
 import com.example.drhello.R;
@@ -65,19 +62,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.ml.modeldownloader.CustomModel;
-import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
-import com.google.firebase.ml.modeldownloader.DownloadType;
-import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
-
-import org.tensorflow.lite.Interpreter;
-
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

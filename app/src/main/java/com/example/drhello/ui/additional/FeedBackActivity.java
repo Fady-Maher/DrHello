@@ -2,7 +2,6 @@ package com.example.drhello.ui.additional;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
@@ -10,7 +9,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
 import com.example.drhello.R;
 import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.databinding.ActivityFeedBackBinding;

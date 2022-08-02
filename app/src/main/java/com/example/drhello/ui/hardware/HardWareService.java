@@ -12,11 +12,9 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
-
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
-
 import com.example.drhello.R;
 import com.example.drhello.other.Restarter;
 import com.google.firebase.database.DataSnapshot;
@@ -24,7 +22,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.Timer;
 import java.util.TimerTask;
 

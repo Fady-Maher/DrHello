@@ -1,12 +1,10 @@
 package com.example.drhello.medical;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-
 import com.example.drhello.R;
 
 public class DescriptionRayActivity extends AppCompatActivity {

@@ -8,14 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-
 import com.example.drhello.R;
 import com.example.drhello.adapter.ReactionsListener;
-
 import pl.droidsonroids.gif.GifImageView;
 
 public class FBReactionDialog extends DialogFragment implements View.OnClickListener {

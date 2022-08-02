@@ -2,23 +2,14 @@ package com.example.drhello.ui.chats;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-
 import com.example.drhello.R;
-import com.example.drhello.adapter.AddPersonAdapter;
 import com.example.drhello.adapter.TapFriendAdapter;
 import com.example.drhello.databinding.ActivityAddPersonBinding;
-import com.example.drhello.model.UserAccount;
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.ArrayList;
 
 public class AddPersonActivity extends AppCompatActivity {
 

@@ -1,9 +1,7 @@
 package com.example.drhello.ui.chats;
 
 import android.util.Log;
-
 import androidx.annotation.NonNull;
-
 import com.example.drhello.model.UserAccount;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;

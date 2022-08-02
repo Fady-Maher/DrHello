@@ -35,12 +35,10 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.messaging.FirebaseMessaging;
-
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Random;
-
 
 import static android.content.ContentValues.TAG;
 

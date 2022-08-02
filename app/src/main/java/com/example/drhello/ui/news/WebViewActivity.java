@@ -8,9 +8,7 @@ import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.example.drhello.R;
 import com.example.drhello.ui.chats.StateOfUser;
 

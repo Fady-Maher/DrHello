@@ -1,16 +1,13 @@
 package com.example.drhello.adapter;
 
-
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.drhello.R;
 
 import de.hdodenhof.circleimageview.CircleImageView;

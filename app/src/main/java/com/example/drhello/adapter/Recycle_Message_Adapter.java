@@ -3,9 +3,7 @@ package com.example.drhello.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,17 +13,13 @@ import android.widget.SeekBar;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
-import com.example.drhello.model.LastMessages;
 import com.example.drhello.ui.chats.AsyncTaskDownloadAudio;
 import com.example.drhello.ui.chats.MediaPlayerCustom;
 import com.example.drhello.R;
 import com.example.drhello.model.ChatModel;
-import com.example.drhello.ui.main.MainActivity;
 import com.example.drhello.ui.writepost.ShowImageActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 
 

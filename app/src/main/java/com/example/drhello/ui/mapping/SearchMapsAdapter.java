@@ -1,20 +1,14 @@
 package com.example.drhello.ui.mapping;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.drhello.adapter.OnSearchPlaceClickListener;
 import com.example.drhello.R;
-
 import java.util.ArrayList;
 
 public class SearchMapsAdapter extends RecyclerView.Adapter<SearchMapsAdapter.PlaceSearchMapsHolder> {

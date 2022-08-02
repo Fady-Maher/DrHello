@@ -1,22 +1,18 @@
 package com.example.drhello.fragment.fragmentreactions;
 
 import android.os.Bundle;
-
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.example.drhello.R;
 import com.example.drhello.adapter.NumReactionAdapter;
 import com.example.drhello.model.ReactionModel;
 import com.example.drhello.model.UserAccount;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
 import java.util.Map;
 

@@ -1,17 +1,7 @@
 package com.example.drhello.model;
 
-
-import android.graphics.Bitmap;
-import android.util.Pair;
-
-import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.Ignore;
-import androidx.room.PrimaryKey;
-
 import com.example.drhello.ui.news.RoomUtil;
-import com.google.firebase.Timestamp;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -3,12 +3,10 @@ package com.example.drhello.adapter;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-
 import com.example.drhello.fragment.fragmentreactions.AllFragment;
 import com.example.drhello.fragment.fragmentreactions.AngryFragment;
 import com.example.drhello.fragment.fragmentreactions.HahaFragment;
@@ -17,7 +15,6 @@ import com.example.drhello.fragment.fragmentreactions.LoveFragment;
 import com.example.drhello.fragment.fragmentreactions.SadFragment;
 import com.example.drhello.fragment.fragmentreactions.WowFragment;
 import com.example.drhello.model.UserAccount;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;

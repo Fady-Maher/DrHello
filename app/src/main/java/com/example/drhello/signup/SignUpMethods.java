@@ -1,6 +1,7 @@
 package com.example.drhello.signup;
 
 import static android.content.ContentValues.TAG;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -13,6 +14,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 
 import com.example.drhello.ui.login.CompleteInfoActivity;
@@ -51,7 +53,7 @@ import java.util.concurrent.TimeUnit;
 public class SignUpMethods {
 
     private final Context context;
-    private UserAccount userAccount,userAccountme;
+    private UserAccount userAccount, userAccountme;
     private UserInformation userInformation;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
@@ -86,7 +88,7 @@ public class SignUpMethods {
 
 
     @SuppressLint("UseCompatLoadingForDrawables")
-    public SignUpMethods(UserAccount userAccount,Context context, UserInformation userInformation) {
+    public SignUpMethods(UserAccount userAccount, Context context, UserInformation userInformation) {
         this.context = context;
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -129,7 +131,7 @@ public class SignUpMethods {
                 userAccount.setId(user.getUid());
                 userAccount.setDate(getDateTime());
                 //Add information of user to firebasefirestore
-                addInformation(user,userAccount);
+                addInformation(user, userAccount);
                 Toast.makeText(context, "Welcome To Easy Care App", Toast.LENGTH_SHORT).show();
             } else {
                 String errorCode = ((FirebaseAuthException) Objects.requireNonNull(task.getException())).getErrorCode();
@@ -210,47 +212,47 @@ public class SignUpMethods {
     }
 
 
-    private void addInformation(FirebaseUser firebaseUser,UserAccount userAccount) {
+    private void addInformation(FirebaseUser firebaseUser, UserAccount userAccount) {
         Log.e("task : ", " isSuccessful");
 
         db.collection("users").document(mAuth.getCurrentUser().getUid())
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                if(documentSnapshot.exists()){
-                    UserAccount userAccount1 = documentSnapshot.toObject(UserAccount.class);
-                    if(userAccount1 != null){
-                        userAccount.setMap(userAccount1.getMap());
-                        userAccount.setFriendsmap(userAccount1.getFriendsmap());
-                        userAccount.setRequests(userAccount1.getRequests());
-                        userAccount.setRequestSsent(userAccount1.getRequestSsent());
-                        if(userAccount1.getUserInformation() == null){
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        if (documentSnapshot.exists()) {
+                            UserAccount userAccount1 = documentSnapshot.toObject(UserAccount.class);
+                            if (userAccount1 != null) {
+                                userAccount.setMap(userAccount1.getMap());
+                                userAccount.setFriendsmap(userAccount1.getFriendsmap());
+                                userAccount.setRequests(userAccount1.getRequests());
+                                userAccount.setRequestSsent(userAccount1.getRequestSsent());
+                                if (userAccount1.getUserInformation() == null) {
+                                    Intent intent = new Intent(context, CompleteInfoActivity.class);
+                                    intent.putExtra("userAccount", userAccount);
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                    context.startActivity(intent);
+
+                                } else {
+                                    signIn();
+                                }
+                            }
+                        } else {
                             Intent intent = new Intent(context, CompleteInfoActivity.class);
-                            intent.putExtra("userAccount",userAccount);
+                            intent.putExtra("userAccount", userAccount);
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             context.startActivity(intent);
-
-                        }else{
-                            signIn();
                         }
                     }
-                }else{
-                    Intent intent = new Intent(context, CompleteInfoActivity.class);
-                    intent.putExtra("userAccount",userAccount);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    context.startActivity(intent);
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Log.e("task : ", " onFailure");
-                Intent intent = new Intent(context, CompleteInfoActivity.class);
-                intent.putExtra("userAccount",userAccount);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                context.startActivity(intent);
-            }
-        });
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("task : ", " onFailure");
+                        Intent intent = new Intent(context, CompleteInfoActivity.class);
+                        intent.putExtra("userAccount", userAccount);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        context.startActivity(intent);
+                    }
+                });
 
 
 
@@ -300,7 +302,7 @@ public class SignUpMethods {
     }
 
 
-    public void signInEmailAndPass(String email, String pass,UserAccount userAccount) {
+    public void signInEmailAndPass(String email, String pass, UserAccount userAccount) {
         mProgress.setMessage("Signing In");
         mProgress.show();
         mAuth.signInWithEmailAndPassword(email, pass).addOnCompleteListener(task -> {
@@ -308,11 +310,11 @@ public class SignUpMethods {
                 mProgress.dismiss();
                 Toast.makeText(context, "Successful Sign In ", Toast.LENGTH_SHORT).show();
                 user = mAuth.getCurrentUser();
-                Log.e("user : ",user.getUid());
+                Log.e("user : ", user.getUid());
 
                 userAccount.setId(user.getUid());
                 userAccount.setDate(getDateTime());
-                addInformation(user,userAccount);
+                addInformation(user, userAccount);
             } else {
                 mProgress.dismiss();
                 Log.e("except : ", Objects.requireNonNull(task.getException()).toString());
@@ -328,7 +330,7 @@ public class SignUpMethods {
                 .addOnCompleteListener((Activity) context, task -> {
                     if (task.isSuccessful()) {
                         // Sign in success, update UI with the signed-in user's information
-                        Log.e(" Google", "signInWithCredential:success:" );
+                        Log.e(" Google", "signInWithCredential:success:");
                         user = mAuth.getCurrentUser();
                         assert user != null;
                         FirebaseMessaging.getInstance().getToken().addOnSuccessListener(new OnSuccessListener<String>() {
@@ -340,7 +342,7 @@ public class SignUpMethods {
                                 userAccount.setId(user.getUid());
                                 userAccount.setDate(getDateTime());
                                 //Add information of user to firebasefirestore
-                                addInformation(user,userAccount);
+                                addInformation(user, userAccount);
                             }
                         });
 
@@ -377,7 +379,7 @@ public class SignUpMethods {
                                 userAccount.setId(user.getUid());
                                 userAccount.setDate(getDateTime());
                                 //Add information of user to firebasefirestore
-                                addInformation(user,userAccount);
+                                addInformation(user, userAccount);
                             }
                         });
 
@@ -438,7 +440,7 @@ public class SignUpMethods {
 
 
     //sign up with phone and password
-    public void sendVerificationCode(String phone){
+    public void sendVerificationCode(String phone) {
         mProgress.setTitle("Sending Verification Code");
         mProgress.setMessage("Please wait...");
         mProgress.show();
@@ -463,13 +465,13 @@ public class SignUpMethods {
             //sometime the code is not detected automatically
             //in this case the code will be null
             //so user has to manually enter the code
-            Log.e("VerCompleted:",phoneAuthCredential+"");
+            Log.e("VerCompleted:", phoneAuthCredential + "");
             mProgress.dismiss();
         }
 
         @Override
         public void onVerificationFailed(FirebaseException e) {
-            Log.e("onVerifFailed:","onVerifFailed"+e.getMessage());
+            Log.e("onVerifFailed:", "onVerifFailed" + e.getMessage());
 
             /*
               The error "We have blocked all requests from this device due to unusual activity. Try again later."
@@ -480,7 +482,7 @@ public class SignUpMethods {
               With this, you may try doing the following to resolve the issue:
             */
 
-            Toast.makeText(context,"An error occurred during authentication, Try again later (5 Hour) And if this is repeated, Please contact our support team.",Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "An error occurred during authentication, Try again later (5 Hour) And if this is repeated, Please contact our support team.", Toast.LENGTH_SHORT).show();
             mProgress.dismiss();
         }
 
@@ -490,14 +492,14 @@ public class SignUpMethods {
 
             mProgress.dismiss();
             mVerificationId = verificationId;
-            if(userInformation.getPhone() != null){
-                Intent intent=new Intent(context, VerifyActivity.class);
+            if (userInformation.getPhone() != null) {
+                Intent intent = new Intent(context, VerifyActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                intent.putExtra("userInformation",userInformation);
+                intent.putExtra("userInformation", userInformation);
                 intent.putExtra("verify_num", mVerificationId);
-                intent.putExtra("method",PHONE);
-                intent.putExtra("userAccountme",userAccountme);
-                intent.putExtra("phone",phone);
+                intent.putExtra("method", PHONE);
+                intent.putExtra("userAccountme", userAccountme);
+                intent.putExtra("phone", phone);
                 context.startActivity(intent);
             }
         }

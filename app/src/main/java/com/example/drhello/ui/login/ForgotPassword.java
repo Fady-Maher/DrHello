@@ -2,7 +2,6 @@ package com.example.drhello.ui.login;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Build;
@@ -17,7 +16,6 @@ import com.example.drhello.signup.GMailSender;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Random;
-
 
 public class ForgotPassword extends AppCompatActivity {
     ActivityForgotPasswordBinding forgotPasswordBinding;

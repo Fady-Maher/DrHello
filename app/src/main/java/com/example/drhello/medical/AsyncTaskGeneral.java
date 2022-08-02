@@ -8,9 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
@@ -21,7 +18,7 @@ import com.example.drhello.databinding.ActivityHeartBinding;
 import com.example.drhello.databinding.ActivityOpticalBinding;
 import com.example.drhello.databinding.ActivitySkinBinding;
 import com.example.drhello.other.ShowDialogPython;
-import com.example.drhello.ui.main.MainActivity;
+
 
 public class AsyncTaskGeneral extends AsyncTask<String, String, String> {
     String path, type, action,error_message="";

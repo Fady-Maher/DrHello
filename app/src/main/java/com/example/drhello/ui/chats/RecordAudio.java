@@ -1,13 +1,8 @@
 package com.example.drhello.ui.chats;
 
-import android.Manifest;
 import android.media.MediaRecorder;
-import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
-
-import androidx.core.app.ActivityCompat;
-
 import java.io.File;
 import java.io.IOException;
 

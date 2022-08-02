@@ -1,6 +1,5 @@
 package com.example.drhello.signup;
 
-
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -8,7 +7,6 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.login.VerifyActivity;
 import com.example.drhello.ui.login.VerifyForgetPasswordActivity;

@@ -18,13 +18,10 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.SystemClock;
 import android.widget.Toast;
-
 import androidx.core.app.NotificationCompat;
-
 import com.example.drhello.R;
 import com.example.drhello.database.ReminderDatabase;
 import com.example.drhello.model.Reminder;
-
 import java.util.Calendar;
 
 public class AlarmReceiver extends BroadcastReceiver {

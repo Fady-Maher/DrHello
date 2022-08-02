@@ -4,13 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 import androidx.databinding.DataBindingUtil;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -29,7 +27,6 @@ import com.example.drhello.R;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.textclean.RequestPermissions;
 import com.example.drhello.databinding.ActivityShowImageBinding;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -16,13 +15,11 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
-
 import com.example.drhello.R;
 import com.example.drhello.adapter.DoctorAdapter;
 import com.example.drhello.adapter.OnDoctorsClickLinstener;
 import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.chats.ChatActivity;
-
 import java.util.ArrayList;
 
 public class DoctorsActivity extends AppCompatActivity implements OnDoctorsClickLinstener {

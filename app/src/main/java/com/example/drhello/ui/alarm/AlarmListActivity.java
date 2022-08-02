@@ -3,7 +3,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
@@ -12,7 +11,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
-
 import com.example.drhello.adapter.OnClickSelectAlarm;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SimpleAdapterAlarm;
@@ -20,7 +18,6 @@ import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.database.ReminderDatabase;
 import com.example.drhello.databinding.ActivityAlarmListBinding;
 import com.example.drhello.model.Reminder;
-
 import java.util.List;
 
 public class AlarmListActivity extends AppCompatActivity implements OnClickSelectAlarm {

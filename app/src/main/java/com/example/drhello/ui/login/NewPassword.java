@@ -2,7 +2,6 @@ package com.example.drhello.ui.login;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;

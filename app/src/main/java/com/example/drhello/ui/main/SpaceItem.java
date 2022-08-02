@@ -3,7 +3,6 @@ package com.example.drhello.ui.main;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 
 public class SpaceItem extends DrawerItem<SpaceItem.ViewHolder>{

@@ -2,12 +2,10 @@ package com.example.drhello.adapter;
 
 import android.content.Context;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
-
 import com.example.drhello.fragment.fragmentfriends.AddFriendFragment;
 import com.example.drhello.fragment.fragmentfriends.RequestsFriendFragment;
 

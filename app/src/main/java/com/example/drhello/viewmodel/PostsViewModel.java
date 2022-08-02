@@ -2,11 +2,9 @@ package com.example.drhello.viewmodel;
 
 import android.net.Uri;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
 import com.example.drhello.model.PostsRejects;
 import com.example.drhello.model.Posts;
 import com.example.drhello.model.UserAccount;
@@ -18,10 +16,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-
 import java.util.List;
 import java.util.UUID;
-
 import io.reactivex.Completable;
 import io.reactivex.CompletableObserver;
 import io.reactivex.disposables.Disposable;

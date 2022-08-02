@@ -5,11 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
-
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-
-import com.example.drhello.ui.writecomment.InsideCommentActivity;
 
 public class RequestPermissions {
     private static final int Gallary_REQUEST_CODE = 1;

@@ -3,7 +3,6 @@ package com.example.drhello.ui.alarm;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -19,15 +18,12 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
 import com.example.drhello.R;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.database.ReminderDatabase;
 import com.example.drhello.databinding.ActivityAlarmAddBinding;
 import com.example.drhello.model.Reminder;
-
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Calendar;
 
 public class AlarmAddActivity extends AppCompatActivity implements View.OnClickListener, TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {

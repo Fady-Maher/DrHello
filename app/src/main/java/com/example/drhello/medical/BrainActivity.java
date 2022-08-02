@@ -2,7 +2,6 @@ package com.example.drhello.medical;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -16,16 +15,12 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
-import com.chaquo.python.PyObject;
-import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.databinding.ActivityBrainBinding;
 import com.example.drhello.model.SliderItem;
 import com.example.drhello.ui.news.WebViewActivity;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;

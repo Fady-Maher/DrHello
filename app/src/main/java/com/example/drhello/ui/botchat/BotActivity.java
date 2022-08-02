@@ -2,7 +2,6 @@ package com.example.drhello.ui.botchat;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -14,7 +13,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
-
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
@@ -28,25 +26,11 @@ import com.example.drhello.adapter.ChatBotAdapter;
 import com.example.drhello.adapter.OnTranslateClickListener;
 import com.example.drhello.databinding.ActivityBotBinding;
 import com.example.drhello.model.ChatBotModel;
-import com.example.drhello.ui.login.ForgotPassword;
-import com.example.drhello.ui.login.SignIn;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.ml.modeldownloader.CustomModel;
-import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions;
-import com.google.firebase.ml.modeldownloader.DownloadType;
-import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader;
-
-import org.tensorflow.lite.Interpreter;
-
-import java.io.File;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

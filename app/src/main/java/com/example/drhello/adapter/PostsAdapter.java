@@ -12,13 +12,11 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
 import com.example.drhello.ui.writepost.TimeAgo;
@@ -27,7 +25,6 @@ import com.example.drhello.model.Posts;
 import com.example.drhello.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.skyhope.showmoretextview.ShowMoreTextView;
-
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

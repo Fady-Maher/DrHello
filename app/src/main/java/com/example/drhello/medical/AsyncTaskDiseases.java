@@ -1,8 +1,6 @@
 package com.example.drhello.medical;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
@@ -10,9 +8,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
@@ -23,9 +18,7 @@ import com.example.drhello.databinding.ActivityHeartBinding;
 import com.example.drhello.databinding.ActivityOpticalBinding;
 import com.example.drhello.databinding.ActivitySkinBinding;
 import com.example.drhello.other.ShowDialogPython;
-import com.google.protobuf.DescriptorProtos;
 
-import pl.droidsonroids.gif.GifImageView;
 
 public class AsyncTaskDiseases extends AsyncTask<String, String, String> {
     String path, type, action, error_message = "";
@@ -202,9 +195,7 @@ public class AsyncTaskDiseases extends AsyncTask<String, String, String> {
                     activityChestBinding.progressnormal.setAdProgress((int) (Float.parseFloat(res[2]) * 100));
                     activityChestBinding.progresspneu.setAdProgress((int) (Float.parseFloat(res[3]) * 100));
                     activityChestBinding.txtPrediction.setText(prediction + "");
-
                     activityChestBinding.txtGo.setEnabled(true);
-
                 } else if (type.equals("brain")) {
                     activityBrainBinding.progressglioma.setAdProgress((int) (Float.parseFloat(res[0]) * 100));
                     activityBrainBinding.progressmen.setAdProgress((int) (Float.parseFloat(res[1]) * 100));

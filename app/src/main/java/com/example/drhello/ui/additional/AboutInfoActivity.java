@@ -2,12 +2,10 @@ package com.example.drhello.ui.additional;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
-
 import com.example.drhello.R;
 import com.example.drhello.databinding.ActivityAboutInfoBinding;
 

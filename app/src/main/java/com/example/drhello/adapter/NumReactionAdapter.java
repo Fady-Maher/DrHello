@@ -1,30 +1,17 @@
 package com.example.drhello.adapter;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-import com.example.drhello.model.AddPersonModel;
 import com.example.drhello.R;
 import com.example.drhello.model.ReactionModel;
-import com.example.drhello.model.UserAccount;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-
 import java.util.ArrayList;
-import java.util.Map;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class NumReactionAdapter extends RecyclerView.Adapter<NumReactionAdapter.ReactionsViewHolder> {

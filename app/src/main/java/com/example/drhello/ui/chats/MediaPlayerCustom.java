@@ -7,7 +7,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
-
 import com.example.drhello.R;
 import com.example.drhello.adapter.ChatViewHolderMe;
 import com.example.drhello.adapter.ChatViewHolderOther;

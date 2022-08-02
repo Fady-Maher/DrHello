@@ -1,47 +1,26 @@
 package com.example.drhello.ui.chats;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.Settings;
 import android.util.Log;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
 
 public class GPSTracker extends Service implements LocationListener {
 
-    // Get Class Name
     private static String TAG = GPSTracker.class.getName();
-
     private final Context mContext;
-
-    // flag for GPS Status
     boolean isGPSEnabled = false;
-
-    // flag for network status
     boolean isNetworkEnabled = false;
-
-    // flag for GPS Tracking is enabled
     boolean isGPSTrackingEnabled = false;
-
     Location location;
     double latitude;
     double longitude;
-
-    // How many Geocoder should return our GPSTracker
-
 
     // The minimum distance to change updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5; // 10 meters

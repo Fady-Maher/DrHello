@@ -10,14 +10,11 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.example.drhello.R;
 import com.example.drhello.ui.news.NewsModel;
-
 import java.util.ArrayList;
 import java.util.Objects;
 

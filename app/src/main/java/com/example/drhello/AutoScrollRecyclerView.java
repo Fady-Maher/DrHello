@@ -6,13 +6,11 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.animation.Interpolator;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
-
 import com.example.drhello.adapter.OnClickDoctorInterface;
 
 public class AutoScrollRecyclerView extends RecyclerView {

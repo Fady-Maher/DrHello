@@ -1,8 +1,6 @@
 package com.example.drhello.adapter;
 
 import android.view.MenuItem;
-import android.widget.PopupMenu;
-
 import com.example.drhello.model.Posts;
 
 public interface OnPostClickListener {

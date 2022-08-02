@@ -2,21 +2,13 @@ package com.example.drhello;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
-
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
-import android.animation.ValueAnimator;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-
 import com.example.drhello.databinding.ActivityFirstSplashBinding;
-import com.example.drhello.databinding.ActivitySplashScreenBinding;
 
 public class FirstSplashActivity extends AppCompatActivity {
     private ActivityFirstSplashBinding activityFirstSplashBinding;

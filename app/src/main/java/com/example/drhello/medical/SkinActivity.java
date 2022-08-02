@@ -3,7 +3,6 @@ package com.example.drhello.medical;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.databinding.DataBindingUtil;
-
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
@@ -18,7 +17,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
-
 import com.chaquo.python.PyObject;
 import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
@@ -28,7 +26,6 @@ import com.example.drhello.databinding.ActivitySkinBinding;
 import com.example.drhello.model.SliderItem;
 import com.example.drhello.textclean.RequestPermissions;
 import com.example.drhello.ui.news.WebViewActivity;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
