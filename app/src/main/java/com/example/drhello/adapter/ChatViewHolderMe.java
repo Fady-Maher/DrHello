@@ -17,12 +17,10 @@ public class ChatViewHolderMe extends RecyclerView.ViewHolder {
 
     private TextView txt_date, txt_message,txt_timestamp , txt_speed;
     private ImageView imageView;
-
     private ImageButton btn_start_pause , btn_share_message ,btn_download_record_me;
     private TextView txt_time_end, txt_time_start;
     private SeekBar seekBarDuration;
     private ConstraintLayout constraint,all_contraint;
-
 
     public ChatViewHolderMe(@NonNull View itemView) {
         super(itemView);
@@ -31,7 +29,6 @@ public class ChatViewHolderMe extends RecyclerView.ViewHolder {
         txt_date = itemView.findViewById(R.id.txt_date_me);
         txt_timestamp = itemView.findViewById(R.id.txt_timestamp_me);
         imageView = itemView.findViewById(R.id.image_chat_me);
-        btn_share_message = itemView.findViewById(R.id.btn_share_message_me);
 
         //player media
         btn_start_pause = itemView.findViewById(R.id.btn_start_pause_me);

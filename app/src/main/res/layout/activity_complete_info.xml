@@ -32,7 +32,6 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:layout_gravity="center"
-                    android:drawableLeft="@drawable/info_com"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     android:text="Complete Info"
@@ -62,8 +61,8 @@
             </androidx.appcompat.widget.Toolbar>
 
             <LinearLayout
-                android:visibility="gone"
                 android:id="@+id/lay_doctor"
+                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -217,6 +216,7 @@
                         android:layout_marginTop="8dp"
                         android:paddingLeft="8dp"
                         android:paddingTop="2dp"
+                        android:padding="5dp"
                         android:paddingBottom="2dp"
                         android:textSize="16dp"
                         android:hint="Place Address"
@@ -244,6 +244,8 @@
                         android:paddingBottom="2dp"
                         android:textSize="16dp"
                         android:hint="City"
+                        android:layout_marginBottom="3dp"
+                        android:padding="2dp"
                         android:layout_marginRight="4dp"
                         android:textColorHint="@color/appColorUnSelected"
                         android:background="@drawable/btn_info"/>
@@ -256,6 +258,7 @@
                         android:layout_marginTop="5dp"
                         android:paddingLeft="8dp"
                         android:paddingTop="2dp"
+                        android:padding="5dp"
                         android:paddingBottom="2dp"
                         android:textSize="16dp"
                         android:hint="State/Province"
@@ -298,6 +301,7 @@
                         android:layout_marginTop="8dp"
                         android:paddingLeft="8dp"
                         android:paddingTop="2dp"
+                        android:padding="5dp"
                         android:paddingBottom="2dp"
                         android:textSize="16dp"
                         android:background="@drawable/btn_info"/>
@@ -339,6 +343,7 @@
                             android:paddingLeft="8dp"
                             android:paddingTop="2dp"
                             android:paddingBottom="2dp"
+                            android:padding="5dp"
                             android:enabled="false"
                             android:textSize="16dp"
                             android:hint="Work Place Address"
@@ -443,6 +448,7 @@
                             android:paddingTop="2dp"
                             android:paddingBottom="2dp"
                             android:textSize="16sp"
+                            android:padding="5dp"
                             android:inputType="number"
                             android:hint="Phone number"
                             android:textColorHint="@color/appColorUnSelected"
@@ -584,7 +590,8 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="8dp">
                         <io.supercharge.shimmerlayout.ShimmerLayout
                             android:id="@+id/shimmer"
                             android:layout_width="wrap_content"
@@ -634,6 +641,7 @@
                             android:scaleType="centerCrop"
                             android:src="@drawable/gallery"
                             android:textSize="16dp"
+                            android:layout_marginBottom="3dp"
                             android:background="@drawable/btn_gallery"/>
                     </LinearLayout>
 
@@ -646,6 +654,7 @@
 
 
             <LinearLayout
+
                 android:id="@+id/lay_user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -764,6 +773,7 @@
                         android:id="@+id/edit_address_user"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:padding="5dp"
                         android:layout_marginTop="8dp"
                         android:paddingLeft="8dp"
                         android:paddingTop="2dp"
@@ -781,7 +791,8 @@
                     android:orientation="horizontal"
                     android:layout_marginLeft="@dimen/_10sdp"
                     android:layout_marginRight="@dimen/_15sdp"
-                    android:layout_marginTop="15dp">
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="15dp">
 
                     <Spinner
                         android:layout_gravity="center"
@@ -796,6 +807,8 @@
                         android:textSize="16dp"
                         android:hint="City"
                         android:layout_marginRight="4dp"
+                        android:padding="2dp"
+                        android:layout_marginBottom="2dp"
                         android:textColorHint="@color/appColorUnSelected"
                         android:background="@drawable/btn_info"/>
 
@@ -803,6 +816,7 @@
                         android:id="@+id/edit_state_user"
                         android:layout_width="0dp"
                         android:layout_weight="1"
+                        android:padding="5dp"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:paddingLeft="8dp"
@@ -822,7 +836,7 @@
                     android:orientation="vertical"
                     android:layout_marginLeft="@dimen/_10sdp"
                     android:layout_marginRight="@dimen/_15sdp"
-                    android:layout_marginTop="25dp">
+                    android:layout_marginTop="10dp">
 
                     <TextView
                         android:layout_width="wrap_content"

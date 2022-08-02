@@ -6,14 +6,12 @@ import androidx.databinding.DataBindingUtil;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -22,15 +20,14 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.chaquo.python.PyObject;
-import com.chaquo.python.Python;
-import com.chaquo.python.android.AndroidPlatform;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.databinding.ActivityHeartBinding;
 import com.example.drhello.model.SliderItem;
 import com.example.drhello.textclean.RequestPermissions;
+import com.example.drhello.ui.news.WebViewActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,6 +38,10 @@ import java.util.Calendar;
 public class HeartActivity extends AppCompatActivity implements OnClickDoctorInterface {
     private ActivityHeartBinding activityHeartBinding;
     private String[] stringsHeart = {"Fusion", "Normal", "Supraventricular", "Unknown", "Ventricular"};
+    String[] urls = {"https://www.mayoclinic.org/diseases-conditions/supraventricular-tachycardia/symptoms-causes/syc-20355243", // Supraventricular
+            "https://www.mayoclinic.org/diseases-conditions/ventricular-tachycardia/symptoms-causes/syc-20355138"}; // Ventricular
+
+
     private static final int Gallary_REQUEST_CODE = 1;
     PyObject main_program;
     private Bitmap bitmap;
@@ -60,8 +61,12 @@ public class HeartActivity extends AppCompatActivity implements OnClickDoctorInt
 
         requestPermissions = new RequestPermissions(HeartActivity.this,HeartActivity.this);
 
-        AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
-        asyncTaskDownload.execute();
+        AsyncTaskGeneral asyncTaskGeneral = new AsyncTaskGeneral(path,"first",
+                "heart",null,null,
+                null,null,HeartActivity.this,activityHeartBinding,
+                null,null,null,null
+        );
+        asyncTaskGeneral.execute();
 
         activityHeartBinding = DataBindingUtil.setContentView(HeartActivity.this, R.layout.activity_heart);
         activityHeartBinding.shimmer.startShimmerAnimation();
@@ -92,6 +97,14 @@ public class HeartActivity extends AppCompatActivity implements OnClickDoctorInt
         activityHeartBinding.selImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                activityHeartBinding.progressunknownheart.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityHeartBinding.progressfusion.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityHeartBinding.progressnormal.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityHeartBinding.progresssup.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityHeartBinding.progressun.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityHeartBinding.progressvent.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityHeartBinding.txtPrediction.setText("");
+
                 if (requestPermissions.permissionStorageRead()) {
                     ActivityCompat.requestPermissions(HeartActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                             Gallary_REQUEST_CODE);
@@ -111,8 +124,13 @@ public class HeartActivity extends AppCompatActivity implements OnClickDoctorInt
             public void onClick(View view) {
                 if (bitmap != null) {
                     if(!path.equals("")){
-                        AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD(path,"");
-                        asyncTaskDownloadAudio.execute();
+                        activityHeartBinding.txtPrediction.setText("00000");
+                        AsyncTaskGeneral asyncTaskGeneral = new AsyncTaskGeneral(path,"heart",
+                                "heart",null,null,
+                                null,null,HeartActivity.this,activityHeartBinding,
+                                null,null,null,null
+                        );
+                        asyncTaskGeneral.execute();
                     }
                     bitmap = null;
                 }else{
@@ -121,6 +139,20 @@ public class HeartActivity extends AppCompatActivity implements OnClickDoctorInt
             }
         });
 
+
+        activityHeartBinding.txtGo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HeartActivity.this, WebViewActivity.class);
+                if(activityHeartBinding.txtPrediction.getText().toString().equals("2")){
+                    intent.putExtra("url",urls[0]);
+                    startActivity(intent);
+                }else if(activityHeartBinding.txtPrediction.getText().toString().equals("4")){
+                    intent.putExtra("url",urls[1]);
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
 
@@ -165,56 +197,5 @@ public class HeartActivity extends AppCompatActivity implements OnClickDoctorInt
     @Override
     public void OnClick(String spec) {
 
-    }
-
-
-    public class AsyncTaskD extends AsyncTask<String, String, String> {
-
-        String path;
-        String action;
-        String[] prop;
-        public AsyncTaskD(String path,String action){
-            this.path = path;
-            this.action = action;
-        }
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showDialogPython = new ShowDialogPython(HeartActivity.this,HeartActivity.this.getLayoutInflater(),"load");
-        }
-
-        @Override
-        protected String doInBackground(String... f_url) {
-            if(action.equals("first")){
-                if (! Python.isStarted()) {
-                    Python.start(new AndroidPlatform(HeartActivity.this));//error is here!
-                }
-                final Python py = Python.getInstance();
-                main_program = py.getModule("prolog");
-            }else{
-                String result = main_program.callAttr("model",path,"Heart").toString();
-                String[] listResult = result.split("@");
-                int prediction = Integer.parseInt(listResult[0]);
-                String probStr = listResult[1].replace("[","")
-                        .replace("]","")
-                        .replace("\"","");
-                prop = probStr.split(" ");
-
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String file_url) {
-            if(!action.equals("first")){
-                activityHeartBinding.progressfusion.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
-                activityHeartBinding.progressnormal.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
-                activityHeartBinding.progresssup.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
-                activityHeartBinding.progressun.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
-                activityHeartBinding.progressvent.setAdProgress((int) (Float.parseFloat(prop[4]) *100));
-            }
-            showDialogPython.dismissDialog();
-        }
     }
 }

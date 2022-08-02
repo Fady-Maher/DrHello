@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
-import android.app.ProgressDialog;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,7 +11,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.example.drhello.R;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.adapter.TabAdapter;
 import com.example.drhello.databinding.ActivityNumReactionBinding;

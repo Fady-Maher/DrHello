@@ -35,20 +35,35 @@
         tools:ignore="AllowBackup"
         tools:replace="android:supportsRtl">
         <activity
+            android:name=".FirstSplashActivity"
+            android:exported="true" >
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+
+        </activity>
+        <activity
+            android:name=".ui.chats.ChatSearchUserActivity"
+            android:exported="false" />
+        <activity
             android:name=".medical.OpticalActivity"
             android:exported="false" />
         <activity
-            android:name=".DescriptionRayActivity"
+            android:name=".medical.DescriptionRayActivity"
             android:exported="false" />
         <activity
-            android:name=".FeedBackActivity"
+            android:name=".ui.additional.FeedBackActivity"
             android:exported="false" />
         <activity
-            android:name=".AboutInfoActivity"
+            android:name=".ui.additional.AboutInfoActivity"
             android:exported="false" />
 
         <receiver
-            android:name=".Restarter"
+            android:name=".other.Restarter"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -64,27 +79,30 @@
             android:name=".medical.HeartActivity"
             android:exported="false" />
         <activity
-            android:name=".SavedPostsActivity"
+            android:name=".ui.writepost.SavedPostsActivity"
             android:exported="false" />
         <activity
-            android:name=".PostsUsersActivity"
+            android:name=".ui.writepost.PostsUsersActivity"
             android:exported="false" />
         <activity
-            android:name=".BotActivity"
-            android:exported="true" >
-
-        </activity>
+            android:name=".ui.botchat.BotActivity"
+            android:exported="true" />
         <activity
-            android:name=".ChatBotActivity"
+            android:name=".ui.botchat.ChatBotActivity"
             android:exported="false" />
         <activity
-            android:name=".DoctorsActivity"
+            android:name=".ui.profile.DoctorsActivity"
             android:exported="false" />
 
         <meta-data
             android:name="com.google.android.gms.vision.DEPENDENCIES"
             android:value="ocr" />
 
+        <activity
+            android:name=".IntroScreenActivity"
+            android:exported="true">
+
+        </activity>
         <activity
             android:name=".medical.SkinActivity"
             android:exported="false" />
@@ -94,9 +112,6 @@
         <activity
             android:name=".medical.ChestActivity"
             android:exported="false" />
-        <activity
-            android:name=".PythonTestActivity"
-            android:exported="true" />
         <activity android:name=".ui.login.CompleteInfoActivity" />
         <activity android:name=".ui.hardware.HardwareActivity" />
         <activity
@@ -141,13 +156,7 @@
             android:name=".ui.login.VerifyForgetPasswordActivity"
             android:exported="true" />
         <activity android:name=".ui.login.VerifyActivity" />
-        <activity android:name=".ui.login.SignIn">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <activity android:name=".ui.login.SignIn"></activity>
         <activity android:name=".ui.login.NewPassword" />
         <activity android:name=".ui.login.ForgotPassword" />
         <activity android:name=".ui.login.SignUp" />

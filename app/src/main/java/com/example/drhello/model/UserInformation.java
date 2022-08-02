@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class UserInformation implements Serializable {
     private String type,country,address_home,city,state_address,phone
             ,address_work,name_education,date_of_birth,gender,specification,
-            image_proof,name_clinic, specification_in;
+            image_proof,name_clinic, specification_in,state;
 
     public UserInformation() {
     }
@@ -148,5 +148,13 @@ public class UserInformation implements Serializable {
 
     public void setGender(String gender) {
         this.gender = gender;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }

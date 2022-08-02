@@ -39,7 +39,7 @@
 
                     <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
                         android:id="@+id/btn_google_signin"
-                        android:layout_width="150dp"
+                        android:layout_width="200dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
@@ -67,6 +67,7 @@
                         android:paddingLeft="3dp"
                         android:text="@string/btn_facebook"
                         android:textAllCaps="false"
+                        android:visibility="gone"
                         android:textColor="@color/baseColor"
                         android:textSize="18sp"
                         app:initialCornerAngle="15dp"

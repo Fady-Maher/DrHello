@@ -1,9 +1,6 @@
 package com.example.drhello.adapter;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.net.Uri;
 import android.text.SpannableString;
 import android.text.style.UnderlineSpan;
 import android.util.Log;
@@ -14,11 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.drhello.ChatBotlistener;
 import com.example.drhello.R;
-import com.example.drhello.adapter.OnTranslateClickListener;
 import com.example.drhello.model.ChatBotModel;
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
@@ -75,6 +69,8 @@ public class ChatBotAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     SpannableString content = new SpannableString(link);
                     content.setSpan(new UnderlineSpan(), 0, link.length(), 0);
                     chatBotViewHolderBot.txt_message.setText(content);
+                }else{
+                    chatBotViewHolderBot.txt_message.setTextColor(context.getResources().getColor(R.color.white));
                 }
                 break;
             default:

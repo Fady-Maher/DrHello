@@ -3,7 +3,6 @@ package com.example.drhello.fragment;
 import static android.content.Context.CAMERA_SERVICE;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.hardware.camera2.CameraAccessException;
@@ -18,6 +17,7 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.LayoutInflater;
 import android.view.Surface;
@@ -25,11 +25,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.example.drhello.DoctorsActivity;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.ui.profile.DoctorsActivity;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
-import com.example.drhello.SpecialistAdapter;
+import com.example.drhello.adapter.SpecialistAdapter;
 import com.example.drhello.firebaseinterface.MyCallbackAllUser;
 import com.example.drhello.medical.BrainActivity;
 import com.example.drhello.medical.ChestActivity;
@@ -59,6 +59,7 @@ public class HomeFragment extends Fragment implements OnClickDoctorInterface {
     ArrayList<UserAccount> userAccountArrayList = new ArrayList<>();
     SliderItem sliderItem;
     ShowDialogPython showDialogPython;
+    ArrayList<String> spec = new ArrayList<>();
 
     private Bitmap bitmap;
     private static final int Gallary_REQUEST_CODE = 1;
@@ -100,62 +101,68 @@ public class HomeFragment extends Fragment implements OnClickDoctorInterface {
                     for (int i = 0; i < task.getResult().size(); i++) {
                         UserAccount userAccount = task.getResult().getDocuments().get(i).toObject(UserAccount.class);
                         if (userAccount.getUserInformation().getType().equals("Doctor")){
-                            if(userAccount.getUserInformation().getSpecification().equals("Occupational and environmental medicine")){
-                                sliderItem = new SliderItem(R.drawable.occupational_and_environmental_medicine, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Obstetrics and gynaecology")){
-                                sliderItem = new SliderItem(R.drawable.obstetrics_gynecology, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Sport and exercise medicine")){
-                                sliderItem = new SliderItem(R.drawable.sport_and_exercise_medicine, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Dermatology, Emergency medicine")){
-                                sliderItem = new SliderItem(R.drawable.dermatology_emergency_medicine, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Physician")){
-                                sliderItem = new SliderItem(R.drawable.physician, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Medical administration")){
-                                sliderItem = new SliderItem(R.drawable.medical_administration, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Anaesthesia")){
-                                sliderItem = new SliderItem(R.drawable.anesthesia, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Pathology")){
-                                sliderItem = new SliderItem(R.drawable.pathology, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Palliative medicine")){
-                                sliderItem = new SliderItem(R.drawable.palliative_medicine, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Sexual health medicine")){
-                                sliderItem = new SliderItem(R.drawable.sexual_health_medicine, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Radiation oncology")){
-                                sliderItem = new SliderItem(R.drawable.radiation_oncology, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Surgery")){
-                                sliderItem = new SliderItem(R.drawable.surgery, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Radiology")){
-                                sliderItem = new SliderItem(R.drawable.radiology, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("General practice")){
-                                sliderItem = new SliderItem(R.drawable.general_practice, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Intensive care medicine")){
-                                sliderItem = new SliderItem(R.drawable.intensive_care_medicine, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Paediatrics and child health")){
-                                sliderItem = new SliderItem(R.drawable.paediatrics_and_child_health, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Rehabilitation medicine")){
-                                sliderItem = new SliderItem(R.drawable.rehabilitation_medicine, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Ophthalmology")){
-                                sliderItem = new SliderItem(R.drawable.ophthalmology, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Psychiatry")){
-                                sliderItem = new SliderItem(R.drawable.psychiatry, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Public health medicine")){
-                                sliderItem = new SliderItem(R.drawable.public_health_medicine, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Addiction medicine")){
-                                sliderItem = new SliderItem(R.drawable.addiction_medicine, userAccount.getUserInformation().getSpecification());
-                            }else if(userAccount.getUserInformation().getSpecification().equals("Pain medicine")){
-                                sliderItem = new SliderItem(R.drawable.pain_medicine, userAccount.getUserInformation().getSpecification());
-                            }else{
-                                sliderItem = new SliderItem(R.drawable.app_mark, userAccount.getUserInformation().getSpecification());
-                            }
-
                             userAccountArrayList.add(userAccount);
-                            if(!sliderItems.contains(sliderItem))
-                                sliderItems.add(sliderItem);
+                            if(!spec.contains(userAccount.getUserInformation().getSpecification())){
+                                spec.add(userAccount.getUserInformation().getSpecification());
+
+                                if(userAccount.getUserInformation().getSpecification().equals("Occupational and environmental medicine")){
+                                    sliderItem = new SliderItem(R.drawable.occupational_and_environmental_medicine, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Obstetrics and gynaecology")){
+                                    sliderItem = new SliderItem(R.drawable.obstetrics_gynecology, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Sport and exercise medicine")){
+                                    sliderItem = new SliderItem(R.drawable.sport_and_exercise_medicine, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Dermatology, Emergency medicine")){
+                                    sliderItem = new SliderItem(R.drawable.dermatology_emergency_medicine, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Physician")){
+                                    sliderItem = new SliderItem(R.drawable.physician, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Medical administration")){
+                                    sliderItem = new SliderItem(R.drawable.medical_administration, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Anaesthesia")){
+                                    sliderItem = new SliderItem(R.drawable.anesthesia, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Pathology")){
+                                    sliderItem = new SliderItem(R.drawable.pathology, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Palliative medicine")){
+                                    sliderItem = new SliderItem(R.drawable.palliative_medicine, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Sexual health medicine")){
+                                    sliderItem = new SliderItem(R.drawable.sexual_health_medicine, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Radiation oncology")){
+                                    sliderItem = new SliderItem(R.drawable.radiation_oncology, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Surgery")){
+                                    sliderItem = new SliderItem(R.drawable.surgery, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Radiology")){
+                                    sliderItem = new SliderItem(R.drawable.radiology, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("General practice")){
+                                    sliderItem = new SliderItem(R.drawable.general_practice, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Intensive care medicine")){
+                                    sliderItem = new SliderItem(R.drawable.intensive_care_medicine, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Paediatrics and child health")){
+                                    sliderItem = new SliderItem(R.drawable.paediatrics_and_child_health, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Rehabilitation medicine")){
+                                    sliderItem = new SliderItem(R.drawable.rehabilitation_medicine, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Ophthalmology")){
+                                    sliderItem = new SliderItem(R.drawable.ophthalmology, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Psychiatry")){
+                                    sliderItem = new SliderItem(R.drawable.psychiatry, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Public health medicine")){
+                                    sliderItem = new SliderItem(R.drawable.public_health_medicine, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Addiction medicine")){
+                                    sliderItem = new SliderItem(R.drawable.addiction_medicine, userAccount.getUserInformation().getSpecification());
+                                }else if(userAccount.getUserInformation().getSpecification().equals("Pain medicine")){
+                                    sliderItem = new SliderItem(R.drawable.pain_medicine, userAccount.getUserInformation().getSpecification());
+                                }else{
+                                    sliderItem = new SliderItem(R.drawable.app_mark, userAccount.getUserInformation().getSpecification());
+                                }
+
+                                if(!sliderItems.contains(sliderItem))
+                                    sliderItems.add(sliderItem);
+                            }
                         }
                     }
 
                     if(sliderItems.size() > 0 ){
-                        SpecialistAdapter specialistAdapter = new SpecialistAdapter(getActivity(),sliderItems,HomeFragment.this);
+                        Log.e("sliderItems: ",sliderItems.size()+"");
+                        SpecialistAdapter specialistAdapter = new SpecialistAdapter(getActivity(),
+                                sliderItems,HomeFragment.this);
                         recyclerView.setAdapter(specialistAdapter);
                         specialistAdapter.notifyDataSetChanged();
                     }
@@ -183,80 +190,12 @@ public class HomeFragment extends Fragment implements OnClickDoctorInterface {
         }
     }
 
-    // firebase text vision
-/*
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == Gallary_REQUEST_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            try {
-                bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), data.getData());
-                img.setImageBitmap(bitmap);
-
-                TextRecognizer recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS);
-
-                InputImage image = InputImage.fromBitmap(bitmap, 0);
-                Task<Text> result =
-                        recognizer.process(image)
-                                .addOnSuccessListener(new OnSuccessListener<Text>() {
-                                    @Override
-                                    public void onSuccess(Text visionText) {
-                                        // Task completed successfully
-                                        // ...
-                                        Log.e("TEXT:  "  , visionText.getText());
-                                    }
-                                })
-                                .addOnFailureListener(
-                                        new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                // Task failed with an exception
-                                                // ...
-                                            }
-                                        });
-
-            } catch (IOException e) {
-                Log.e("gallary exception: ", e.getMessage());
-            }
-        } else if (resultCode == Activity.RESULT_CANCELED) {
-            // Toast.makeText(getBaseContext(), "Canceled", Toast.LENGTH_SHORT).show();
-        }
-
-    }
- */
-
     private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 0);
         ORIENTATIONS.append(Surface.ROTATION_90, 90);
         ORIENTATIONS.append(Surface.ROTATION_180, 180);
         ORIENTATIONS.append(Surface.ROTATION_270, 270);
-    }
-
-    /**
-     * Get the angle by which an image must be rotated given the device's current
-     * orientation.
-     */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private int getRotationCompensation(String cameraId, Activity activity, boolean isFrontFacing)
-            throws CameraAccessException {
-        // Get the device's current rotation relative to its "native" orientation.
-        // Then, from the ORIENTATIONS table, look up the angle the image must be
-        // rotated to compensate for the device's rotation.
-        int deviceRotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-        int rotationCompensation = ORIENTATIONS.get(deviceRotation);
-
-        // Get the device's sensor orientation.
-        CameraManager cameraManager = (CameraManager) activity.getSystemService(CAMERA_SERVICE);
-        int sensorOrientation = cameraManager
-                .getCameraCharacteristics(cameraId)
-                .get(CameraCharacteristics.SENSOR_ORIENTATION);
-
-        if (isFrontFacing) {
-            rotationCompensation = (sensorOrientation + rotationCompensation) % 360;
-        } else { // back-facing
-            rotationCompensation = (sensorOrientation - rotationCompensation + 360) % 360;
-        }
-        return rotationCompensation;
     }
 
     @Override

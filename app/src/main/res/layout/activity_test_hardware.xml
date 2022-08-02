@@ -206,7 +206,6 @@
                 android:layout_height="60dp"
                 android:src="@drawable/avatar"
                 android:textColor="@color/white"
-
                 android:layout_marginTop="@dimen/_5sdp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

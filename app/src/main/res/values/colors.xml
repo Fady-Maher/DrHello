@@ -9,6 +9,12 @@
     <color name="white">#FFFFFFFF</color>
     <color name="log">#F4F4F4</color>
     <color name="appColor">#1B5AE1</color>
+
+    <color name="Chatbot">#727EB0</color>
+    <color name="hardware">#4B77E4</color>
+    <color name="medical">#E49873</color>
+    <color name="social">#165693</color>
+
     <color name="red">#FF0000</color>
     <color name="yellow">#FFF200</color>
     <color name="appColorUnSelected">#7DA1EF</color>

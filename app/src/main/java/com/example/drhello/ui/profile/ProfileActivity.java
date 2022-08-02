@@ -8,7 +8,6 @@ import androidx.databinding.DataBindingUtil;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -21,9 +20,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.model.FollowersModel;
-import com.example.drhello.PostsUsersActivity;
+import com.example.drhello.ui.writepost.PostsUsersActivity;
 import com.example.drhello.R;
 import com.example.drhello.databinding.ActivityProfileBinding;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
@@ -67,7 +66,7 @@ public class ProfileActivity extends AppCompatActivity {
             public void onCallback(DocumentSnapshot documentSnapshot) {
                 userAccountme = documentSnapshot.toObject(UserAccount.class);
                 Log.e("userAc: ", userAccountme.getId());
-                showDialogPython.dismissDialog();
+              //  showDialogPython.dismissDialog();
             }
         });
 
@@ -418,7 +417,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     public void readData(MyCallbackUser myCallback) {
         if (userId != null) {
-            showDialogPython = new ShowDialogPython(ProfileActivity.this,ProfileActivity.this.getLayoutInflater(),"load");
+          //  showDialogPython = new ShowDialogPython(ProfileActivity.this,ProfileActivity.this.getLayoutInflater(),"load");
             FirebaseFirestore.getInstance().collection("users")
                     .document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override

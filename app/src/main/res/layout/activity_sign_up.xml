@@ -91,7 +91,7 @@
                 app:counterEnabled="true"
                 app:counterMaxLength="15"
                 android:textDirection="ltr"
-                android:hint="@string/txt_username"
+                android:hint="User Name"
                 app:errorEnabled="true"
                 app:counterTextColor="@color/appColor">
 
@@ -205,7 +205,7 @@
                     <br.com.simplepass.loadingbutton.customViews.CircularProgressButton
                         android:id="@+id/btn_google_signup"
                         android:paddingLeft="5dp"
-                        android:layout_width="150dp"
+                        android:layout_width="200dp"
                         android:layout_height="wrap_content"
                         android:text="@string/btn_google"
                         android:textSize="18sp"
@@ -230,6 +230,7 @@
                         android:text="@string/btn_facebook"
                         android:textSize="18sp"
                         android:textAllCaps="false"
+                        android:visibility="gone"
                         android:drawableLeft="@drawable/ic_facebook"
                         android:background="@drawable/btn_background"
                         tools:ignore="ButtonStyle,RtlHardcoded,RtlSymmetry"

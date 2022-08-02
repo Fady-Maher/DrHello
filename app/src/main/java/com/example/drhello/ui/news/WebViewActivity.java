@@ -1,7 +1,10 @@
 package com.example.drhello.ui.news;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -19,15 +22,27 @@ public class WebViewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        } else {
+            getWindow().setStatusBarColor(Color.WHITE);
+        }
+
         webView = findViewById(R.id.news_webView);
         gettingUrl();
         loadingWebView();
     }
+
     private void gettingUrl(){
         Bundle bundle = getIntent().getExtras();
-        if(bundle!=null)
+        String urlDiseases = getIntent().getStringExtra("url");
+        if(bundle.getString("url")!=null){
             url = bundle.getString("url");
+        }else{
+            url = urlDiseases;
+        }
     }
+
     @SuppressLint("SetJavaScriptEnabled")
     private void loadingWebView(){
         webView.setWebViewClient(new WebViewClient());

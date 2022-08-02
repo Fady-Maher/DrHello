@@ -114,12 +114,12 @@ public class NewsViewModel extends ViewModel {
                     @Override
                     public void onSuccess(@NonNull List<NewsModel> newsModels) {
                         newsMutableLiveData.setValue(newsModels);
-                        Log.d(TAG, "onSuccess: " + newsModels.get(1).getImage());
+                      //  Log.d(TAG, "onSuccess: " + newsModels.get(1).getImage());
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        Log.d(TAG, "onError: in Getting News from room " + e.getMessage());
+                     //   Log.d(TAG, "onError: in Getting News from room " + e.getMessage());
                     }
 
                 });

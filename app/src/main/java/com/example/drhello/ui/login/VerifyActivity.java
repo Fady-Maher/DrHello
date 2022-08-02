@@ -5,15 +5,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.ui.main.MainActivity;
 import com.example.drhello.R;
 import com.example.drhello.model.UserInformation;
@@ -44,6 +47,7 @@ public class VerifyActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private final String PHONE = "PHONE";
     ShowDialogPython showDialogPython;
+    String phone;
 
 
     @Override
@@ -60,6 +64,14 @@ public class VerifyActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
+        verifyBinding.backVerify.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+        timer();
+
         //retrive data from intent userAccount
         if (getIntent().getSerializableExtra("userAccount") != null && getIntent().getStringExtra("verify_num") != null) {
             userAccount = (UserAccount) getIntent().getSerializableExtra("userAccount");
@@ -69,6 +81,8 @@ public class VerifyActivity extends AppCompatActivity {
             userInformation = (UserInformation) getIntent().getSerializableExtra("userInformation");
             verify_num = getIntent().getStringExtra("verify_num");
             method = getIntent().getStringExtra("method");
+            phone = getIntent().getStringExtra("phone");
+            Log.e("getIntentPHONE : ", phone);
         }
 
         if (getIntent().getSerializableExtra("userAccountme") != null) {
@@ -97,14 +111,30 @@ public class VerifyActivity extends AppCompatActivity {
         });
 
         verifyBinding.txtVerifyNum.setOnClickListener(view -> {
+            timer();
             if (method.equals(PHONE)) {
-                String phonenum = "+" + "20" + userInformation.getPhone();
-                sendVerificationCode(phonenum);
+                Log.e("methodPHONE : ", phone);
+                sendVerificationCode(phone);
             } else {
+                Log.e("method:", " resendEmail");
                 resendEmail(userAccount);
             }
         });
 
+    }
+
+    private void timer() {
+        new CountDownTimer(80000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                verifyBinding.txtVerifyNum.setEnabled(false);
+                verifyBinding.txtVerifyNum.setText("Please wait " + millisUntilFinished / 1000 + " seconds to resend Code");
+            }
+
+            public void onFinish() {
+                verifyBinding.txtVerifyNum.setEnabled(true);
+                verifyBinding.txtVerifyNum.setText("resend Code");
+            }
+        }.start();
     }
 
     private void resendEmail(UserAccount userAccount) {
@@ -132,9 +162,11 @@ public class VerifyActivity extends AppCompatActivity {
 
     }
 
+
+    ////////////////////////////////////////////////////////
     //sign up with phone and password
     public void sendVerificationCode(String phone) {
-        showDialogPython = new ShowDialogPython(VerifyActivity.this,VerifyActivity.this.getLayoutInflater(),"load");
+        showDialogPython = new ShowDialogPython(VerifyActivity.this, VerifyActivity.this.getLayoutInflater(), "load");
         mAuth = FirebaseAuth.getInstance();
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(mAuth)
@@ -194,41 +226,49 @@ public class VerifyActivity extends AppCompatActivity {
                         FirebaseUser user = task.getResult().getUser();
                         //to add phone with useraccount information untill make sign in with phone or email
                         assert user != null;
-
-                        Log.e("getImage_proof: ", userInformation.getImage_proof());
-
                         updataInformation(userInformation);
-                        Toast.makeText(VerifyActivity.this, "Successful add information ", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(VerifyActivity.this, MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        intent.putExtra("userInformation", getIntent().getSerializableExtra("userInformation"));
-                        intent.putExtra("method", PHONE);
-                        startActivity(intent);
-                } else{
+                    } else {
                      /*   String errorCode = ((FirebaseAuthException) Objects.requireNonNull(task.getException())).getErrorCode();
                         if(errorCode.equals("FirebaseAuthInvalidCredentialsException")){
                             Toast.makeText(VerifyActivity.this, "Please resend the verification code sms and be sure use the verification code provided by the user.", Toast.LENGTH_LONG).show();
                         }
 
                       */
-            Toast.makeText(VerifyActivity.this, "Please resend the verification code sms and be sure use the verification code provided by the user.", Toast.LENGTH_LONG).show();
+                        Toast.makeText(VerifyActivity.this, "Please resend the verification code sms and be sure use the verification code provided by the user.", Toast.LENGTH_LONG).show();
 
-            Log.e("linkWithCredential", "failure : " + task.getException());
-            Toast.makeText(VerifyActivity.this, "Authentication failed.",
-                    Toast.LENGTH_SHORT).show();
-        }
-    });
-}
+                        Log.e("linkWithCredential", "failure : " + task.getException());
+                        Toast.makeText(VerifyActivity.this, "Authentication failed.",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+    }
 
     private void updataInformation(UserInformation userInformation) {
         //users//id//userinformation//id --> to seperate data
+        if (!userInformation.getType().equals("normal user")) {
+            SharedPreferences.Editor editor = getSharedPreferences("com.example.drhello", MODE_PRIVATE).edit();
+            editor.putString("doctor", "false");
+            editor.apply();
+            userInformation.setType("normal user");
+        }
         userAccountme.setUserInformation(userInformation);
         db.collection("users").document(mAuth.getCurrentUser().getUid())
                 .set(userAccountme)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Log.e("updata pass : ", "finish");
-                        //        Toast.makeText(getApplicationContext(), "Successful update user info.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(VerifyActivity.this, "Successful add information ", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(VerifyActivity.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        intent.putExtra("userInformation", getIntent().getSerializableExtra("userInformation"));
+                        intent.putExtra("method", PHONE);
+                        startActivity(intent);
                     } else {
                         Toast.makeText(getApplicationContext(), "failed to update user info.", Toast.LENGTH_SHORT).show();
                     }

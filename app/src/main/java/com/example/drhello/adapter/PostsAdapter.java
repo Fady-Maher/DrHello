@@ -36,6 +36,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>  {
     private Context context;
     private ArrayList<Posts> posts=new ArrayList<>();
@@ -46,6 +48,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
     private String name_activity ;
 
     public PostsAdapter() {
+
     }
 
     public PostsAdapter(Context context, ArrayList<Posts> posts,
@@ -249,11 +252,13 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
 
     public class PostsHolder  extends RecyclerView.ViewHolder {
         TextView   date_post , user_name,text_like,numreaction,commentnum,txt_comment;
-        ImageView user_image,image_comment,image_share,image_like,post_option;
+        CircleImageView user_image;
+        ImageView image_comment,image_share,image_like,post_option;
         ShowMoreTextView txt_post;
         RecyclerView recyclerView;
         LinearLayout lay_like,img_reaction;
         ImageView like_react_use,love_react_use,haha_react_use,sad_react_use,wow_react_use,angry_react_use;
+
         public PostsHolder(@NonNull View itemView) {
             super(itemView);
             txt_post=itemView.findViewById(R.id.txt_post);
@@ -290,6 +295,16 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.PostsHolder>
                 }
             });
 
+            image_share.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(CheckNetwork.getConnectivityStatusString(context) == 1) {
+                        onPostClickListener.onClickShare(posts.get(getAdapterPosition()));
+                    }else{
+                        Toast.makeText(context, "Please, Check Internet", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
             txt_comment.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

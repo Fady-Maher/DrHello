@@ -1,16 +1,13 @@
 package com.example.drhello.ui.profile;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 
 import android.app.Activity;
 import android.app.DatePickerDialog;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -19,19 +16,15 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.drhello.R;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.databinding.ActivityEditProfileBinding;
-import com.example.drhello.signup.SignUpMethods;
-import com.example.drhello.ui.login.CompleteInfoActivity;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -48,9 +41,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 public class EditProfileActivity extends AppCompatActivity {
 

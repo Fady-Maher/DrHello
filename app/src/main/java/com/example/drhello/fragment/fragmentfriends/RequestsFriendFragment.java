@@ -2,7 +2,6 @@ package com.example.drhello.fragment.fragmentfriends;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -22,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.firebaseinterface.MyCallBackAddFriend;
 import com.example.drhello.firebaseservice.FcmNotificationsSender;
@@ -54,7 +54,7 @@ public class RequestsFriendFragment extends Fragment implements OnClickRequestsP
     private UserAccount userAccount;
     private RecyclerView rec_view;
     private androidx.appcompat.widget.SearchView searchView;
-    public static ProgressDialog mProgress;
+    ShowDialogPython showDialogPython;
 
     public RequestsFriendFragment() {
     }
@@ -65,7 +65,6 @@ public class RequestsFriendFragment extends Fragment implements OnClickRequestsP
         setHasOptionsMenu(true);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        mProgress = new ProgressDialog(getActivity());
     }
 
     @Override
@@ -121,9 +120,8 @@ public class RequestsFriendFragment extends Fragment implements OnClickRequestsP
 
     @Override
     public void onClickAccept(UserAccount friend) {
-        mProgress.setMessage("Uploading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
+
         UserAccount friendsAccountOld = friend;
         Map<String, AddPersonModel> friends = userAccountme.getFriendsmap();
         friends.put(friend.getId(), new AddPersonModel(friend.getName(), friend.getImg_profile(), friend.getId(),friend.getUserInformation().getType()));
@@ -160,7 +158,7 @@ public class RequestsFriendFragment extends Fragment implements OnClickRequestsP
                                     userAccountme.getImg_profile());
                             fcmNotificationsSender.SendNotifications();
                             Toast.makeText(getActivity(), "Requests successful ", Toast.LENGTH_SHORT).show();
-                            mProgress.dismiss();
+                            showDialogPython.dismissDialog();
                         }
                     });
                 }
@@ -170,9 +168,8 @@ public class RequestsFriendFragment extends Fragment implements OnClickRequestsP
 
     @Override
     public void onClickDelete(UserAccount friend) {
-        mProgress.setMessage("Uploading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
+
         UserAccount friendsAccountOld = friend;
         Map<String, AddPersonModel> requests = userAccountme.getRequests();
         requests.remove(friend.getId());
@@ -194,7 +191,7 @@ public class RequestsFriendFragment extends Fragment implements OnClickRequestsP
                                 userAccountArrayList.remove(friendsAccountOld);
                                 requestsPersonAdapter.notifyDataSetChanged();
                                 Toast.makeText(getActivity(), "Requests successful ", Toast.LENGTH_SHORT).show();
-                                mProgress.dismiss();
+                                showDialogPython.dismissDialog();
                             }
                         }
                     });
@@ -228,8 +225,8 @@ public class RequestsFriendFragment extends Fragment implements OnClickRequestsP
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                accountsSearch.clear();
                 if (newText.isEmpty()) {
-                    accountsSearch.clear();
                     requestsPersonAdapter = new RequestsPersonAdapter(getActivity(), accountsSearch,
                             RequestsFriendFragment.this);
                     rec_view.setAdapter(requestsPersonAdapter);

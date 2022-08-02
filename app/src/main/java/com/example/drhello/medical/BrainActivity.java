@@ -4,14 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -20,14 +18,13 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.chaquo.python.PyObject;
-import com.chaquo.python.Python;
-import com.chaquo.python.android.AndroidPlatform;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.databinding.ActivityBrainBinding;
 import com.example.drhello.model.SliderItem;
+import com.example.drhello.ui.news.WebViewActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -39,9 +36,13 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
     private ActivityBrainBinding activityBrainBinding;
     private ArrayList<SliderItem> sliderItems = new ArrayList<>();
     private String[] stringsTumor = {"Glioma_Tumor", "Meningioma Tumor", "No Tumor", "Pituitary Tumor"};
+    private String[] stringsgeneral ={"BrainTumor", "Chest", "HeartBeats", "Other", "Retinal", "SkinCancer"};
+    private String[] urls = {
+            "https://www.mayoclinic.org/diseases-conditions/glioma/symptoms-causes/syc-20350251", //glioma
+            "https://www.mayoclinic.org/diseases-conditions/meningioma/symptoms-causes/syc-20355643", // meningioma
+            "",
+            "https://www.mayoclinic.org/diseases-conditions/pituitary-tumors/symptoms-causes/syc-20350548"} ; // pituitary
     private static final int Gallary_REQUEST_CODE = 1;
-    PyObject main_program;
-    ShowDialogPython showDialogPython;
     private Bitmap bitmap;
     String path = "";
 
@@ -56,8 +57,12 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
             getWindow().setStatusBarColor(Color.WHITE);
         }
 
-        AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
-        asyncTaskDownload.execute();
+        AsyncTaskGeneral asyncTaskGeneral = new AsyncTaskGeneral(path,"first",
+                "brain",null,null,
+                activityBrainBinding,BrainActivity.this,null,null,
+                null,null,null,null
+        );
+        asyncTaskGeneral.execute();
 
         activityBrainBinding = DataBindingUtil.setContentView(BrainActivity.this, R.layout.activity_brain);
         activityBrainBinding.shimmer.startShimmerAnimation();
@@ -87,6 +92,14 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
         activityBrainBinding.selImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                activityBrainBinding.progressunknownbrain.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityBrainBinding.progressglioma.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityBrainBinding.progressmen.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityBrainBinding.progressno.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityBrainBinding.progresspit.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityBrainBinding.txtPrediction.setText("");
+
+
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -101,12 +114,34 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
             public void onClick(View view) {
                 if (bitmap != null) {
                     if(!path.equals("")){
-                        AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD(path,"");
-                        asyncTaskDownloadAudio.execute();
+                        activityBrainBinding.txtPrediction.setText("00000");
+                        AsyncTaskGeneral asyncTaskGeneral = new AsyncTaskGeneral(path,"brain",
+                                "brain",null,null,
+                                activityBrainBinding,BrainActivity.this,null,null,
+                                null,null,null,null
+                        );
+                        asyncTaskGeneral.execute();
                     }
                     bitmap = null;
                 } else {
                     Toast.makeText(BrainActivity.this, "Please, Choose Image First!!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        activityBrainBinding.txtGo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(BrainActivity.this, WebViewActivity.class);
+                if(activityBrainBinding.txtPrediction.getText().toString().equals("0")){
+                    intent.putExtra("url",urls[0]);
+                    startActivity(intent);
+                }else if(activityBrainBinding.txtPrediction.getText().toString().equals("1")){
+                    intent.putExtra("url",urls[1]);
+                    startActivity(intent);
+                }else if(activityBrainBinding.txtPrediction.getText().toString().equals("3")){
+                    intent.putExtra("url",urls[3]);
+                    startActivity(intent);
                 }
             }
         });
@@ -151,55 +186,6 @@ public class BrainActivity extends AppCompatActivity implements OnClickDoctorInt
         String result = cursor.getString(idx);
         cursor.close();
         return result;
-    }
-
-    public class AsyncTaskD extends AsyncTask<String, String, String> {
-
-        String path;
-        String action;
-        String[] prop;
-        public AsyncTaskD(String path,String action){
-            this.path = path;
-            this.action = action;
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showDialogPython = new ShowDialogPython(BrainActivity.this,BrainActivity.this.getLayoutInflater(),"load");
-        }
-
-        @Override
-        protected String doInBackground(String... f_url) {
-            if(action.equals("first")){
-                if (! Python.isStarted()) {
-                    Python.start(new AndroidPlatform(BrainActivity.this));//error is here!
-                }
-                final Python py = Python.getInstance();
-                main_program = py.getModule("prolog");
-            }else{
-                String result = main_program.callAttr("model",path,"Brain").toString();
-                String[] listResult = result.split("@");
-                int prediction = Integer.parseInt(listResult[0]);
-                String probStr = listResult[1].replace("[","")
-                        .replace("]","")
-                        .replace("\"","");
-                 prop = probStr.split(" ");
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String file_url) {
-            if(!action.equals("first")){
-                activityBrainBinding.progressglioma.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
-                activityBrainBinding.progressmen.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
-                activityBrainBinding.progressno.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
-                activityBrainBinding.progresspit.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
-            }
-            showDialogPython.dismissDialog();
-        }
     }
 
 }

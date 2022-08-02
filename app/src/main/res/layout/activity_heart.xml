@@ -163,14 +163,15 @@
                     app:cardCornerRadius="10dp"
                     app:cardElevation="10dp">
 
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
                         <com.app.adprogressbarlib.AdCircleProgress
                             android:id="@+id/progressfusion"
-                            android:layout_width="70dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="1.25"
                             android:layout_height="70dp"
                             android:layout_gravity="center"
                             android:layout_marginLeft="5dp"
@@ -187,7 +188,8 @@
                             app:layout_constraintLeft_toLeftOf="parent"/>
                         <TextView
                             android:id="@+id/txt0"
-                            android:layout_width="150dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="4"
                             android:layout_height="75dp"
                             android:gravity="center"
                             android:layout_gravity="left"
@@ -203,7 +205,8 @@
 
                         <pl.droidsonroids.gif.GifImageView
                             android:id="@+id/gif0"
-                            android:layout_width="45dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.8"
                             android:layout_height="45dp"
                             android:layout_gravity="top|right"
                             app:layout_constraintTop_toTopOf="parent"
@@ -212,7 +215,7 @@
                             android:layout_marginTop="3dp"
                             android:src="@drawable/medical_hospital" />
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
                 </androidx.cardview.widget.CardView>
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
@@ -220,14 +223,15 @@
                     android:layout_margin="15dp"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="10dp">
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
                         <com.app.adprogressbarlib.AdCircleProgress
                             android:id="@+id/progressnormal"
-                            android:layout_width="70dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="1.25"
                             android:layout_height="70dp"
                             android:layout_gravity="center"
                             android:layout_marginLeft="5dp"
@@ -244,7 +248,8 @@
                             app:layout_constraintLeft_toLeftOf="parent"/>
                         <TextView
                             android:id="@+id/txt1"
-                            android:layout_width="170dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="4"
                             android:layout_height="75dp"
                             android:gravity="center"
                             android:layout_gravity="left"
@@ -260,7 +265,8 @@
 
                         <pl.droidsonroids.gif.GifImageView
                             android:id="@+id/gif1"
-                            android:layout_width="45dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.8"
                             android:layout_height="45dp"
                             android:layout_gravity="top|right"
                             app:layout_constraintTop_toTopOf="parent"
@@ -269,7 +275,7 @@
                             android:layout_marginTop="3dp"
                             android:src="@drawable/medical_hospital" />
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
                 <androidx.cardview.widget.CardView
@@ -279,14 +285,15 @@
                     app:cardCornerRadius="10dp"
                     app:cardElevation="10dp"
                     >
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
                         <com.app.adprogressbarlib.AdCircleProgress
                             android:id="@+id/progresssup"
-                            android:layout_width="70dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="1.25"
                             android:layout_height="70dp"
                             android:layout_gravity="center"
                             android:layout_marginLeft="5dp"
@@ -303,7 +310,8 @@
                             app:layout_constraintLeft_toLeftOf="parent"/>
                         <TextView
                             android:id="@+id/txt2"
-                            android:layout_width="150dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="4"
                             android:layout_height="75dp"
                             android:gravity="center"
                             android:layout_gravity="left"
@@ -319,7 +327,8 @@
 
                         <pl.droidsonroids.gif.GifImageView
                             android:id="@+id/gif2"
-                            android:layout_width="45dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.8"
                             android:layout_height="45dp"
                             android:layout_gravity="top|right"
                             app:layout_constraintTop_toTopOf="parent"
@@ -328,7 +337,7 @@
                             android:layout_marginTop="3dp"
                             android:src="@drawable/medical_hospital" />
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
 
@@ -338,13 +347,14 @@
                     android:layout_margin="15dp"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="10dp">
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
                         <com.app.adprogressbarlib.AdCircleProgress
                             android:id="@+id/progressun"
-                            android:layout_width="70dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="1.25"
                             android:layout_height="70dp"
                             android:layout_gravity="center"
                             android:layout_marginLeft="5dp"
@@ -361,7 +371,8 @@
                             app:layout_constraintLeft_toLeftOf="parent"/>
                         <TextView
                             android:id="@+id/txt3"
-                            android:layout_width="150dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="4"
                             android:layout_height="75dp"
                             android:gravity="center"
                             android:layout_gravity="left"
@@ -377,7 +388,8 @@
 
                         <pl.droidsonroids.gif.GifImageView
                             android:id="@+id/gif3"
-                            android:layout_width="45dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.8"
                             android:layout_height="45dp"
                             android:layout_gravity="top|right"
                             app:layout_constraintTop_toTopOf="parent"
@@ -386,7 +398,7 @@
                             android:layout_marginTop="3dp"
                             android:src="@drawable/medical_hospital" />
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
                 <androidx.cardview.widget.CardView
@@ -395,13 +407,14 @@
                     android:layout_margin="15dp"
                     app:cardCornerRadius="10dp"
                     app:cardElevation="10dp">
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
                         <com.app.adprogressbarlib.AdCircleProgress
                             android:id="@+id/progressvent"
-                            android:layout_width="70dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="1.25"
                             android:layout_height="70dp"
                             android:layout_gravity="center"
                             android:layout_marginLeft="5dp"
@@ -418,7 +431,8 @@
                             app:layout_constraintLeft_toLeftOf="parent"/>
                         <TextView
                             android:id="@+id/txt4"
-                            android:layout_width="150dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="4"
                             android:layout_height="75dp"
                             android:gravity="center"
                             android:layout_gravity="left"
@@ -434,7 +448,8 @@
 
                         <pl.droidsonroids.gif.GifImageView
                             android:id="@+id/gif4"
-                            android:layout_width="45dp"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.8"
                             android:layout_height="45dp"
                             android:layout_gravity="top|right"
                             app:layout_constraintTop_toTopOf="parent"
@@ -443,7 +458,69 @@
                             android:layout_marginTop="3dp"
                             android:src="@drawable/medical_hospital" />
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    app:cardCornerRadius="10dp"
+                    app:cardElevation="10dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <com.app.adprogressbarlib.AdCircleProgress
+                            android:id="@+id/progressunknownheart"
+                            android:layout_width="0dp"
+                            android:layout_weight="1.25"
+                            android:layout_height="70dp"
+                            android:layout_gravity="center"
+                            android:layout_marginLeft="5dp"
+                            android:backgroundTintMode="add"
+                            app:adpgb_background_color="@color/white"
+                            app:adpgb_finished_color="@color/appColor"
+                            app:adpgb_text_color="@color/appColor"
+                            app:adpgb_text_size="18sp"
+                            app:adpgb_unfinished_color="@color/white"
+                            custom:adpgb_finished_stroke_width="5dp"
+                            custom:adpgb_show_text="true"
+                            custom:adpgb_unfinished_stroke_width="4dp"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toLeftOf="parent"/>
+                        <TextView
+                            android:id="@+id/txt5"
+                            android:layout_width="0dp"
+                            android:layout_weight="4"
+                            android:layout_height="75dp"
+                            android:gravity="center"
+                            android:layout_gravity="left"
+                            android:text="Unknown Disease"
+                            android:paddingRight="5dp"
+                            android:paddingLeft="5dp"
+                            android:textStyle="italic|bold"
+                            android:textSize="20sp"
+                            android:fontFamily="@font/font"
+                            android:textColor="@color/appColor"
+                            app:layout_constraintRight_toLeftOf="@+id/gif5"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintLeft_toRightOf="@+id/progressunknownheart"
+                            />
+
+                        <pl.droidsonroids.gif.GifImageView
+                            android:id="@+id/gif5"
+                            android:layout_width="0dp"
+                            android:layout_weight="0.8"
+                            android:layout_height="45dp"
+                            android:layout_gravity="top|right"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintRight_toRightOf="parent"
+                            android:layout_marginRight="3dp"
+                            android:layout_marginTop="3dp"
+                            android:src="@drawable/medical_hospital" />
+
+                    </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
 
@@ -453,7 +530,15 @@
 
         </androidx.core.widget.NestedScrollView>
 
-
+        <TextView
+            android:id="@+id/txt_prediction"
+            android:enabled="false"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

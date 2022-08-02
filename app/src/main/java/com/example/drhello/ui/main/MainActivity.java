@@ -13,9 +13,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -23,6 +23,7 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,10 +31,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
-import com.example.drhello.AboutInfoActivity;
-import com.example.drhello.ChatBotActivity;
-import com.example.drhello.FeedBackActivity;
-import com.example.drhello.SavedPostsActivity;
+import com.example.drhello.firebaseinterface.MyCallbackUser;
+import com.example.drhello.other.ShowDialogPython;
+import com.example.drhello.ui.additional.AboutInfoActivity;
+import com.example.drhello.ui.botchat.ChatBotActivity;
+import com.example.drhello.ui.additional.FeedBackActivity;
+import com.example.drhello.ui.writepost.SavedPostsActivity;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.connectionnewtwork.NetworkChangeListener;
 import com.example.drhello.model.UserAccount;
@@ -55,36 +58,35 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.yarolegovich.slidingrootnav.SlidingRootNav;
 import com.yarolegovich.slidingrootnav.SlidingRootNavBuilder;
 
-import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
-public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnItemSelectedListener{
+public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnItemSelectedListener {
 
     //Navigation View
-    private static final int HOME=1;
-    private static final int PROFILE=2;
-    private static final int ALARM=3;
-    private static final int Maps=4;
-    private static final int Health=5;
-    private static final int CHAT=6;
-    private static final int FAV=7;
-    private static final int SETTING=8;
-    private static final int SHARE=9;
-    private static final int CONTACT=10;
-    private static final int FEEDBACK=11;
-    private static final int ABOUT=12;
-    private static final int LOGOUT=14;
+    private static final int HOME = 1;
+    private static final int PROFILE = 2;
+    private static final int ALARM = 3;
+    private static final int Maps = 4;
+    private static final int Health = 5;
+    private static final int CHAT = 6;
+    private static final int FAV = 7;
+    private static final int SETTING = 8;
+    private static final int SHARE = 9;
+    private static final int CONTACT = 10;
+    private static final int FEEDBACK = 11;
+    private static final int ABOUT = 12;
+    private static final int LOGOUT = 14;
 
 
     private String[] screenTitle;
@@ -92,31 +94,31 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     private SlidingRootNav slidingRootNav;
 
     //Bottom Navigation bar
-    private final int ID_HOME=1;
-    private final int ID_POST=2;
-    private final int ID_CHAT=3;
-    private final int ID_NEWS=4;
+    private final int ID_HOME = 1;
+    private final int ID_POST = 2;
+    private final int ID_CHAT = 3;
+    private final int ID_NEWS = 4;
 
     private GoogleSignInClient mGoogleSignInClient;
     private GoogleSignInAccount acct = null;
     private DrawerAdapter adapter;
     private Fragment selectedFragment;
     private final int PERMISSION_ALL_STORAGE = 1000;
-    private  UserAccount userAccount;
-
+    private UserAccount userAccount;
+    ShowDialogPython showDialogPython;
     NetworkChangeListener networkChangeListener = new NetworkChangeListener();
     private UserInfo userInfo;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) ;
-        }else{
+            getWindow().getDecorView().setSystemUiVisibility(getWindow().getDecorView().getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        } else {
             getWindow().setStatusBarColor(Color.WHITE);
         }
-
 
 
         //to connect layout with java code
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
 
         setSupportActionBar(mainBinding.toolbar);
 
-        slidingRootNav=new SlidingRootNavBuilder(this)
+        slidingRootNav = new SlidingRootNavBuilder(this)
                 .withDragDistance(180)
                 .withRootViewScale(0.75f)
                 .withRootViewElevation(25)
@@ -135,174 +137,225 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
                 .withMenuLayout(R.layout.drawer_menu)
                 .inject();
 
-        screenIcon=loadScreenIcons();
-        screenTitle=loadScreenTitles();
+        screenIcon = loadScreenIcons();
+        screenTitle = loadScreenTitles();
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
         if (currentUser != null) {
-            FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-            db.collection("users").whereEqualTo("id",FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            readDataMe(new MyCallbackUser() {
                 @Override
-                public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                    if(task.isSuccessful()) {
-                        Log.e("task : " , " tast");
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            userAccount = document.toObject(UserAccount.class);
-                            userInfo = new UserInfo(userAccount.getName(),userAccount.getImg_profile(),MainActivity.this);
-                            adapter=new DrawerAdapter(Arrays.asList(userInfo,
-                                    createFor(HOME).setChecked(true),
-                                    createFor(PROFILE),
-                                    createFor(ALARM),
-                                    createFor(Maps),
-                                    createFor(Health),
-                                    createFor(CHAT),
-                                    createFor(FAV),
-                                    createFor(SETTING),
-                                    createFor(SHARE),
-                                    createFor(CONTACT),
-                                    createFor(FEEDBACK),
-                                    createFor(ABOUT),
-                                    new SpaceItem(50),
-                                    createFor(LOGOUT)
-                            ));
+                public void onCallback(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()) {
+                        Log.e("task : ", " tast");
+                        userAccount = documentSnapshot.toObject(UserAccount.class);
+                        userInfo = new UserInfo(userAccount.getName(), userAccount.getImg_profile(), MainActivity.this);
+                        adapter = new DrawerAdapter(Arrays.asList(userInfo,
+                                createFor(HOME).setChecked(true),
+                                createFor(PROFILE),
+                                createFor(ALARM),
+                                createFor(Maps),
+                                createFor(Health),
+                                createFor(CHAT),
+                                createFor(FAV),
+                                createFor(SETTING),
+                                createFor(SHARE),
+                                createFor(CONTACT),
+                                createFor(FEEDBACK),
+                                createFor(ABOUT),
+                                new SpaceItem(50),
+                                createFor(LOGOUT)
+                        ));
 
-                            adapter.setListener(MainActivity.this);
+                        adapter.setListener(MainActivity.this);
 
-                            RecyclerView list=findViewById(R.id.drawer_list);
+                        RecyclerView list = findViewById(R.id.drawer_list);
+                        list.setNestedScrollingEnabled(false);
+                        list.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+                        list.setAdapter(adapter);
 
-                            list.setNestedScrollingEnabled(false);
-                            list.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                            list.setAdapter(adapter);
+                        adapter.setSelected(HOME);
 
-                            adapter.setSelected(HOME);
+                        showDialogPython.dismissDialog();
+                        SharedPreferences prefs = getSharedPreferences("com.example.drhello", MODE_PRIVATE);
+                        SharedPreferences.Editor editor = getSharedPreferences("com.example.drhello", MODE_PRIVATE).edit();
+                        String id = prefs.getString("doctor", "true");//"No name defined" is the default value.
+                        Log.e("prefs.getString : ", id);
+                        if(!userAccount.getUserInformation().getType().equals("Doctor")
+                                && !userAccount.getUserInformation().getAddress_work().equals("") && id.equals("false") ){
+                            editor.putString("doctor", "true");
+                            editor.apply();
+                            AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                            LayoutInflater inflater = getLayoutInflater();
+                            View dialogView = inflater.inflate(R.layout.alert_dialog_doctor_admin, null);
+                            dialogBuilder.setView(dialogView);
+                            Button btn_enter = dialogView.findViewById(R.id.btn_enter);
+                            AlertDialog alertDialog = dialogBuilder.create();
+                            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                            alertDialog.show();
+                            Log.e("alertDialog : ", id);
+                            btn_enter.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    alertDialog.dismiss();
+                                }
+                            });
                         }
                     }
                 }
             });
 
 
-
-
         }
 
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment,new HomeFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new HomeFragment()).commit();
 
-        mainBinding.bottomNavigation.add(new MeowBottomNavigation.Model(ID_HOME,R.drawable.ic_home));
-        mainBinding.bottomNavigation.add(new MeowBottomNavigation.Model(ID_POST,R.drawable.ic_post));
-        mainBinding.bottomNavigation.add(new MeowBottomNavigation.Model(ID_NEWS,R.drawable.ic_world_news));
-        mainBinding.bottomNavigation.add(new MeowBottomNavigation.Model(ID_CHAT,R.drawable.ic_chat));
-        mainBinding.bottomNavigation.show(ID_HOME,true);
+        mainBinding.bottomNavigation.add(new MeowBottomNavigation.Model(ID_HOME, R.drawable.ic_home));
+        mainBinding.bottomNavigation.add(new MeowBottomNavigation.Model(ID_POST, R.drawable.ic_post));
+        mainBinding.bottomNavigation.add(new MeowBottomNavigation.Model(ID_NEWS, R.drawable.ic_world_news));
+        mainBinding.bottomNavigation.add(new MeowBottomNavigation.Model(ID_CHAT, R.drawable.ic_chat));
+        mainBinding.bottomNavigation.show(ID_HOME, true);
 
         String openPost = getIntent().getStringExtra("openPost");
         String post = getIntent().getStringExtra("post");
         String postsView = getIntent().getStringExtra("postsView");
         String chatactivity = getIntent().getStringExtra("chatactivity");
         ChatModel chatModel = (ChatModel) getIntent().getSerializableExtra("message");
-        if(openPost != null){
-            Log.e("openMain : ",openPost);
-            selectedFragment=new PostFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
-            mainBinding.bottomNavigation.show(ID_POST,true);
-        }else if(post != null){
-            Log.e("post : ",post);
-            selectedFragment=new PostFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
-            mainBinding.bottomNavigation.show(ID_POST,true);
-        }else if(postsView != null){
-            Log.e("post : ",postsView);
-            selectedFragment=new PostFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
-            mainBinding.bottomNavigation.show(ID_POST,true);
-        }else if(chatactivity != null){
-            Log.e("chat : ",chatactivity);
-            selectedFragment=new ChatFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
-            mainBinding.bottomNavigation.show(ID_CHAT,true);
-        }else if(chatModel != null){
+        if (openPost != null) {
+            Log.e("openMain : ", openPost);
+            selectedFragment = new PostFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
+            mainBinding.bottomNavigation.show(ID_POST, true);
+        } else if (post != null) {
+            Log.e("post : ", post);
+            selectedFragment = new PostFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
+            mainBinding.bottomNavigation.show(ID_POST, true);
+        } else if (postsView != null) {
+            Log.e("post : ", postsView);
+            selectedFragment = new PostFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
+            mainBinding.bottomNavigation.show(ID_POST, true);
+        } else if (chatactivity != null) {
+            Log.e("INTENTMAIN: ", getIntent().getStringExtra("type"));
+            Log.e("chat : ", chatactivity);
+            Bundle bundle = new Bundle();
+            if (getIntent().getStringExtra("type") != null) {
+                bundle.putString("type", getIntent().getStringExtra("type"));
+            } else {
+                Log.e("deflauttype : ", "deflauttype");
+                bundle.putString("type", "Doctor");
+            }
+
+            selectedFragment = new ChatFragment();
+            selectedFragment.setArguments(bundle);
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
+            mainBinding.bottomNavigation.show(ID_CHAT, true);
+        } else if (chatModel != null) {
             Log.e("main : ", chatModel.getMessage());
-            selectedFragment=new ChatFragment();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
-            mainBinding.bottomNavigation.show(ID_CHAT,true);
+            selectedFragment = new ChatFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
+            mainBinding.bottomNavigation.show(ID_CHAT, true);
         }
 
         mainBinding.bottomNavigation.setOnClickMenuListener(model -> {
 
-            switch (model.getId()){
+            switch (model.getId()) {
                 case ID_HOME:
-                    selectedFragment=new HomeFragment();
+                    selectedFragment = new HomeFragment();
                     break;
                 case ID_POST:
-                    selectedFragment=new PostFragment();
+                    selectedFragment = new PostFragment();
                     break;
                 case ID_CHAT:
-                    selectedFragment=new ChatFragment();
+
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString("type", "Doctor");
+                    selectedFragment = new ChatFragment();
+                    selectedFragment.setArguments(bundle);
                     break;
                 case ID_NEWS:
-                    selectedFragment=new MainNewsFragment();
+                    selectedFragment = new MainNewsFragment();
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + model.getId());
             }
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
+
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment, selectedFragment).commit();
             return null;
         });
-
 
 
         initialGoogleAccount();
 
     }
 
+    public void readDataMe(MyCallbackUser myCallback) {
+        showDialogPython = new ShowDialogPython(MainActivity.this, MainActivity.this.getLayoutInflater(), "load");
+        FirebaseFirestore.getInstance().collection("users")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        myCallback.onCallback(documentSnapshot);
+                    }
+                });
+    }
 
     @Override
     public void onItemSelected(int position) {
-        if (position==LOGOUT){
+        if (position == LOGOUT) {
             signOut();
-        }else if(position==PROFILE){
-            Intent intent=new Intent(MainActivity.this, ProfileActivity.class);
+        } else if (position == PROFILE) {
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
             startActivity(intent);
             adapter.setSelected(HOME);
-        }else if (position==ALARM){
-            Intent intent=new Intent(MainActivity.this, AlarmActivity.class);
+        } else if (position == ALARM) {
+            Intent intent = new Intent(MainActivity.this, AlarmActivity.class);
             startActivity(intent);
             adapter.setSelected(HOME);
-        }else if (position==Maps){
+        } else if (position == Maps) {
 
-            Intent intent=new Intent(MainActivity.this, MapsActivity.class);
+            Intent intent = new Intent(MainActivity.this, MapsActivity.class);
             startActivity(intent);
             adapter.setSelected(HOME);
 
-        }else if (position==Health){
-            Intent intent=new Intent(MainActivity.this, HardwareActivity.class);
+        } else if (position == Health) {
+            Intent intent = new Intent(MainActivity.this, HardwareActivity.class);
             startActivity(intent);
             adapter.setSelected(HOME);
-        }else if (position==CHAT){
-            Intent intent=new Intent(MainActivity.this, ChatBotActivity.class);
+        } else if (position == CHAT) {
+            Intent intent = new Intent(MainActivity.this, ChatBotActivity.class);
             startActivity(intent);
             adapter.setSelected(HOME);
-        }else if (position==FAV){
-            Intent intent=new Intent(MainActivity.this, SavedPostsActivity.class);
-            intent.putExtra("userAccount",userAccount);
+        } else if (position == FAV) {
+            Intent intent = new Intent(MainActivity.this, SavedPostsActivity.class);
+            intent.putExtra("userAccount", userAccount);
             startActivity(intent);
             adapter.setSelected(HOME);
-        }else if (position==ABOUT){
-            Intent intent=new Intent(MainActivity.this, AboutInfoActivity.class);
+        } else if (position == ABOUT) {
+            Intent intent = new Intent(MainActivity.this, AboutInfoActivity.class);
             startActivity(intent);
             adapter.setSelected(HOME);
-        }else if (position==FEEDBACK){
-            Intent intent=new Intent(MainActivity.this, FeedBackActivity.class);
+        } else if (position == FEEDBACK) {
+            Intent intent = new Intent(MainActivity.this, FeedBackActivity.class);
             startActivity(intent);
             adapter.setSelected(HOME);
-        }else if (position==CONTACT){
+        } else if (position == SETTING) {
+            Intent intent = new Intent();
+            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            Uri uri = Uri.fromParts("package", getPackageName(), null);
+            intent.setData(uri);
+            startActivity(intent);
+        } else if (position == CONTACT) {
+            adapter.setSelected(HOME);
             AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
             LayoutInflater inflater = this.getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.contact_us, null);
             dialogBuilder.setView(dialogView);
 
-            Button btn_google =  dialogView.findViewById(R.id.btn_google);
-            Button btn_face =  dialogView.findViewById(R.id.btn_face);
+            Button btn_google = dialogView.findViewById(R.id.btn_google);
+            Button btn_face = dialogView.findViewById(R.id.btn_face);
             AlertDialog alertDialog = dialogBuilder.create();
             alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             slidingRootNav.closeMenu();
@@ -312,8 +365,9 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             btn_face.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent browse=new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("https://www.facebook.com/Daily-News-109948707528539/"));
+
+                    Intent browse = new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("https://www.facebook.com/DrCare-112320024865817"));
                     startActivity(browse);
                     alertDialog.dismiss();
 
@@ -323,19 +377,24 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
             btn_google.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO ,
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO,
                             Uri.parse("mailto:" + "careeasy6@gmail.com"));
-                    emailIntent.putExtra(Intent.EXTRA_SUBJECT,"Contact Owner");
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Contact Owner");
                     startActivity(emailIntent);
                     alertDialog.dismiss();
 
                 }
             });
+        }else if(position == SHARE){
+            Intent sendIntent = new Intent(Intent.ACTION_SEND);
+            sendIntent.setType("text/plain");
+            sendIntent.putExtra(Intent.EXTRA_TEXT,"https://drive.google.com/drive/folders/1zY1XikA8k9Fg6GQaEOlwdQC66ExawwWP");
+            startActivity(Intent.createChooser(sendIntent, null));
         }
     }
 
-    private DrawerItem createFor(int position){
-        return new SimpleItem(screenIcon[position],screenTitle[position])
+    private DrawerItem createFor(int position) {
+        return new SimpleItem(screenIcon[position], screenTitle[position])
                 .withIconTint(color(R.color.appColorUnSelected))
                 .withTextTint(color(R.color.appColorUnSelected))
                 .withSelectedIconTint(color(R.color.appColor))
@@ -343,8 +402,8 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     }
 
     @ColorInt
-    private int color(@ColorRes int res){
-        return ContextCompat.getColor(this,res);
+    private int color(@ColorRes int res) {
+        return ContextCompat.getColor(this, res);
     }
 
     private String[] loadScreenTitles() {
@@ -352,12 +411,12 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     }
 
     private Drawable[] loadScreenIcons() {
-        TypedArray ta=getResources().obtainTypedArray(R.array.id_screenIcon);
-        Drawable[]icons=new Drawable[ta.length()];
-        for (int i=0;i<ta.length();i++){
-            int id=ta.getResourceId(i,0);
-            if (id!=0){
-                icons[i]=ContextCompat.getDrawable(this,id);
+        TypedArray ta = getResources().obtainTypedArray(R.array.id_screenIcon);
+        Drawable[] icons = new Drawable[ta.length()];
+        for (int i = 0; i < ta.length(); i++) {
+            int id = ta.getResourceId(i, 0);
+            if (id != 0) {
+                icons[i] = ContextCompat.getDrawable(this, id);
             }
         }
         ta.recycle();
@@ -368,7 +427,6 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
     public void onBackPressed() {
         super.onBackPressed();
     }
-
 
 
     private void initialGoogleAccount() {
@@ -428,7 +486,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         switch (requestCode) {
 
             case PERMISSION_ALL_STORAGE:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED ) {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // All Permissions Granted
                 }
                 return;
@@ -440,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements DrawerAdapter.OnI
         super.onResume();
         StateOfUser stateOfUser = new StateOfUser();
         stateOfUser.changeState("Online");
-        Log.e("onResume:","onResume");
+        Log.e("onResume:", "onResume");
 
     }
 

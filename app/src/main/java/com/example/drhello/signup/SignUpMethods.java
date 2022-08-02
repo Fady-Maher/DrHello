@@ -57,7 +57,7 @@ public class SignUpMethods {
     private FirebaseUser user;
     private final FirebaseFirestore db;
     private final ProgressDialog mProgress;
-
+    String phone;
 
     //for validation email or phone
     private final String PHONE;
@@ -443,7 +443,8 @@ public class SignUpMethods {
         mProgress.setMessage("Please wait...");
         mProgress.show();
         mAuth = FirebaseAuth.getInstance();
-
+        this.phone = phone;
+        Log.e("sendVerification : ", phone);
         PhoneAuthOptions options =
                 PhoneAuthOptions.newBuilder(mAuth)
                         .setPhoneNumber(phone)       // Phone number to verify
@@ -496,6 +497,7 @@ public class SignUpMethods {
                 intent.putExtra("verify_num", mVerificationId);
                 intent.putExtra("method",PHONE);
                 intent.putExtra("userAccountme",userAccountme);
+                intent.putExtra("phone",phone);
                 context.startActivity(intent);
             }
         }

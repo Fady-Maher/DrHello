@@ -9,25 +9,29 @@ import androidx.lifecycle.ViewModelProviders;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.chaquo.python.PyObject;
 import com.chaquo.python.Python;
 import com.chaquo.python.android.AndroidPlatform;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.model.UrlsModel;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.connectionnewtwork.CheckNetwork;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
@@ -102,6 +106,9 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
     PyObject main_program;
     float prop ;
     public static ShowDialogPython showDialogPython;
+    private UserAccount userAccount;
+    private UrlsModel urlsModel;
+    String result="";
 
 
     @Override
@@ -159,13 +166,25 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
                     readDataUser(new MyCallbackUser() {
                         @Override
                         public void onCallback(DocumentSnapshot documentSnapshot) {
-                            UserAccount userAccount = documentSnapshot.toObject(UserAccount.class);
+                            userAccount = documentSnapshot.toObject(UserAccount.class);
                             commentModel.setUser_image(userAccount.getImg_profile());
                             commentModel.setUser_id(userAccount.getId());
                             commentModel.setUser_name(userAccount.getName());
                             commentModel.setPost_id(posts.getPostId());
-                            asyncTaskDownload = new AsyncTaskD(null, "comment", "first");
-                            asyncTaskDownload.execute();
+                            readDataurl(new MyCallbackUser() {
+                                @Override
+                                public void onCallback(DocumentSnapshot documentSnapshot) {
+                                    if (!documentSnapshot.exists()) {
+                                        FirebaseAuth.getInstance().getCurrentUser().delete();
+                                        showDialogPython.dismissDialog();
+                                    } else {
+                                        urlsModel = documentSnapshot.toObject(UrlsModel.class);
+                                        asyncTaskDownload = new AsyncTaskD(null, "comment", "first");
+                                        asyncTaskDownload.execute();
+                                    }
+                                }
+                            });
+
                         }
                     });
                 }
@@ -259,32 +278,53 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
         MainCommentBinding.imageSend.setOnClickListener(view -> {
             if (CheckNetwork.getConnectivityStatusString(WriteCommentActivity.this) == 1) {
                 /************************************************************/
-                if (bitmap != null) {
-                    byte[] bytesOutImg;
-                    commentModel.setComment(MainCommentBinding.editMessage.getText().toString());
-                    commentModel.setDate(getDateTime());
-                    ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytesStream);
-                    bytesOutImg = bytesStream.toByteArray();
-                    asyncTaskDownload = new AsyncTaskD(bytesOutImg, commentModel.getComment(), "uploadImages");
-                    asyncTaskDownload.execute();
-                    Log.e("image123 : ", "EROR");
-                } else {
-                    Log.e("bitmap1112 : ", bitmap + "");
-                    commentModel.setComment_image(null);
-                    commentModel.setComment(MainCommentBinding.editMessage.getText().toString());
-                    commentModel.setDate(getDateTime());
-                    asyncTaskDownload = new AsyncTaskD(null, commentModel.getComment(), "");
-                    asyncTaskDownload.execute();
+                if(bitmap == null && MainCommentBinding.editMessage.getText().toString().equals("")){
+                    Toast.makeText(WriteCommentActivity.this, "Please, Write Your Comment ", Toast.LENGTH_SHORT).show();
+
+                }else{
+                    if (bitmap != null) {
+                        byte[] bytesOutImg;
+                        commentModel.setComment(MainCommentBinding.editMessage.getText().toString());
+                        commentModel.setDate(getDateTime());
+                        ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytesStream);
+                        bytesOutImg = bytesStream.toByteArray();
+                        asyncTaskDownload = new AsyncTaskD(bytesOutImg, commentModel.getComment(), "uploadImages");
+                        asyncTaskDownload.execute();
+                        Log.e("image123 : ", "EROR");
+                    } else {
+                        Log.e("bitmap1112 : ", bitmap + "");
+                        commentModel.setComment_image(null);
+                        commentModel.setComment(MainCommentBinding.editMessage.getText().toString());
+                        commentModel.setDate(getDateTime());
+                        asyncTaskDownload = new AsyncTaskD(null, commentModel.getComment(), "");
+                        asyncTaskDownload.execute();
+                    }
+                    InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(MainCommentBinding.editMessage.getWindowToken(), 0);
+
+
                 }
 
-                InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(MainCommentBinding.editMessage.getWindowToken(), 0);
 
             } else {
                 Toast.makeText(WriteCommentActivity.this, "Please, Check Internet", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void readDataurl(MyCallbackUser myCallback) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser != null) {
+            FirebaseFirestore.getInstance().collection("Admins")
+                    .document("RqE4viVs8SrFt2RxSKSw").collection("urls")
+                    .document("ZMfzJrIIgvAW8eRMsGib").get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            myCallback.onCallback(documentSnapshot);
+                        }
+                    });
+        }
     }
 
     @Override
@@ -544,29 +584,77 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
             if (action.equals("first")) {
                 Log.e("first ", " first");
                 showDialogPython.dismissDialog();
-            } else if (prop >= 0 && prop < 0.5) {
-                if (action.equals("uploadImages")) {
-                    Log.e("action: ",  "uploadImages1");
+            }else if(text.isEmpty() && action.equals("uploadImages")){
+
+                    Log.e("action: ",  "uploadImages2");
                     commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null);
                     bytesOutImg = null;
                     MainCommentBinding.editMessage.setText("");
                     bitmap = null;
-                } else {
-                    Log.e("action: ",  "text");
-                    commentViewModel.uploadComment(db, null, posts, commentModel, null);
-                    MainCommentBinding.editMessage.setText("");
+                    uploadImages();
+
+            } else if (!result.equals("error")){
+                if (prop >= 0 && prop < 0.5) {
+                    prop= 0.0F;
+                    if (action.equals("uploadImages")) {
+                        Log.e("action: ",  "uploadImages1");
+                        commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null);
+                        bytesOutImg = null;
+                        MainCommentBinding.editMessage.setText("");
+                        bitmap = null;
+                    } else {
+                        Log.e("action: ",  "text");
+                        commentViewModel.uploadComment(db, null, posts, commentModel, null);
+                        MainCommentBinding.editMessage.setText("");
+                    }
+                    uploadImages();
+                } else if (prop == 1) {
+                    prop= 0.0F;
+                    Log.e("prop failed: ", prop + "");
+
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(WriteCommentActivity.this);
+                    LayoutInflater inflater = getLayoutInflater();
+                    View dialogView = inflater.inflate(R.layout.alert_admin, null);
+                    dialogBuilder.setView(dialogView);
+                    Button btn_send = dialogView.findViewById(R.id.btn_send);
+                    Button btn_modify = dialogView.findViewById(R.id.btn_modify);
+
+                    AlertDialog alertDialog = dialogBuilder.create();
+                    alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    alertDialog.setCancelable(false);
+                    alertDialog.show();
+
+                    btn_send.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            alertDialog.dismiss();
+                            if (action.equals("uploadImages")) {
+                                Log.e("action: ",  "uploadImages1");
+                                commentViewModel.uploadCommentReject(db, bytesOutImg, posts, commentModel, null,userAccount);
+                                bytesOutImg = null;
+                                MainCommentBinding.editMessage.setText("");
+                                bitmap = null;
+                            } else {
+                                Log.e("action: ",  "text");
+                                commentViewModel.uploadCommentReject(db, null, posts, commentModel, null,userAccount);
+                                MainCommentBinding.editMessage.setText("");
+                            }
+                        }
+                    });
+
+                    btn_modify.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            showDialogPython.dismissDialog();
+                            alertDialog.dismiss();
+                        }
+                    });
                 }
-                uploadImages();
-            } else if (prop >= 0.5) {
-                Log.e("prop failed: ", prop + "");
+            }else{
                 showDialogPython.dismissDialog();
-            }else if(action.equals("uploadImages")){
-                Log.e("action: ",  "uploadImages2");
-                commentViewModel.uploadComment(db, bytesOutImg, posts, commentModel, null);
-                bytesOutImg = null;
-                MainCommentBinding.editMessage.setText("");
-                bitmap = null;
-                uploadImages();
+                Log.e("linkerro1r","comment Some Thing Wrong");
+
+                Toast.makeText(getApplicationContext(),"Some Thing Wrong when upload your Comment.",Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -598,46 +686,14 @@ public class WriteCommentActivity extends AppCompatActivity implements OnComment
     }
 
     private void modelFire(String text) {
-        String result = main_program.callAttr("predictComment", text,getKeyboardLanguage(text)).toString();
-        result = result.replace("[", "").replace("]", "");
-        String[] strings = result.split(", ");
-        Log.e("result: ", result);
-        float[][] input = new float[1][300];
-        for (int i = 0; i < strings.length; i++) {
-            input[0][i] = Float.parseFloat(strings[i]);
-        }
-        CustomModelDownloadConditions conditions = new CustomModelDownloadConditions.Builder()
-                .requireWifi()
-                .build();
-        Task<CustomModel> model;
-        if(getKeyboardLanguage(text).equals("EN")){
-            Log.e("lang : ",   "EN");
-            model = FirebaseModelDownloader.getInstance()
-                    .getModel("HateAbusiveModelEN", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions);
-        }else{
-            Log.e("lang : ",   "AR");
-            model = FirebaseModelDownloader.getInstance()
-                    .getModel("arabicHateOff", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND, conditions);
+        result = main_program.callAttr("predictComment",urlsModel.getUrl(), text,getKeyboardLanguage(text)).toString();
+        if(!result.equals("error")) {
+            prop = Float.parseFloat(result.replace("[","").replace("]","").
+                    replace("\"",""));
         }
 
-        model.addOnSuccessListener(new OnSuccessListener<CustomModel>() {
-            @Override
-            public void onSuccess(CustomModel model) {
-                File modelFile = model.getFile();
-                Log.e("modelFile : ", modelFile + "");
-                if (modelFile != null) {
-                    Interpreter interpreter = new Interpreter(modelFile);
-                    int bufferSize = 1 * java.lang.Float.SIZE / java.lang.Byte.SIZE;
-                    ByteBuffer modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder());
-                    interpreter.run(input, modelOutput);
-                    modelOutput.rewind();
-                    FloatBuffer probabilities = modelOutput.asFloatBuffer();
-                    prop = probabilities.get(0);
-                    Log.e("MAX : ", prop * 100 + "");
-                }
-            }
-        });
     }
+
     public static String getKeyboardLanguage(String s) {
         for (int i = 0; i < s.length();) {
             int c = s.codePointAt(i);

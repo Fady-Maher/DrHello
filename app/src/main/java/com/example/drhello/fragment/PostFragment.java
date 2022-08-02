@@ -1,7 +1,6 @@
 package com.example.drhello.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -27,7 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.firebaseinterface.MyCallbackDeleteItem;
 import com.example.drhello.firebaseinterface.MyCallbackDeletePost;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
@@ -281,6 +280,20 @@ public class PostFragment extends Fragment implements OnPostClickListener {
         Intent intent = new Intent(getActivity(), WriteCommentActivity.class);
         intent.putExtra("post", posts);
         startActivity(intent);
+    }
+
+    @Override
+    public void onClickShare(Posts posts) {
+        String img = "";
+        for(int i = 0 ; i < posts.getImgUri().size();i++){
+            img += "\n\n" + posts.getImgUri() ;
+        }
+        String string = "Text : " + posts.getWritePost()  +"\n"+ img;
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        sendIntent.setType("text/plain");
+        sendIntent.putExtra(Intent.EXTRA_TEXT,string);
+        startActivity(Intent.createChooser(sendIntent, null));
+
     }
 
 

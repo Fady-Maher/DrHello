@@ -18,11 +18,14 @@
     <style name="StateBarFull">
         <item name="android:windowTranslucentStatus">true</item>
     </style>
+
     <style name="Theme.DrHello.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
     <style name="Theme.DrHello.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
     <style name="Theme.DrHello.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="MySeekBar" parent="Widget.AppCompat.SeekBar">
@@ -46,7 +49,6 @@
         <item name="progressBarPadding">2dp</item>
 
     </style>
-
 
 
 </resources>

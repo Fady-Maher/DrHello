@@ -84,7 +84,7 @@
                         android:id="@+id/img_cur_user_dr"
                         android:layout_width="@dimen/_45sdp"
                         android:layout_height="@dimen/_45sdp"
-                        android:src="@drawable/me"
+                        android:src="@drawable/user"
                         app:civ_border_color="@color/appColor"
                         app:civ_border_width="0.7dp" />
 
@@ -99,7 +99,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="10dp"
-                            android:text="Dr.Hossam Medhat"
+                            android:text="User Name"
                             android:textColor="@color/appColor"
                             android:textSize="18sp"
                             android:textStyle="bold" />
@@ -309,7 +309,7 @@
                                     android:id="@+id/txt_country_dr"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="Egypt"
+                                    android:text="Country"
                                     android:textColor="@color/profile_color"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
@@ -353,7 +353,7 @@
                                     android:id="@+id/txt_city_dr"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="Cairo"
+                                    android:text="Governorate"
                                     android:textColor="@color/profile_color"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
@@ -398,7 +398,7 @@
                                 android:id="@+id/txt_address_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="65 Mahrous Street, Al-Kharrat Abu Saada"
+                                android:text="Address"
                                 android:textColor="@color/profile_color"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
@@ -447,7 +447,7 @@
                                     android:id="@+id/txt_gender_dr"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="Male"
+                                    android:text="Gender"
                                     android:textColor="@color/profile_color"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
@@ -491,7 +491,7 @@
                                     android:id="@+id/txt_birth_dr"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="March 19, 2000"
+                                    android:text="Birth Date"
                                     android:textColor="@color/profile_color"
                                     android:textSize="16sp"
                                     android:textStyle="bold" />
@@ -536,7 +536,7 @@
                                 android:id="@+id/txt_email_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/hossammedhat2000_gmail_com"
+                                android:text="Email"
                                 android:textColor="@color/profile_color"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
@@ -579,7 +579,7 @@
                                 android:id="@+id/txt_phone_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="01110459868"
+                                android:text="Phone"
                                 android:textColor="@color/profile_color"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
@@ -639,7 +639,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:layout_weight="1"
-                                android:text="Life hospital, al khusus"
+                                android:text="Address of Workplace"
                                 android:textColor="@color/profile_color"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
@@ -690,7 +690,7 @@
                                 android:id="@+id/txt_spec_in_dr"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Oral surgery department"
+                                android:text="Specialization"
                                 android:textColor="@color/profile_color"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />
@@ -788,7 +788,7 @@
                         android:id="@+id/img_cur_user_ur"
                         android:layout_width="@dimen/_45sdp"
                         android:layout_height="@dimen/_45sdp"
-                        android:src="@drawable/me"
+                        android:src="@drawable/user"
                         app:civ_border_color="@color/appColor"
                         app:civ_border_width="0.7dp" />
 
@@ -1248,7 +1248,7 @@
                                 android:id="@+id/txt_email_user"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/hossammedhat2000_gmail_com"
+                                android:text="Email"
                                 android:textColor="@color/profile_color"
                                 android:textSize="16sp"
                                 android:textStyle="bold" />

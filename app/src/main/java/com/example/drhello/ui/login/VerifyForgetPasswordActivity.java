@@ -5,6 +5,9 @@ import androidx.databinding.DataBindingUtil;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.view.View;
+
 import com.example.drhello.R;
 import com.example.drhello.databinding.ActivityVerifyForgetPasswordBinding;
 import com.example.drhello.signup.GMailSender;
@@ -21,6 +24,7 @@ public class VerifyForgetPasswordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_verify_forget_password);
 
         verifyBinding = DataBindingUtil.setContentView(this, R.layout.activity_verify_forget_password);
+       timer();
 
         if(getIntent().getStringExtra("email") != null){
             email  = getIntent().getStringExtra("email");
@@ -40,15 +44,37 @@ public class VerifyForgetPasswordActivity extends AppCompatActivity {
 
 
 
+
         verifyBinding.txtVerifyforgetNum.setOnClickListener(view -> {
             //RESEND
+            timer();
             if(!email.equals("")){
                 resendEmail(email);
             }
         });
 
+
+        verifyBinding.backVerifyforget.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
 
+
+    private void timer(){
+        new CountDownTimer(80000, 1000) {
+            public void onTick(long millisUntilFinished) {
+                verifyBinding.txtVerifyforgetNum.setEnabled(false);
+                verifyBinding.txtVerifyforgetNum.setText("Please wait "+ millisUntilFinished / 1000+" seconds to resend Code" );
+            }
+            public void onFinish() {
+                verifyBinding.txtVerifyforgetNum.setEnabled(true);
+                verifyBinding.txtVerifyforgetNum.setText("resend Code");
+            }
+        }.start();
+    }
     private void resendEmail(String email_or_phone) {
         //  String email =  userAccount.getEmail();
         Random random = new Random();

@@ -2,7 +2,6 @@ package com.example.drhello.fragment.fragmentfriends;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -22,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.firebaseinterface.MyCallBackAddFriend;
 import com.example.drhello.firebaseservice.FcmNotificationsSender;
@@ -52,7 +52,7 @@ public class AddFriendFragment extends Fragment  implements OnClickAddPersonList
     private SwipeRefreshLayout swipeRefreshLayout;
     private UserAccount userAccountme;
     private  androidx.appcompat.widget.SearchView searchView;
-    public static ProgressDialog mProgress;
+    ShowDialogPython showDialogPython;
 
     public AddFriendFragment() {
         // Required empty public constructor
@@ -64,7 +64,7 @@ public class AddFriendFragment extends Fragment  implements OnClickAddPersonList
         setHasOptionsMenu(true);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        mProgress = new ProgressDialog(getActivity());
+
     }
 
     @Override
@@ -121,9 +121,8 @@ public class AddFriendFragment extends Fragment  implements OnClickAddPersonList
 
     @Override
     public void onClick(UserAccount friendsAccount,String state) {
-        mProgress.setMessage("Uploading..");
-        mProgress.setCancelable(false);
-        mProgress.show();
+        showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
+
         if (state.equals("add")){
             Map<String, AddPersonModel> friends = friendsAccount.getRequests();
             friends.put(userAccountme.getId(), new AddPersonModel(userAccountme.getName(), userAccountme.getImg_profile(), userAccountme.getId(),userAccountme.getUserInformation().getType()));
@@ -151,7 +150,7 @@ public class AddFriendFragment extends Fragment  implements OnClickAddPersonList
                                             getActivity(),
                                             userAccountme.getImg_profile());
                                     fcmNotificationsSender.SendNotifications();
-                                    mProgress.dismiss();
+                                    showDialogPython.dismissDialog();
                                 }
                             }
                         });
@@ -179,7 +178,7 @@ public class AddFriendFragment extends Fragment  implements OnClickAddPersonList
                             public void onCallBack(Task<Void> task) {
                                 if(task.isSuccessful()){
                                     Toast.makeText(getActivity(), "Cancel successful ", Toast.LENGTH_SHORT).show();
-                                    mProgress.dismiss();
+                                    showDialogPython.dismissDialog();
                                 }
                             }
                         });
@@ -216,8 +215,8 @@ public class AddFriendFragment extends Fragment  implements OnClickAddPersonList
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                accountsSearch.clear();
                 if (newText.isEmpty()){
-                    accountsSearch.clear();
                     addPersonAdapter = new AddPersonAdapter(getActivity(), accountsSearch, AddFriendFragment.this,userAccountme);
                     rec_view.setAdapter(addPersonAdapter);
                     return false;

@@ -7,19 +7,18 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 
 import com.example.drhello.R;
-import com.example.drhello.Restarter;
-import com.example.drhello.ui.hardware.Hardware;
+import com.example.drhello.other.Restarter;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -31,7 +30,7 @@ import java.util.TimerTask;
 
 public class HardWareService extends Service {
     public int counter=0;
-
+    public Hardware lastHardware = new Hardware(0.0,0.0,0.0,0.0,"1");
     @Override
     public void onCreate() {
         super.onCreate();
@@ -71,21 +70,33 @@ public class HardWareService extends Service {
         super.onStartCommand(intent, flags, startId);
         startTimer();
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference();
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                Hardware hardware = dataSnapshot.getValue(Hardware.class);
-                Log.i("hardware", "=========  "+ (hardware.getHeart_Rate()));
-                createNotification("Heart_Rate: "+hardware.getHeart_Rate().toString(),"Temperature: "+hardware.getTemperature_C().toString());
-                //    Toast.makeText(HardWareService.this, hardware.getHeart_Rate().toString(), Toast.LENGTH_SHORT).show();
-            }
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                // Log.e("Failed to read value.", error.toException().toString());
-            }
-        });
+        SharedPreferences prefs = getSharedPreferences("com.example.drhello", MODE_PRIVATE);
+        String id = prefs.getString("id", "id");//"No name defined" is the default value.
+        if(!id.equals("id")){
+            DatabaseReference myRef = database.getReference().child(id);
+            myRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Hardware hardware = dataSnapshot.getValue(Hardware.class);
+                    if(hardware.getTemperature_F() != lastHardware.getTemperature_F()
+                            ||hardware.getTemperature_C() != lastHardware.getTemperature_C()
+                            ||hardware.getSPO2() != lastHardware.getSPO2()
+                            ||hardware.getHeart_Rate() != lastHardware.getHeart_Rate()){
+                        lastHardware = hardware;
+                        createNotification("Heart_Rate: "+hardware.getHeart_Rate().toString(),
+                                "Temperature: "+hardware.getTemperature_C().toString());
+                    }
+                    Log.i("hardware", "=========  "+ (hardware.getHeart_Rate()));
+                    //    Toast.makeText(HardWareService.this, hardware.getHeart_Rate().toString(), Toast.LENGTH_SHORT).show();
+                }
+                @Override
+                public void onCancelled(DatabaseError error) {
+                    // Failed to read value
+                    Log.e("Failed to read value.", error.toException().toString());
+                }
+            });
+        }
+
         return START_STICKY;
     }
 

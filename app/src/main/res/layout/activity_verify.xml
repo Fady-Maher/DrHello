@@ -75,14 +75,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/txt_did_you_don_t_code"
-                    android:textColor="@color/black"
-                    android:textSize="20sp"
-                    android:layout_marginRight="5dp"/>
-
-                <TextView
+                    android:enabled="false"
                     android:id="@+id/txt_verify_num"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

@@ -6,36 +6,28 @@ import androidx.databinding.DataBindingUtil;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Toast;
 
 import com.chaquo.python.PyObject;
-import com.chaquo.python.Python;
-import com.chaquo.python.android.AndroidPlatform;
-import com.example.drhello.BotActivity;
-import com.example.drhello.ChatBotlistener;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.R;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.databinding.ActivityChestBinding;
 import com.example.drhello.model.SliderItem;
 import com.example.drhello.textclean.RequestPermissions;
+import com.example.drhello.ui.news.WebViewActivity;
 
 
 import java.io.ByteArrayOutputStream;
@@ -48,12 +40,17 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
     private ActivityChestBinding activityChestBinding;
     private ArrayList<SliderItem> sliderItems=new ArrayList<>();
     private String[] stringsChest = {"Covid19", "Lung Opacity","Normal", "Pneumonia"};
+    String[] urls = {"https://www.mayoclinic.org/diseases-conditions/coronavirus/symptoms-causes/syc-20479963", // corona
+             "https://www.medicalnewstoday.com/articles/ground-glass-opacity#questions-to-ask",
+             "", // normal
+             "https://www.mayoclinic.org/diseases-conditions/pneumonia/symptoms-causes/syc-20354204"};  // pneumonia
     private static final int Gallary_REQUEST_CODE = 1;
     PyObject main_program;
     String path = "";
     private Bitmap bitmap;
     private RequestPermissions requestPermissions;
     ShowDialogPython showDialogPython;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,11 +62,15 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         }
 
         requestPermissions = new RequestPermissions(ChestActivity.this,ChestActivity.this);
-
         activityChestBinding = DataBindingUtil.setContentView(ChestActivity.this, R.layout.activity_chest);
         activityChestBinding.shimmer.startShimmerAnimation();
-        AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
-        asyncTaskDownload.execute();
+
+        AsyncTaskGeneral asyncTaskGeneral = new AsyncTaskGeneral(path,"first",
+                "corona",activityChestBinding,ChestActivity.this,
+                null,null,null,null,
+                null,null,null,null
+        );
+        asyncTaskGeneral.execute();
 
         activityChestBinding.back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +96,13 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         activityChestBinding.selImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                activityChestBinding.progressunknownchest.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityChestBinding.txtPrediction.setText("00000");
+                activityChestBinding.progresscovid.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityChestBinding.progresslung.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityChestBinding.progressnormal.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityChestBinding.progresspneu.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+
                 if (requestPermissions.permissionStorageRead()) {
                     ActivityCompat.requestPermissions(ChestActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                             Gallary_REQUEST_CODE);
@@ -114,13 +122,34 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
             public void onClick(View view) {
                 if (bitmap != null) {
                     if(!path.equals("")){
-                        AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD(path,"");
-                        asyncTaskDownloadAudio.execute();
+                        activityChestBinding.txtPrediction.setText("");
+                        AsyncTaskGeneral asyncTaskGeneral = new AsyncTaskGeneral(path,"corona",
+                                "corona",activityChestBinding,ChestActivity.this,
+                                null,null,null,null,
+                                null,null,null,null
+                                );
+                        asyncTaskGeneral.execute();
                     }
-
                     bitmap = null;
                 }else{
                     Toast.makeText(ChestActivity.this, "Please, Choose Image First!!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        activityChestBinding.txtGo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ChestActivity.this, WebViewActivity.class);
+                if(activityChestBinding.txtPrediction.getText().toString().equals("0")){
+                    intent.putExtra("url",urls[0]);
+                    startActivity(intent);
+                }else if(activityChestBinding.txtPrediction.getText().toString().equals("1")){
+                    intent.putExtra("url",urls[1]);
+                    startActivity(intent);
+                }else if(activityChestBinding.txtPrediction.getText().toString().equals("3")){
+                    intent.putExtra("url",urls[3]);
+                    startActivity(intent);
                 }
             }
         });
@@ -164,53 +193,5 @@ public class ChestActivity extends AppCompatActivity implements OnClickDoctorInt
         String result = cursor.getString(idx);
         cursor.close();
         return result;
-    }
-
-
-    public class AsyncTaskD extends AsyncTask<String, String, String> {
-
-        String path;
-        String action;
-        String[] prop;
-        public AsyncTaskD(String path,String action){
-            this.path = path;
-            this.action = action;
-        }
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showDialogPython = new ShowDialogPython(ChestActivity.this,ChestActivity.this.getLayoutInflater(),"load");
-        }
-
-        @Override
-        protected String doInBackground(String... f_url) {
-            if(action.equals("first")){
-                if (! Python.isStarted()) {
-                    Python.start(new AndroidPlatform(ChestActivity.this));//error is here!
-                }
-                final Python py = Python.getInstance();
-                main_program = py.getModule("prolog");
-            }else{
-                String result = main_program.callAttr("model",path,"Corona").toString();
-                String[] listResult = result.split("@");
-                int prediction = Integer.parseInt(listResult[0]);
-                String probStr = listResult[1].replace("[","")
-                        .replace("]","")
-                        .replace("\"","");
-                prop = probStr.split(" ");
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String file_url) {
-            if(!action.equals("first")){
-                activityChestBinding.progresscovid.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
-                activityChestBinding.progresslung.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
-                activityChestBinding.progressnormal.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
-                activityChestBinding.progresspneu.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
-            }
-            showDialogPython.dismissDialog();
-        }
     }
 }

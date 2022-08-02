@@ -18,13 +18,8 @@ android {
                 {
                     buildPython "C:\\Users\\Fady\\AppData\\Local\\Programs\\Python\\Python39\\python.exe"
                     pip {
-
                         install "requests"
-                        install "pyspellchecker"
                         install "deep_translator"
-                        install "langdetect"
-                        install "joblib"
-                        install "sklearn"
                     }
                 }
         ndk {
@@ -192,6 +187,10 @@ dependencies {
 // optional - Test helpers
     androidTestImplementation "androidx.work:work-testing:$work_version"
     implementation 'com.github.sujithkanna:smileyrating:2.0.0'
+
     implementation 'com.github.Adilhusen:circle-progress-ad-android-:1.0'
+
+
+    compile 'com.codemybrainsout.onboarding:onboarder:1.0.4'
 }
 apply plugin: 'com.google.gms.google-services'

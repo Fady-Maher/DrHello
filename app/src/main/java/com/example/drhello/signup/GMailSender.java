@@ -156,7 +156,7 @@ public class GMailSender extends AsyncTask<Void,Void,Void> {
 
     public static class Config {
         public static final String EMAIL ="careeasy6@gmail.com"; //your-gmail-username
-        public static final String PASSWORD ="careeasy125@_"; //your-gmail-password
+        public static final String PASSWORD ="dfetnibzyywhrcuv"; //your-gmail-password
 
     }
 }

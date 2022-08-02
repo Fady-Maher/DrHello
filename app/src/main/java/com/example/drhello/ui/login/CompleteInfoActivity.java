@@ -22,7 +22,8 @@ import android.widget.DatePicker;
 import android.widget.Toast;
 
 import com.example.drhello.R;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.other.ShowDialogPython;
+import com.example.drhello.signup.SignUpMethods;
 import com.example.drhello.ui.chats.StateOfUser;
 import com.example.drhello.databinding.ActivityCompleteInfoBinding;
 import com.example.drhello.model.UserAccount;
@@ -57,26 +58,26 @@ public class CompleteInfoActivity extends AppCompatActivity {
     private ActivityCompleteInfoBinding activityCompleteInfoBinding;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private String gender ="";
+    private String gender = "";
     private Locale[] locales = Locale.getAvailableLocales();
     private ArrayList<String> countries = new ArrayList<String>();
     private String[] specialist = new String[]{"Occupational and environmental medicine",
-            "Obstetrics and gynaecology" ,
-            "Sport and exercise medicine", "Dermatology","Emergency medicine",
+            "Obstetrics and gynaecology",
+            "Sport and exercise medicine", "Dermatology", "Emergency medicine",
             "Physician", "Medical administration", "Anaesthesia",
             "Pathology", "Palliative medicine", "Sexual health medicine",
             "Radiation oncology", "Surgery", "Radiology", "General practice",
             "Intensive care medicine", "Paediatrics and child health", "Rehabilitation medicine",
-            "Ophthalmology", "Psychiatry", "Public health medicine", "Addiction medicine" , "Pain medicine"};
+            "Ophthalmology", "Psychiatry", "Public health medicine", "Addiction medicine", "Pain medicine"};
     private static final int Gallary_REQUEST_CODE = 1;
     private UserAccount userAccount;
     private Bitmap bitmap;
-    private HashMap map,mapspecialist;
-    private ArrayList<String> arrayAdaptermapcity =  new ArrayList<String>();
-    private ArrayList<String> arrayAdaptermapspec =  new ArrayList<String>();
+    private HashMap map, mapspecialist;
+    private ArrayList<String> arrayAdaptermapcity = new ArrayList<String>();
+    private ArrayList<String> arrayAdaptermapspec = new ArrayList<String>();
 
     public static LatLng location;
-    ShowDialogPython showDialogPython;
+    public static ShowDialogPython showDialogPython;
 
 
     @Override
@@ -226,7 +227,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
             ArrayList<Float> res = new ArrayList<>();
             JSONObject jsonObject = new JSONObject(Objects.requireNonNull(JsonDataFromAsset("specialist.json")));
             mapspecialist = new Gson().fromJson(jsonObject.toString(), HashMap.class);
-            Log.e("CITIES :",mapspecialist.keySet().toString());
+            Log.e("CITIES :", mapspecialist.keySet().toString());
 
         } catch (
                 JSONException e) {
@@ -262,6 +263,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
                         arrayAdaptermapcity);
                 activityCompleteInfoBinding.spinnerCityDr.setAdapter(adapterCity);
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
             }
@@ -271,10 +273,10 @@ public class CompleteInfoActivity extends AppCompatActivity {
         activityCompleteInfoBinding.spinnerSpec.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Log.e("CITIES :", mapspecialist.get(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()])+"");
+                Log.e("CITIES :", mapspecialist.get(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]) + "");
                 arrayAdaptermapspec = (ArrayList<String>) mapspecialist.get(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]);
 
-                ArrayAdapter<String> adapterSpecialistIn = new ArrayAdapter<String>(CompleteInfoActivity.this,android.R.layout.simple_spinner_item,
+                ArrayAdapter<String> adapterSpecialistIn = new ArrayAdapter<String>(CompleteInfoActivity.this, android.R.layout.simple_spinner_item,
                         arrayAdaptermapspec);
 
                 activityCompleteInfoBinding.spinnerSpecIn.setAdapter(adapterSpecialistIn);
@@ -313,8 +315,10 @@ public class CompleteInfoActivity extends AppCompatActivity {
         activityCompleteInfoBinding.btnAddress.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                showDialogPython = new ShowDialogPython(CompleteInfoActivity.this, CompleteInfoActivity.this.getLayoutInflater(), "load");
+
                 Intent intent = new Intent(CompleteInfoActivity.this, MapsActivity.class);
-                intent.putExtra("map","map");
+                intent.putExtra("map", "map");
                 startActivity(intent);
             }
         });
@@ -336,25 +340,38 @@ public class CompleteInfoActivity extends AppCompatActivity {
 
     }
 
+    private void checkphonenumbercorrecyuser(UserAccount userAccount, String pphone, String phone, UserInformation userInformation) {
+        if (activityCompleteInfoBinding.editPhoneUser.getText().toString().equals("")) {
+            updataInformation(userInformation);
+        } else {
+            if (pphone.matches("[0-9]+") && isValidPhoneNumber(pphone)) {
+                //write code of phone here ya fady
+                Log.e("PHONE : ", phone);
+                String phonenum = "+" + phone;
+                showDialogPython.dismissDialog();
+                SignUpMethods signUpMethods = new SignUpMethods(userAccount, CompleteInfoActivity.this, userInformation);
+                signUpMethods.sendVerificationCode(phonenum);
+            } else {
+                Toast.makeText(getApplicationContext(), "invalid phone number , please try again!!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
     private void checkphonenumbercorrecy(UserAccount userAccount, String pphone, String phone, UserInformation userInformation) {
         //check if phone
-
         if (pphone.matches("[0-9]+") && isValidPhoneNumber(pphone)) {
             //write code of phone here ya fady
             Log.e("PHONE : ", phone);
             String phonenum = "+" + phone;
-       /*     SignUpMethods signUpMethods = new SignUpMethods(userAccount, CompleteInfoActivity.this, userInformation);
+            showDialogPython.dismissDialog();
+            SignUpMethods signUpMethods = new SignUpMethods(userAccount, CompleteInfoActivity.this, userInformation);
             signUpMethods.sendVerificationCode(phonenum);
-*/
-            updataInformation(userInformation);
         } else {
             Toast.makeText(getApplicationContext(), "invalid phone number , please try again!!", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void updataInformation(UserInformation userInformation) {
-        //users//id//userinformation//id --> to seperate data
         userAccount.setUserInformation(userInformation);
         db.collection("users").document(mAuth.getCurrentUser().getUid())
                 .set(userAccount)
@@ -444,6 +461,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
             uploadImage(bitmap);
         }
     }
+
     private void checkValidationUser() {
 
         String editAddressUser = Objects.requireNonNull(activityCompleteInfoBinding.editAddressUser).getText().toString().trim();
@@ -461,11 +479,6 @@ public class CompleteInfoActivity extends AppCompatActivity {
             activityCompleteInfoBinding.editStateUser.requestFocus();
             return;
         }
-        if (editPhoneUser.isEmpty()) {
-            activityCompleteInfoBinding.editPhoneUser.setError("Address Phone is needed");
-            activityCompleteInfoBinding.editPhoneUser.requestFocus();
-            return;
-        }
 
         if (txtBirthdayUser.isEmpty()) {
             Toast.makeText(getApplicationContext(), "Please, Check your Birth", Toast.LENGTH_SHORT).show();
@@ -477,7 +490,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
             return;
         }
 
-        showDialogPython = new ShowDialogPython(CompleteInfoActivity.this,CompleteInfoActivity.this.getLayoutInflater(),"load");
+        showDialogPython = new ShowDialogPython(CompleteInfoActivity.this, CompleteInfoActivity.this.getLayoutInflater(), "load");
         String fullNumber = activityCompleteInfoBinding.ccp.getFullNumber();
         UserInformation userInformation = new UserInformation(
                 countries.get(activityCompleteInfoBinding.spinnerCountryUser.getSelectedItemPosition()),
@@ -490,13 +503,12 @@ public class CompleteInfoActivity extends AppCompatActivity {
                 activityCompleteInfoBinding.txtBirthdayUser.getText().toString(),
                 gender, "normal user");
         userInformation.setPhone(activityCompleteInfoBinding.editPhoneUser.getText().toString());
-        checkphonenumbercorrecy(userAccount, activityCompleteInfoBinding.editPhoneUser.getText().toString(), fullNumber + activityCompleteInfoBinding.editPhoneUser.getText().toString(), userInformation);
-
+        checkphonenumbercorrecyuser(userAccount, activityCompleteInfoBinding.editPhoneUser.getText().toString(), fullNumber + activityCompleteInfoBinding.editPhoneUser.getText().toString(), userInformation);
     }
 
 
     private void uploadImage(Bitmap bitmap) {
-        showDialogPython = new ShowDialogPython(CompleteInfoActivity.this,CompleteInfoActivity.this.getLayoutInflater(),"load");
+        showDialogPython = new ShowDialogPython(CompleteInfoActivity.this, CompleteInfoActivity.this.getLayoutInflater(), "load");
 
         ByteArrayOutputStream output_image = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, output_image);
@@ -523,7 +535,7 @@ public class CompleteInfoActivity extends AppCompatActivity {
                                 gender,
                                 uri.toString(),
                                 activityCompleteInfoBinding.editClinicDr.getText().toString());
-
+                        userInformation.setState("wait");
                         userInformation.setSpecification(specialist[activityCompleteInfoBinding.spinnerSpec.getSelectedItemPosition()]);
                         userInformation.setSpecification_in(arrayAdaptermapspec.get(activityCompleteInfoBinding.spinnerSpecIn.getSelectedItemPosition()));
                         userInformation.setPhone(activityCompleteInfoBinding.editPhoneDr.getText().toString());
@@ -564,8 +576,8 @@ public class CompleteInfoActivity extends AppCompatActivity {
         super.onResume();
         StateOfUser stateOfUser = new StateOfUser();
         stateOfUser.changeState("Online");
-        if(location!= null)
-            activityCompleteInfoBinding.editAddressWorkDr.setText(location+"");
+        if (location != null)
+            activityCompleteInfoBinding.editAddressWorkDr.setText(location + "");
     }
 
     @Override

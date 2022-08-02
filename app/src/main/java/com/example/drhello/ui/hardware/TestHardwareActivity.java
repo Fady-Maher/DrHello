@@ -12,12 +12,11 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.location.LocationManager;
@@ -32,12 +31,13 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.drhello.R;
-import com.example.drhello.Restarter;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.other.Restarter;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
 import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.chats.StateOfUser;
@@ -55,7 +55,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
+
 public class TestHardwareActivity extends AppCompatActivity {
+
 
     private ActivityTestHardwareBinding activityTestHardwareBinding;
     private Handler handlerAnimation=new Handler();
@@ -67,6 +70,9 @@ public class TestHardwareActivity extends AppCompatActivity {
     private UserAccount userAccountme;
     private boolean flag = true;
     ShowDialogPython showDialogPython;
+    DatabaseReference myRef;
+    FirebaseDatabase database = FirebaseDatabase.getInstance();
+    private ArrayList<String> IDS = new ArrayList<>();
 
 
 
@@ -107,8 +113,46 @@ public class TestHardwareActivity extends AppCompatActivity {
             Window w = getWindow();
             w.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         }
+        database.getReference().addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot ds:snapshot.getChildren()){
+                    String ID=ds.child("ID").getValue().toString();
+                    IDS.add(ID);
+                }
+            }
 
-        activityTestHardwareBinding= DataBindingUtil.setContentView(TestHardwareActivity.this,R.layout.activity_test_hardware);
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        activityTestHardwareBinding = DataBindingUtil.setContentView(TestHardwareActivity.this,R.layout.activity_test_hardware);
+
+        SharedPreferences prefs = getSharedPreferences("com.example.drhello", MODE_PRIVATE);
+        String id = prefs.getString("id", "id");//"No name defined" is the default value.
+        if(id.equals("id")){
+            showDialogFirst();
+        }else{
+            if(flag){
+                database = FirebaseDatabase.getInstance();
+                myRef = database.getReference().child(id);
+                myRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Hardware hardware = snapshot.getValue(Hardware.class);
+                        activityTestHardwareBinding.txtTemp.setText(hardware.getTemperature_C()+" °C/ "+hardware.getTemperature_F()+"°F");
+                        activityTestHardwareBinding.txtCo2.setText(hardware.getSPO2()+" %");
+                        activityTestHardwareBinding.txtHearyRate.setText(hardware.getHeart_Rate()+" pulse/min");
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+        }
 
         readDataMe(new MyCallbackUser() {
             @Override
@@ -172,15 +216,7 @@ public class TestHardwareActivity extends AppCompatActivity {
                     startPulse();
                 }
 
-                if(flag){
-                    hardWareService = new HardWareService();
-                    mServiceIntent = new Intent(TestHardwareActivity.this, hardWareService.getClass());
-                    if (!isMyServiceRunning(hardWareService.getClass())) {
-                        startService(mServiceIntent);
-                    }
-                    flag = false;
-                    showDialog();
-                }
+
             }
         });
 
@@ -200,21 +236,55 @@ public class TestHardwareActivity extends AppCompatActivity {
         activityTestHardwareBinding.shimmer.startShimmerAnimation();
         activityTestHardwareBinding.shimmerRight.startShimmerAnimation();
 
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference();
 
-        myRef.addValueEventListener(new ValueEventListener() {
+
+
+
+    }
+
+    private void showDialogFirst() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(TestHardwareActivity.this);
+        LayoutInflater inflater = TestHardwareActivity.this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialogenteridhardware, null);
+        dialogBuilder.setView(dialogView);
+        EditText editText = dialogView.findViewById(R.id.edit_id);
+        Button btn_cancel = dialogView.findViewById(R.id.btn_cancel);
+        Button btn_enter = dialogView.findViewById(R.id.btn_enter);
+        AlertDialog alertDialog = dialogBuilder.create();
+        alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        alertDialog.setCancelable(false);
+        alertDialog.show();
+
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Hardware hardware = snapshot.getValue(Hardware.class);
-                activityTestHardwareBinding.txtTemp.setText(hardware.getTemperature_C()+" °C/ "+hardware.getTemperature_F()+"°F");
-                activityTestHardwareBinding.txtCo2.setText(hardware.getSPO2()+" %");
-                activityTestHardwareBinding.txtHearyRate.setText(hardware.getHeart_Rate()+" pulse/min");
+            public void onClick(View view) {
+                alertDialog.dismiss();
+                finish();
             }
-
+        });
+        btn_enter.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
+            public void onClick(View view) {
+                String id = editText.getText().toString();
+                if(IDS.contains(id)){
+                    Log.e("IDValid: ", "IID");
+                    SharedPreferences.Editor editor = getSharedPreferences("com.example.drhello", MODE_PRIVATE).edit();
+                    editor.putString("id", id);
+                    editor.apply();
+                    if(flag){
+                        hardWareService = new HardWareService();
+                        mServiceIntent = new Intent(TestHardwareActivity.this, hardWareService.getClass());
+                        if (!isMyServiceRunning(hardWareService.getClass())) {
+                            startService(mServiceIntent);
+                        }
+                        flag = false;
+                        showDialog();
+                    }
+                    alertDialog.dismiss();
+                }else{
+                    Log.e("INIDValid: ", "IID");
+                    Toast.makeText(getApplicationContext(),"Please, Enter Valid ID",Toast.LENGTH_SHORT);
+                }
             }
         });
     }
@@ -377,5 +447,11 @@ public class TestHardwareActivity extends AppCompatActivity {
                 myCallback.onCallback(documentSnapshot);
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 }

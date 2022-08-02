@@ -1,6 +1,5 @@
 package com.example.drhello.fragment.fragmentchat;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -13,20 +12,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.Glide;
 import com.example.drhello.R;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.adapter.FriendsAdapter;
 import com.example.drhello.adapter.OnFriendsClickListener;
-import com.example.drhello.adapter.UserStateAdapter;
 import com.example.drhello.firebaseinterface.MyCallBackChats;
-import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
-import com.example.drhello.fragment.ChatFragment;
 import com.example.drhello.model.AddPersonModel;
 import com.example.drhello.model.ChatModel;
 import com.example.drhello.model.LastChat;
 import com.example.drhello.model.UserAccount;
-import com.example.drhello.model.UserState;
 import com.example.drhello.ui.chats.ChatActivity;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,7 +30,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -45,7 +39,7 @@ public class DoctorsFragment extends Fragment implements OnFriendsClickListener 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
     private ArrayList<LastChat> userAccountArrayList = new ArrayList<>();
-    public static ProgressDialog mProgress;
+    ShowDialogPython showDialogPython;
     private UserAccount userAccount;
     public DoctorsFragment() {
         // Required empty public constructor
@@ -63,10 +57,12 @@ public class DoctorsFragment extends Fragment implements OnFriendsClickListener 
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_doctors, container, false);
+
+
         recyclerView = view.findViewById(R.id.rec_view);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
-        mProgress = new ProgressDialog(getActivity());
+
 
         readData(new MyCallbackUser() {
             @Override
@@ -76,7 +72,8 @@ public class DoctorsFragment extends Fragment implements OnFriendsClickListener 
                 }else{
                     userAccount = documentSnapshot.toObject(UserAccount.class);
                 }
-                mProgress.dismiss();
+                showDialogPython.dismissDialog();
+
             }
         });
 
@@ -132,9 +129,7 @@ public class DoctorsFragment extends Fragment implements OnFriendsClickListener 
     public void readData(MyCallbackUser myCallback) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            mProgress.setMessage("Loading..");
-            mProgress.setCancelable(false);
-            mProgress.show();
+            showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
             FirebaseFirestore.getInstance().collection("users")
                     .document(currentUser.getUid()).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -150,6 +145,8 @@ public class DoctorsFragment extends Fragment implements OnFriendsClickListener 
         Intent intent = new Intent(getActivity(), ChatActivity.class);
         intent.putExtra("friendAccount", lastChat.getIdFriend());
         intent.putExtra("userAccount", userAccount);
+        intent.putExtra("type", "Doctor");
+        intent.putExtra("typeactivity", "Doctor");
         ChatModel chatModel = (ChatModel) getActivity().getIntent().getSerializableExtra("message");
         if (chatModel != null) {
             Log.e("getActivity:", chatModel.getMessage());

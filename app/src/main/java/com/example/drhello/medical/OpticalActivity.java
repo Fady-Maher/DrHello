@@ -6,14 +6,12 @@ import androidx.databinding.DataBindingUtil;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -22,15 +20,14 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.chaquo.python.PyObject;
-import com.chaquo.python.Python;
-import com.chaquo.python.android.AndroidPlatform;
 import com.example.drhello.R;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.adapter.OnClickDoctorInterface;
 import com.example.drhello.adapter.SliderAdapter;
 import com.example.drhello.databinding.ActivityOpticalBinding;
 import com.example.drhello.model.SliderItem;
 import com.example.drhello.textclean.RequestPermissions;
+import com.example.drhello.ui.news.WebViewActivity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -42,6 +39,12 @@ public class OpticalActivity extends AppCompatActivity implements OnClickDoctorI
     private ActivityOpticalBinding activityOpticalBinding;
     private ArrayList<SliderItem> sliderItems=new ArrayList<>();
     private String[] stringsOptical = {"CNV", "DRUSEN","DME", "NORMAL"};
+    private String[] urls = {"https://eyewiki.aao.org/Choroidal_Neovascularization:_OCT_Angiography_Findings",
+            "https://www.webmd.com/eye-health/what-are-retinal-drusen",
+            "https://www.webmd.com/diabetes/diabetic-macular-edema-causes-symptoms",
+            ""};
+
+
 
     private static final int Gallary_REQUEST_CODE = 1;
     PyObject main_program;
@@ -66,8 +69,12 @@ public class OpticalActivity extends AppCompatActivity implements OnClickDoctorI
         activityOpticalBinding = DataBindingUtil.setContentView(OpticalActivity.this, R.layout.activity_optical);
         activityOpticalBinding.shimmer.startShimmerAnimation();
 
-        AsyncTaskD asyncTaskDownload = new AsyncTaskD(path,"first");
-        asyncTaskDownload.execute();
+        AsyncTaskGeneral asyncTaskGeneral = new AsyncTaskGeneral(path,"first",
+                "optical",null,null,
+                null,null,null,null,
+                OpticalActivity.this,activityOpticalBinding,null,null
+        );
+        asyncTaskGeneral.execute();
 
         activityOpticalBinding.back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +100,13 @@ public class OpticalActivity extends AppCompatActivity implements OnClickDoctorI
         activityOpticalBinding.selImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                activityOpticalBinding.progressunknownoptical.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityOpticalBinding.progresscnv.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityOpticalBinding.progressdru.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityOpticalBinding.progresssdmi.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityOpticalBinding.progressnormal.setAdProgress((int) (Float.parseFloat(String.valueOf(0.0)) * 100));
+                activityOpticalBinding.txtPrediction.setText("");
+
                 if (requestPermissions.permissionStorageRead()) {
                     ActivityCompat.requestPermissions(OpticalActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                             Gallary_REQUEST_CODE);
@@ -112,13 +126,39 @@ public class OpticalActivity extends AppCompatActivity implements OnClickDoctorI
             public void onClick(View view) {
                 if (bitmap != null) {
                     if(!path.equals("")){
-                        AsyncTaskD asyncTaskDownloadAudio = new AsyncTaskD(path,"");
-                        asyncTaskDownloadAudio.execute();
+
+
+                        activityOpticalBinding.txtPrediction.setText("00000");
+
+                        AsyncTaskGeneral asyncTaskGeneral = new AsyncTaskGeneral(path,"optical",
+                                "optical",null,null,
+                                null,null,null,null,
+                                OpticalActivity.this,activityOpticalBinding,null,null
+                        );
+                        asyncTaskGeneral.execute();
                     }
 
                     bitmap = null;
                 }else{
                     Toast.makeText(OpticalActivity.this, "Please, Choose Image First!!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+
+        activityOpticalBinding.txtGo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(OpticalActivity.this, WebViewActivity.class);
+                if(activityOpticalBinding.txtPrediction.getText().toString().equals("2")){
+                    intent.putExtra("url",urls[0]);
+                    startActivity(intent);
+                }else if(activityOpticalBinding.txtPrediction.getText().toString().equals("4")){
+                    intent.putExtra("url",urls[1]);
+                    startActivity(intent);
+                }else if(activityOpticalBinding.txtPrediction.getText().toString().equals("4")){
+                    intent.putExtra("url",urls[2]);
+                    startActivity(intent);
                 }
             }
         });
@@ -166,53 +206,4 @@ public class OpticalActivity extends AppCompatActivity implements OnClickDoctorI
     }
 
 
-    public class AsyncTaskD extends AsyncTask<String, String, String> {
-
-        String path;
-        String action;
-        String[] prop;
-        public AsyncTaskD(String path,String action){
-            this.path = path;
-            this.action = action;
-        }
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            showDialogPython = new ShowDialogPython(OpticalActivity.this,OpticalActivity.this.getLayoutInflater(),"load");
-
-        }
-
-        @Override
-        protected String doInBackground(String... f_url) {
-            if(action.equals("first")){
-                if (! Python.isStarted()) {
-                    Python.start(new AndroidPlatform(OpticalActivity.this));//error is here!
-                }
-                final Python py = Python.getInstance();
-                main_program = py.getModule("prolog");
-            }else{
-                String result = main_program.callAttr("model",path,"Corona").toString();
-                String[] listResult = result.split("@");
-                int prediction = Integer.parseInt(listResult[0]);
-                String probStr = listResult[1].replace("[","")
-                        .replace("]","")
-                        .replace("\"","");
-                prop = probStr.split(" ");
-
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String file_url) {
-            if(!action.equals("first")){
-                activityOpticalBinding.progresscnv.setAdProgress((int) (Float.parseFloat(prop[0]) *100));
-                activityOpticalBinding.progressdru.setAdProgress((int) (Float.parseFloat(prop[1]) *100));
-                activityOpticalBinding.progresssdmi.setAdProgress((int) (Float.parseFloat(prop[2]) *100));
-                activityOpticalBinding.progressnormal.setAdProgress((int) (Float.parseFloat(prop[3]) *100));
-            }
-            showDialogPython.dismissDialog();
-        }
-    }
 }

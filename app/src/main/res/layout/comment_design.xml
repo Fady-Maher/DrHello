@@ -57,7 +57,7 @@
                     android:id="@+id/user_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/hossam_medhat"
+                    android:text="User Name"
                     android:textSize="18sp"
                     android:textColor="@color/appColor"
                     android:textStyle="bold"/>
@@ -79,7 +79,7 @@
             android:id="@+id/user_name_only"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/hossam_medhat"
+            android:text="User Name"
             android:textSize="18sp"
             android:layout_marginTop="@dimen/_5sdp"
             android:layout_marginLeft="@dimen/_10sdp"

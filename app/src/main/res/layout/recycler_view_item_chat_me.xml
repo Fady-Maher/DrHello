@@ -189,17 +189,6 @@
 
     </androidx.cardview.widget.CardView>
 
-    <ImageButton
-        android:id="@+id/btn_share_message_me"
-        android:layout_width="@dimen/_25sdp"
-        android:layout_height="@dimen/_25sdp"
-        android:background="@drawable/ic_reply_chat"
-        android:rotationY="180"
-        android:layout_marginRight="5dp"
-        app:layout_constraintBottom_toBottomOf="@+id/card_me"
-        app:layout_constraintTop_toTopOf="@+id/card_me"
-        app:layout_constraintRight_toLeftOf="@+id/card_me"
-        app:layout_constraintVertical_bias="0.527" />
 
     <TextView
         android:id="@+id/txt_timestamp_me"

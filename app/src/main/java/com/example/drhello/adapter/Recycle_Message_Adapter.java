@@ -41,7 +41,10 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
     private OnClickMessageListener onClickMessageListener;
     private int lastLongClickPosition = -2;
 
-    public Recycle_Message_Adapter(ArrayList<ChatModel> list_message, Context context, Bitmap bitmap,OnClickMessageListener onClickMessageListener) {
+    public Recycle_Message_Adapter(ArrayList<ChatModel> list_message,
+                                   Context context, Bitmap bitmap,
+                                   OnClickMessageListener
+                                           onClickMessageListener) {
         this.list_message = list_message;
         this.context = context;
         this.bitmap = bitmap;
@@ -327,18 +330,6 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
                 }
 
 
-                chatViewHolderMe.getBtn_share_message().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(context, MainActivity.class);
-                        intent.putExtra("message",message);
-                        context.startActivity(intent);
-                    }
-                });
-
-
-
-
                 chatViewHolderMe.getBtn_download_record_me().setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -354,12 +345,17 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
 
             case viewholderotherID:
                 ChatViewHolderOther chatViewHolderOther = (ChatViewHolderOther) holder;
+
+                Log.e("messages bitmap : ", bitmap+"");
+                chatViewHolderOther.getImage_profile().setImageBitmap(bitmap);
+
                 if (message.getMessage().equals("") && message.getRecord().equals("")) { // image recieve
 
 
                     chatViewHolderOther.getTxt_date().setText(splitDateTime(message.getDate())[0]);
                     chatViewHolderOther.getTxt_timestamp().setText(timestamp);
-                    chatViewHolderOther.getImage_profile().setImageBitmap(bitmap);
+
+
                     try{
                         Glide.with(context).load(message.getImage()).placeholder(R.drawable.ic_chat)
                                 .error(R.drawable.ic_chat).into(chatViewHolderOther.getImageView());
@@ -386,7 +382,7 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
                     chatViewHolderOther.getTxt_message().setMovementMethod(LinkMovementMethod.getInstance());
                     chatViewHolderOther.getTxt_message().setHighlightColor(Color.TRANSPARENT);
                     chatViewHolderOther.getTxt_timestamp().setText(timestamp);
-                    chatViewHolderOther.getImage_profile().setImageBitmap(bitmap);
+
                     chatViewHolderOther.getImageView().setVisibility(View.GONE);
                     chatViewHolderOther.getTxt_message().setVisibility(View.VISIBLE);
                     chatViewHolderOther.getConstraint().setVisibility(View.GONE);
@@ -398,7 +394,7 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
 
                     chatViewHolderOther.getTxt_date().setText(splitDateTime(message.getDate())[0]);
                     chatViewHolderOther.getTxt_timestamp().setText(timestamp);
-                    chatViewHolderOther.getImage_profile().setImageBitmap(bitmap);
+
                     chatViewHolderOther.getTxt_message().setVisibility(View.GONE);
                     chatViewHolderOther.getImageView().setVisibility(View.GONE);
                     chatViewHolderOther.getTxt_time_start().setText("00:00");
@@ -478,16 +474,6 @@ public class Recycle_Message_Adapter extends RecyclerView.Adapter<RecyclerView.V
 
 
                 }
-
-
-                chatViewHolderOther.getBtn_share_message().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(context, MainActivity.class);
-                        intent.putExtra("message",message);
-                        context.startActivity(intent);
-                    }
-                });
 
 
                 chatViewHolderOther.getBtn_download_record_other().setOnClickListener(new View.OnClickListener() {

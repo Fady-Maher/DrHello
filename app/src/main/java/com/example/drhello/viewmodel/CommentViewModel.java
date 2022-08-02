@@ -1,6 +1,5 @@
 package com.example.drhello.viewmodel;
 
-import android.app.ProgressDialog;
 import android.net.Uri;
 import android.util.Log;
 
@@ -8,9 +7,10 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.model.CommentRejects;
 import com.example.drhello.model.CommentModel;
 import com.example.drhello.model.Posts;
+import com.example.drhello.model.UserAccount;
 import com.example.drhello.ui.writecomment.InsideCommentActivity;
 import com.example.drhello.ui.writecomment.WriteCommentActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -89,7 +89,6 @@ public class CommentViewModel extends ViewModel {
             }
         });
     }
-
     public void uploadCommentInside(FirebaseFirestore db,
                               byte[] bytes, Posts posts, CommentModel commentModel, CommentModel commentModel2) {
         storageReference = FirebaseStorage.getInstance().getReference(posts.getUserId());
@@ -146,9 +145,6 @@ public class CommentViewModel extends ViewModel {
             }
         });
     }
-
-
-
     private void uploadImage(byte[] bytes, Posts posts, CommentModel commentModel
             , StorageReference storageReference, FirebaseFirestore db,
                              CommentModel commentModel2) {
@@ -249,5 +245,217 @@ public class CommentViewModel extends ViewModel {
     }
     
 
+/**************************************************************************/
+public void uploadCommentReject(FirebaseFirestore db,
+                                byte[] bytes, Posts posts, CommentModel commentModel, CommentModel commentModel2, UserAccount userAccount) {
+    storageReference = FirebaseStorage.getInstance().getReference(posts.getUserId());
+    Completable completable1 = Completable.fromAction(new Action() {
+        @Override
+        public void run() throws Exception {
+            CommentRejects commentRejects = new CommentRejects(commentModel.getComment(),commentModel.getUser_image()
+                    ,commentModel.getUser_id(),commentModel.getUser_name(),commentModel.getDate(),commentModel.getComment_image(),
+                    commentModel.getReactions(), commentModel.getReactionNumber());
+            commentRejects.setPost_id(commentModel.getPost_id());
+            commentRejects.setEmail(userAccount.getEmail());
+            db.collection("commentsReject").add(commentRejects) // generate outside id
+                    .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                            if (task.isSuccessful()) {
+                                String id = task.getResult().getId();
+                                commentRejects.setId_outside(id);
+                                commentRejects.setId_inside("");
+                                db.collection("commentsReject").document(commentRejects.getId_outside())
+                                        .set(commentRejects).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if(task.isSuccessful()){
+                                            if (bytes != null) {
+                                                Log.e("POP : ", "");
+                                                uploadImageReject(bytes, posts, commentModel, storageReference, db, commentModel2,commentRejects);
+                                            } else {
+                                                WriteCommentActivity.showDialogPython.dismissDialog();
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    });
+        }
+    });
+    completable1.subscribe(new CompletableObserver() {
+        @Override
+        public void onSubscribe(@NonNull Disposable d) {
+
+        }
+
+        @Override
+        public void onComplete() {
+            Log.d(TAG, "onComplete: Uploading");
+        }
+
+        @Override
+        public void onError(@NonNull Throwable e) {
+
+        }
+    });
+}
+    public void uploadCommentInsideReject(FirebaseFirestore db,
+                                    byte[] bytes, Posts posts, CommentModel commentModel, CommentModel commentModel2,UserAccount userAccount) {
+        CommentRejects commentRejects = new CommentRejects(commentModel2.getComment(),commentModel.getUser_image()
+                ,commentModel.getUser_id(),commentModel.getUser_name(),commentModel.getDate(),commentModel.getComment_image(),
+                commentModel.getReactions(), commentModel.getReactionNumber());
+        commentRejects.setPost_id(commentModel.getPost_id());
+        commentRejects.setId_outside(commentModel.getComment_id());
+        commentRejects.setEmail(userAccount.getEmail());
+
+        storageReference = FirebaseStorage.getInstance().getReference(posts.getUserId());
+        Completable completable1 = Completable.fromAction(new Action() {
+            @Override
+            public void run() throws Exception {
+                db.collection("commentsReject").add(commentRejects)
+                        .addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentReference> task) {
+                                if (task.isSuccessful()) {
+                                    String id = task.getResult().getId();
+                                    commentRejects.setId_inside(id);
+
+                                    Log.e("commentRejects : ", commentRejects.getId_inside());
+                                    db.collection("commentsReject").document(commentRejects.getId_inside())
+                                            .set(commentRejects).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if(task.isSuccessful()){
+                                                if (bytes != null) {
+                                                    Log.e("POP : ", "");
+                                                    uploadImageReject(bytes, posts, commentModel, storageReference, db, commentModel2,commentRejects);
+                                                } else {
+                                                    Log.e("mProgress : ", "mProgress");
+                                                    InsideCommentActivity.showDialogPython.dismissDialog();
+                                                }
+
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                        });
+            }
+        });
+        completable1.subscribe(new CompletableObserver() {
+            @Override
+            public void onSubscribe(@NonNull Disposable d) {
+
+            }
+
+            @Override
+            public void onComplete() {
+                Log.d(TAG, "onComplete: Uploading");
+            }
+
+            @Override
+            public void onError(@NonNull Throwable e) {
+
+            }
+        });
+    }
+    private void uploadImageReject(byte[] bytes, Posts posts, CommentModel commentModel
+            , StorageReference storageReference, FirebaseFirestore db,
+                             CommentModel commentModel2,CommentRejects commentRejects) {
+        if (commentModel2 == null) {
+            Log.e("getComment_id : ", commentRejects.getId_outside());
+            StorageReference ref = storageReference.child(posts.getPostId() + "/images/commentRejects/"
+                    + commentRejects.getId_outside() + "/" + UUID.nameUUIDFromBytes(bytes));
+            ref.putBytes(bytes)
+                    .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                saveUriReject(ref, db, commentModel, commentModel2,commentRejects);
+                            } else {
+                                //Toast.makeText(WritePostsActivity.this, "Loading not done", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    //Toast.makeText(WritePostsActivity.this, "Image not loading error : "+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Log.e("getComment_id : ", commentRejects.getId_outside());
+            StorageReference ref = storageReference.child(posts.getPostId() + "/images/commentRejects/"
+                    + commentRejects.getId_outside() + "/"
+                    + commentRejects.getId_inside() + "/" + UUID.nameUUIDFromBytes(bytes));
+            ref.putBytes(bytes)
+                    .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                saveUriReject(ref, db, commentModel, commentModel2,commentRejects);
+                            } else {
+                                //Toast.makeText(WritePostsActivity.this, "Loading not done", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    //Toast.makeText(WritePostsActivity.this, "Image not loading error : "+e.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+    private void saveUriReject(StorageReference ref, FirebaseFirestore db,
+                               CommentModel commentModel, CommentModel commentModel2,CommentRejects commentRejects) {
+
+        if (commentModel2 == null) {
+            ref.getDownloadUrl()
+                    .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            commentRejects.setComment_image(uri.toString());
+                            db.collection("commentsReject").document(commentRejects.getId_outside())
+                                   .set(commentRejects).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful())
+                                        WriteCommentActivity.showDialogPython.dismissDialog();
+                                }
+                            });
+                            // WriteCommentActivity.mProgress.dismiss();
+                            Log.e("saveUri : ", commentRejects.getId_outside());
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("errorH : ", e.getMessage());
+                }
+            });
+        } else {
+            ref.getDownloadUrl()
+                    .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            commentRejects.setComment_image(uri.toString());
+                            db.collection("commentsReject").document(commentRejects.getId_inside())
+                                    .set(commentRejects).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    Log.e("task onComp: ", task.isSuccessful()+"");
+                                    InsideCommentActivity.showDialogPython.dismissDialog();
+                                }
+                            });
+                            Log.e("saveUri : ", commentRejects.getId_outside());
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("errorH : ", e.getMessage());
+                }
+            });
+        }
+    }
 
 }

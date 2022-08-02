@@ -1,12 +1,12 @@
 package com.example.drhello.fragment;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
@@ -15,23 +15,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.FrameLayout;
 
 import com.bumptech.glide.Glide;
-import com.example.drhello.ShowDialogPython;
+import com.example.drhello.ui.chats.ChatSearchUserActivity;
+import com.example.drhello.other.ShowDialogPython;
 import com.example.drhello.adapter.OnClickFriendStateLinstener;
-import com.example.drhello.adapter.TapChatAdapter;
-import com.example.drhello.adapter.TapFriendAdapter;
 import com.example.drhello.fragment.fragmentchat.DoctorsFragment;
+import com.example.drhello.fragment.fragmentchat.NormalUsersFragment;
 import com.example.drhello.ui.chats.AddPersonActivity;
-import com.example.drhello.model.LastChat;
-import com.example.drhello.firebaseinterface.MyCallBackChats;
 import com.example.drhello.firebaseinterface.MyCallBackListenerComments;
 import com.example.drhello.firebaseinterface.MyCallbackUser;
-import com.example.drhello.model.AddPersonModel;
 import com.example.drhello.ui.chats.ChatActivity;
-import com.example.drhello.adapter.FriendsAdapter;
 import com.example.drhello.R;
-import com.example.drhello.adapter.OnFriendsClickListener;
 import com.example.drhello.adapter.UserStateAdapter;
 import com.example.drhello.model.ChatModel;
 import com.example.drhello.model.UserState;
@@ -57,7 +54,6 @@ public class ChatFragment extends Fragment implements OnClickFriendStateLinstene
     private ArrayList<UserState> userStates = new ArrayList<>();
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private ArrayList<LastChat> userAccountArrayList = new ArrayList<>();
     private FloatingActionButton add_user;
     private CircleImageView img_cur_user;
     private UserAccount userAccount;
@@ -65,6 +61,15 @@ public class ChatFragment extends Fragment implements OnClickFriendStateLinstene
 
     ViewPager view_pager;
     View view;
+
+
+
+    private Button btn_search;
+    TabLayout tabLayout;
+    FrameLayout frameLayout;
+    Fragment fragment = null;
+    FragmentManager fragmentManager;
+    FragmentTransaction fragmentTransaction;
     public ChatFragment() {
     }
 
@@ -78,7 +83,9 @@ public class ChatFragment extends Fragment implements OnClickFriendStateLinstene
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-         view = inflater.inflate(R.layout.fragment_chat, container, false);
+        view = inflater.inflate(R.layout.fragment_chat, container, false);
+        String type = getArguments().getString("type");
+        btn_search = view.findViewById(R.id.btn_search);
         Log.e("onCreateView: " ,"FIRST");
         recyclerView_state = view.findViewById(R.id.recycle_users);
         add_user = view.findViewById(R.id.add_user);
@@ -131,31 +138,69 @@ public class ChatFragment extends Fragment implements OnClickFriendStateLinstene
         });
         /*************************************************/
 
-         view_pager = view.findViewById(R.id.view_pager);
         TabLayout tabLayout = view.findViewById(R.id.Tab);
-        tabLayout.addTab(tabLayout.newTab().setText("Doctors").setIcon(R.drawable.doctor_tab2),0);
-        tabLayout.addTab(tabLayout.newTab().setText("Users").setIcon(R.drawable.ic_user),1);
-        TapChatAdapter adapter = new TapChatAdapter( getFragmentManager(),
-                tabLayout.getTabCount()
-        );
-        view_pager.setAdapter(adapter);
-        view_pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        frameLayout = view.findViewById(R.id.frameLayout);
+        if(type.equals("Normal")){
+            Log.e("INTENTChat: " ,type);
+            fragment = new NormalUsersFragment();
+            TabLayout.Tab tab = tabLayout.getTabAt(1);
+            tab.select();
+        }else{
+            Log.e("INTENTChat: " ,type);
+            fragment = new DoctorsFragment();
+            TabLayout.Tab tab = tabLayout.getTabAt(0);
+            tab.select();
+        }
+
+        fragmentManager = getActivity().getSupportFragmentManager();
+        fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frameLayout, fragment);
+        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        fragmentTransaction.commit();
+
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                Log.e("onlTAP:",tab.getPosition()+"");
-
-                view_pager.setCurrentItem(tab.getPosition());
+                // Fragment fragment = null;
+                switch (tab.getPosition()) {
+                    case 0:
+                        fragment = new DoctorsFragment();
+                        break;
+                    case 1:
+                        fragment = new NormalUsersFragment();
+                        break;
+                }
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                FragmentTransaction ft = fm.beginTransaction();
+                ft.replace(R.id.frameLayout, fragment);
+                ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                ft.commit();
             }
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
+
             }
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
+
+
+        btn_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), ChatSearchUserActivity.class);
+                startActivity(intent);
+            }
+        });
+
+
+
+
+
 
 
         return view;
@@ -168,7 +213,7 @@ public class ChatFragment extends Fragment implements OnClickFriendStateLinstene
     }
 
     public void readDataUsersListener(MyCallBackListenerComments myCallback) {
-        showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
+       // showDialogPython = new ShowDialogPython(getActivity(),getActivity().getLayoutInflater(),"load");
 
         db.collection("users").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override

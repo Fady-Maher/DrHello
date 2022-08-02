@@ -89,7 +89,7 @@
                         android:id="@+id/img_cur_dr"
                         android:layout_width="150dp"
                         android:layout_height="100dp"
-                        android:src="@drawable/me"
+                        android:src="@drawable/user"
                         app:civ_border_color="@color/appColor"
                         app:civ_border_width="0.7dp" />
 
@@ -352,7 +352,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
-                            android:hint="@string/hossammedhat2000_gmail_com"
+                            android:hint="Enter Your Email"
                             android:layout_marginRight="5dp"
                             android:textStyle="bold"
                             android:textSize="16sp"
@@ -687,8 +687,7 @@
                         android:scaleType="centerCrop"
                         android:src="@drawable/user"
                         app:civ_border_color="@color/appColor"
-                        app:civ_border_width="0.7dp"
-                        />
+                        app:civ_border_width="0.7dp" />
 
 
                     <androidx.cardview.widget.CardView
@@ -786,7 +785,7 @@
                             android:layout_width="170dp"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
-                            android:hint="Hossam Medhat"
+                            android:hint="User Name"
                             android:layout_marginRight="5dp"
                             android:textStyle="bold"
                             android:textSize="16sp"
@@ -907,7 +906,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
-                            android:hint="65 Mahrous Street, Al-Kharrat Abu Saada"
+                            android:hint="Enter Your Address"
                             android:layout_marginRight="5dp"
                             android:textStyle="bold"
                             android:textSize="16sp"
@@ -946,7 +945,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
-                            android:hint="@string/hossammedhat2000_gmail_com"
+                            android:hint="Enter Your Email"
                             android:layout_marginRight="5dp"
                             android:textStyle="bold"
                             android:textSize="16sp"
@@ -983,7 +982,7 @@
                             android:layout_width="170dp"
                             android:layout_height="wrap_content"
                             android:drawableRight="@drawable/ic_rename"
-                            android:hint="01110459868"
+                            android:hint="Enter Your Phone"
                             android:textStyle="bold"
                             android:textSize="16sp"
                             android:textColor="@color/profile_color" />
@@ -1017,14 +1016,14 @@
 
                         <EditText
                             android:id="@+id/edit_birth_user"
-                            android:layout_width="170dp"
-                            android:layout_height="wrap_content"
-                            android:drawableRight="@drawable/ic_rename"
-                            android:hint="March 19, 2000"
+                            android:layout_width="216dp"
+                            android:layout_height="match_parent"
                             android:layout_marginRight="5dp"
-                            android:textStyle="bold"
+                            android:drawableRight="@drawable/ic_rename"
+                            android:hint="Enter Your Birth Date"
+                            android:textColor="@color/profile_color"
                             android:textSize="16sp"
-                            android:textColor="@color/profile_color" />
+                            android:textStyle="bold" />
                     </LinearLayout>
 
 

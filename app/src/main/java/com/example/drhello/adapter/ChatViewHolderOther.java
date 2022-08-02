@@ -33,7 +33,7 @@ public class ChatViewHolderOther extends RecyclerView.ViewHolder {
         txt_timestamp = itemView.findViewById(R.id.txt_timestamp_other);
         image_profile = itemView.findViewById(R.id.image_profile_other);
         imageView = itemView.findViewById(R.id.image_chat_other);
-        btn_share_message = itemView.findViewById(R.id.btn_share_message_other);
+
 
 
         //player media
